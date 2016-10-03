@@ -22,6 +22,14 @@ var crypto = require('crypto');
 var app = express();
 app.enable('trust proxy');
 
+//var app = express.createServer();
+//
+//app.use(express.staticProvider(__dirname + '/public'));
+//
+//app.get('/', function(req, res) {
+//    res.render('test_2.html');
+//});
+
 // By default, the client will authenticate using the service account file
 // specified by the GOOGLE_APPLICATION_CREDENTIALS environment variable and use
 // the project specified by the GCLOUD_PROJECT environment variable. See
@@ -40,17 +48,17 @@ var datastore = Datastore();
  * @param {object} visit The visit record to insert.
  * @param {function} callback The callback function.
  */
-function insertVisit (visit, callback) {
-  datastore.save({
-    key: datastore.key('visit'),
-    data: visit
-  }, function (err) {
-    if (err) {
-      return callback(err);
-    }
-    return callback();
-  });
-}
+//function insertVisit (visit, callback) {
+//  datastore.save({
+//    key: datastore.key('visit'),
+//    data: visit
+//  }, function (err) {
+//    if (err) {
+//      return callback(err);
+//    }
+//    return callback();
+//  });
+//}
 // [END insertVisit]
 
 // [START getVisits]
@@ -59,21 +67,28 @@ function insertVisit (visit, callback) {
  *
  * @param {function} callback The callback function.
  */
-function getVisits (callback) {
-  var query = datastore.createQuery('visit')
-    .order('-timestamp')
-    .limit(10);
-
-  datastore.runQuery(query, function (err, entities) {
-    if (err) {
-      return callback(err);
-    }
-    return callback(null, entities.map(function (entity) {
-      return 'Time: ' + entity.data.timestamp + ', AddrHash: ' + entity.data.userIp;
-    }));
-  });
-}
+//function getVisits (callback) {
+//  var query = datastore.createQuery('visit')
+//    .order('-timestamp')
+//    .limit(10);
+//
+//  datastore.runQuery(query, function (err, entities) {
+//    if (err) {
+//      return callback(err);
+//    }
+//    return callback(null, entities.map(function (entity) {
+//      return 'Time: ' + entity.data.timestamp + ', AddrHash: ' + entity.data.userIp;
+//    }));
+//  });
+//}
 // [END getVisits]
+
+app.set('views', __dirname + '/views');
+// default extension is `ejs`
+app.set('view engine', 'ejs');
+
+// here you render `orders` template
+//response.render("orders", {orders: orders_json});
 
 app.get('/', function (req, res, next) {
   // Create a visit record to be stored in the database
@@ -97,7 +112,8 @@ app.get('/', function (req, res, next) {
       return res
         .status(200)
         .set('Content-Type', 'text/plain')
-        .send('Last 10 visits test:\n' + visits.join('\n'));
+         .render('test_2');
+//        .send('Last 10 visits test:\n' + visits.join('\n'));
     });
   });
 });
@@ -111,7 +127,7 @@ var server = app.listen(process.env.PORT || 8080, function () {
 // [END app]
 
 module.exports = app;
-
+//
 //
 //fs = require('fs');
 //

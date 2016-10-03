@@ -12,11 +12,30 @@
 # limitations under the License.
 
 # [START app_yaml]
+version: nhutth
 runtime: nodejs
 vm: true
+api_version: 1
 
 # [START env_variables]
 env_variables:
     GCLOUD_PROJECT: sateraito-business-chat
+
+manual_scaling:
+  instances: 1
+
+handlers:
+
+- url: /(.*\.(html|css|js))
+  static_files: static/\1
+  upload: static/(.*\.(html|css|js))
+
+- url: /
+  static_files: template/test_2.html
+  upload: template/test_2.html
+
+- url: /.*
+  script: app.js
+  login: required
 # [END env_variables]
 # [END app_yaml]
