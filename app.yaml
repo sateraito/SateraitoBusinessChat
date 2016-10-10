@@ -20,3 +20,11 @@ env_variables:
     GCLOUD_PROJECT: sateraito-business-chat
 # [END env_variables]
 # [END app_yaml]
+
+manual_scaling:
+  instances: 1
+
+handlers:
+- url: /.*
+  script: IGNORED
+  secure: always

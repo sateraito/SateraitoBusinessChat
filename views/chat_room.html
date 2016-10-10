@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>チャット画面</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        user_email = "<%= user_email %>"
+    </script>
+
+</head>
+<style>
+
+</style>
+
+<body>
+<div id="create_new_chat" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">チャットを開始</h4>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="chat_user_list" placeholder="メールアドレスを入れてください。">
+                <input type="hidden" id="chat_organizer" value="<%= user_email %>">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="start_new_chat">開始</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="chat_container">
+    <h2 class="chat_title"><%= user_email %></h2>
+    <p class="chat_info_message" style="color:red"></p>
+    <div class="chat_wrapper">
+
+
+    </div>
+    <div class="send_message_wrapper">
+        <input type="text" class="message_text" name="message_text" placeholder="メッセージを入れてください。">
+        <input type="hidden" value="">
+        <button id="send_message">送信</button>
+    </div>
+    <a href="javascript:void(0)" onclick="createNewChat()" class="create_chat_icon"><img src="image/new_chat_icon.png"></a>
+
+</div>
+
+</body>
+</html>

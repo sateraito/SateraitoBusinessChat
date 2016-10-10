@@ -1,130 +1,394 @@
-// Copyright 2015-2016, Google, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+var utilities = require("./utilities");
 
-// [START app]
-'use strict';
-
-// [START setup]
-var express = require('express');
-var crypto = require('crypto');
-
+var express = require("express");
+var path = require('path');
 var app = express();
-app.enable('trust proxy');
+var server = require("http").createServer(app);
+var io = require('socket.io')(server);
+var fs = require("fs");
+var bcrypt = require('bcrypt');
+// Create a password salt
+var salt = bcrypt.genSaltSync(10);
 
-// By default, the client will authenticate using the service account file
-// specified by the GOOGLE_APPLICATION_CREDENTIALS environment variable and use
-// the project specified by the GCLOUD_PROJECT environment variable. See
-// https://googlecloudplatform.github.io/gcloud-node/#/docs/google-cloud/latest/guides/authentication
-// These environment variables are set automatically on Google App Engine
-var Datastore = require('@google-cloud/datastore');
+//Config EJS
+var bodyParser = require('body-parser');
+var jsonParser = bodyParser.json();
 
-// Instantiate a datastore client
-var datastore = Datastore();
-// [END setup]
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
-// [START insertVisit]
-/**
- * Insert a visit record into the database.
- *
- * @param {object} visit The visit record to insert.
- * @param {function} callback The callback function.
- */
-function insertVisit (visit, callback) {
-  datastore.save({
-    key: datastore.key('visit'),
-    data: visit
-  }, function (err) {
-    if (err) {
-      return callback(err);
+app.engine('.html', require('ejs').__express);
+// app.set('/', __dirname + '/views');
+app.set('view engine', 'html');
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Routing
+var nodemailer = require('nodemailer');
+
+// //Config datastore
+// var Datastore = require('@google-cloud/datastore');
+//
+// // Instantiate a datastore client
+// var datastore = Datastore();
+
+
+//Config Express
+app.use(express.static(__dirname + '/views'));
+
+server.listen(process.env.PORT || 8000);
+
+
+//Config session
+//TODO generate secret for Node session instead of sateraito_secret
+var cookieParser = require('cookie-parser');
+var session = require('express-session');
+
+app.use(cookieParser());
+app.use(session(
+    {
+        secret: 'fhfasiHJBBFLFLDASBDAGDadadaasl12',
+        resave: false,
+        saveUninitialized: true
     }
-    return callback();
-  });
-}
-// [END insertVisit]
+));
 
-// [START getVisits]
-/**
- * Retrieve the latest 10 visit records from the database.
- *
- * @param {function} callback The callback function.
- */
-function getVisits (callback) {
-  var query = datastore.createQuery('visit')
-    .order('-timestamp')
-    .limit(10);
+app.get("/", function (req, res) {
 
-  datastore.runQuery(query, function (err, entities) {
-    if (err) {
-      return callback(err);
-    }
-    return callback(null, entities.map(function (entity) {
-      return 'Time: ' + entity.data.timestamp + ', AddrHash: ' + entity.data.userIp;
-    }));
-  });
-}
-// [END getVisits]
+    res.render("index", {})
+});
 
-app.get('/', function (req, res, next) {
-  // Create a visit record to be stored in the database
-  var visit = {
-    timestamp: new Date(),
-    // Store a hash of the visitor's ip address
-    userIp: crypto.createHash('sha256').update(req.ip).digest('hex').substr(0, 7)
-  };
+app.get("/sign-up", function (req, res) {
 
-  insertVisit(visit, function (err) {
-    if (err) {
-      return next(err);
+    res.render("sign-up", {})
+});
+
+app.post("/do-sign-up", jsonParser, function (req, res) {
+    //Create MySQL connection
+    var connection = utilities.getMySqlConnection();
+    var email = req.body.email;
+    var password = req.body.password;
+    var password_again = req.body.password_again;
+
+    //Check password and password_again is matched or not
+    if (password != password_again) {
+        res.json({"status": "password error"})
     }
 
-    // Query the last 10 visits from the datastore.
-    getVisits(function (err, visits) {
-      if (err) {
-        return next(err);
-      }
+    //Check email is existed or not
+    connection.query('SELECT * FROM UserInfo WHERE email="' + email + '"', function (err, rows) {
+        if (!err) {
+            //Email is already registered
+            if (rows.length == 0) {
+                //Create new account in DB
+                var new_user_id = utilities.generateUserId();
+                // Salt and hash password
+                var hash_password = bcrypt.hashSync(password, salt)
+                var post = {id: new_user_id, email: email, password: hash_password};
+                connection.query('INSERT INTO UserInfo SET ?', post, function (err, rows) {
+                    if (!err) {
+                        if (rows.affectedRows == 1) {
+                            console.log("registereddffdsfs");
+                            req.session.user_id = new_user_id;
+                            req.session.user_email = email;
 
-      return res
-        .status(200)
-        .set('Content-Type', 'text/plain')
-        .send('Last 10 visits test:\n' + visits.join('\n'));
+                            //Close connection
+                            connection.end(function (err) {
+
+                            });
+                            console.log("registered!!");
+                            res.json({"status": "ok"})
+
+
+                        } else {
+                            //Close connection
+                            connection.end(function (err) {
+
+                            });
+                            console.log("registered failed");
+                            res.json({"status": "db error"})
+
+                        }
+
+
+                    } else {
+                        console.log('Error while Sign up new user');
+                    }
+
+
+                });
+
+
+            } else {
+                //Close connection
+                connection.end(function (err) {
+
+                });
+                console.log("email is already existed");
+                res.json({"status": "email existed"})
+            }
+
+
+        } else {
+            console.log('Error while Check user existing');
+
+        }
+
     });
-  });
+
+
 });
 
-// [START listen]
-var server = app.listen(process.env.PORT || 8080, function () {
-  console.log('App listening on port %s', server.address().port);
-  console.log('Press Ctrl+C to quit.');
+app.post("/user-login", jsonParser, function (req, res) {
+    //Create MySQL connection
+    var connection = utilities.getMySqlConnection();
+    var email = req.body.email;
+    var password = req.body.password;
+
+
+    connection.query('SELECT * FROM UserInfo WHERE email="' + email + '"', function (err, rows) {
+        if (!err) {
+            //email is ok
+            if (rows.length > 0) {
+                //check if password is OK
+                bcrypt.compare(password, rows[0].password, function (err, matches) {
+                    if (err) {
+                        console.log('Error while checking password');
+                    } else if (matches) {
+                        req.session.user_id = rows[0].id;
+                        req.session.user_email = email;
+
+                        res.json({"status": "ok"})
+                        console.log("login ok");
+                        //Close connection
+                        connection.end(function (err) {
+
+                        });
+                    } else {
+                        res.json({"status": "invalid account"})
+                        console.log("password wrong");
+                        //Close connection
+                        connection.end(function (err) {
+
+                        });
+
+                    }
+
+                });
+
+            } else {
+                //Email is not ok
+                res.json({"status": "invalid account"});
+                console.log("email wrong");
+                //Close connection
+                connection.end(function (err) {
+
+                });
+
+            }
+
+        } else {
+            console.log('Error while Check user');
+
+        }
+
+    });
+
 });
-// [END listen]
-// [END app]
 
-module.exports = app;
 
+app.get("/chat-room", function (req, res) {
+    console.log("req.session.user_id", req.session.user_id);
+    if (req.session.user_id) {
+        res.render("chat_room", {user_email: req.session.user_email, user_id: req.session.user_id})
+    }
+    else {
+        res.redirect("/");
+    }
+
+});
+
+// app.get("/chat-room-2", function (req, res) {
+//     console.log("req.session.user_id", req.session.user_id);
+//     if (req.session.user_id) {
+//         res.render("chat_room_2", {
+//             user_email: req.session.user_email,
+//             user_id: req.session.user_id,
+//             member_list: req.session.member_list
+//         })
+//     }
+//     else {
+//         res.redirect("/");
+//     }
 //
-//fs = require('fs');
-//
-//
-//fs.readFile('./test_2.html', function (err, html) {
-//    if (err) {
-//        throw err;
-//    }
-//
-//    http.createServer(function(request, response) {
-//        response.writeHeader(200, {"Content-Type": "text/html"});
-//        response.write(html);
-//        response.end();
-//    }).listen(8080);
-//    console.log('test');
-//});
+// });
+
+
+app.post("/create-chat", jsonParser, function (req, res) {
+    var connection = utilities.getMySqlConnection();
+    var member_list = req.body.member_list;
+    var organizer_email = req.body.organizer_email;
+
+
+
+    //TODO Check if conversation member have already register "Sateraito Business Chat". If yes create conversation, if no invite them
+    //TODO and force they register Sateraito business chat
+
+    //Create new conversation
+    var new_conversation_id = utilities.generateConversationId();
+    var post = {
+        id: new_conversation_id,
+        organizer: organizer_email,
+        member: member_list
+
+    };
+
+    connection.query('INSERT INTO Conversation SET ?', post, function (err, rows) {
+        if (!err) {
+            if (rows.affectedRows == 1) {
+                req.session.member_list = member_list;
+                req.session.conversation_id = new_conversation_id;
+
+                res.json({"status": "ok","conversation_id": new_conversation_id});
+                //Close connection
+                connection.end(function (err) {
+
+                });
+
+                //TODO update friend_list and conversation_list of user
+                // //Created conversation and saved it into DB of organizer
+                // connection.query('SELECT * FROM UserInfo WHERE email="' + organizer_email + '"', function (err, rows) {
+                //     if (!err) {
+                //         //update user friend list and conversation list
+                //         if (rows.length > 0) {
+                //             var current_friend_list = rows[0].friend_list;
+                //             var current_conversation_list = rows[0].conversation_list;
+                //
+                //             var new_friend_list = null;
+                //             var new_conversation_list = null;
+                //
+                //
+                //             if (current_friend_list) {
+                //                 var current_friend_array = current_friend_list.split(",");
+                //                 member_list.split(",").forEach(function (val, i) {
+                //                     if (current_friend_array.indexOf(val) == -1) {
+                //                         current_friend_array.push(val);
+                //
+                //                     }
+                //                     new_friend_list = current_friend_array.toString();
+                //                 });
+                //
+                //             } else {
+                //                 new_friend_list = member_list;
+                //             }
+                //
+                //
+                //             if (current_conversation_list) {
+                //                 var current_conversation_array = current_conversation_list.split(",");
+                //                 new_conversation_list = current_conversation_array.push(new_conversation_id).toString();
+                //             } else {
+                //                 new_conversation_list = new_conversation_id;
+                //             }
+                //
+                //             if (new_friend_list) {
+                //                 //Update user friend list
+                //                 connection.query('UPDATE UserInfo SET friend_list = ? WHERE email = ?', [new_friend_list, organizer_email])
+                //             }
+                //
+                //             if (new_conversation_list) {
+                //                 //Update user conversation list
+                //                 connection.query('UPDATE UserInfo SET conversation_list = ? WHERE email = ?', [new_conversation_list, organizer_email])
+                //             }
+                //
+                //             res.json({"status": "ok"});
+                //             //Close connection
+                //             connection.end(function (err) {
+                //
+                //             });
+                //
+                //
+                //         } else {
+                //             //Email is not ok
+                //             res.json({"status": "invalid account"});
+                //             console.log("email wrong");
+                //             //Close connection
+                //             connection.end(function (err) {
+                //
+                //             });
+                //
+                //         }
+                //
+                //     } else {
+                //         console.log('Error while Check user');
+                //
+                //     }
+                //
+                // });
+
+
+            } else {
+                //something went wrong
+                res.json({"status": "not ok"});
+                //Close connection
+                connection.end(function (err) {
+
+                });
+
+            }
+
+        } else {
+            console.log('Error while add new conversation');
+
+        }
+
+    });
+
+
+});
+
+
+io.on('connection', function (socket) {
+
+    // when the client emits 'add user', this listens and executes
+    socket.on('user login', function (user_email) {
+        socket.user_email = user_email;
+
+    });
+
+
+    socket.on("hearing", function (data) {
+        console.log("I am hearing, " + data.user_email);
+        socket.emit('joined', {
+            user_email: socket.user_email
+        })
+
+    });
+
+    socket.on("start new conversation", function (data) {
+        console.log("conversation started, conversation_id is " + data.conversation_id);
+        socket.emit('conversation ready', {
+            conversation_id: data.conversation_id,
+            organizer_email: data.organizer_email,
+            member_list: data.member_list
+        })
+
+    });
+
+
+    socket.on("send message", function (data) {
+        console.log("message is " + data.message_text);
+        console.log("user is " + data.user_email);
+
+        var message_info = {
+            user_email: data.user_email,
+            message_text: data.message_text
+        }
+        message_list.push(message_info);
+
+        io.sockets.emit("new message", {
+            user_email: data.user_email,
+            message_text: data.message_text
+        })
+
+    });
+
+});

@@ -9,14 +9,18 @@
     "node": "^4.2.2"
   },
   "scripts": {
-    "start": "node app.js",
-    "test": "mocha -R spec -t 120000 --require intelli-espower-loader ../../test/_setup.js test/*.test.js"
+    "start": "node app.js"
   },
   "dependencies": {
-    "@google-cloud/datastore": "^0.1.1",
-    "express": "^4.13.4"
-  },
-  "devDependencies": {
-    "mocha": "^3.0.2"
+    "express": "*",
+    "socket.io": "*",
+    "socketio-file-upload": "^0.4.4",
+    "ejs": "latest",
+    "body-parser": "latest",
+    "nodemailer": "latest",
+    "mysql": "^2.11.0",
+    "express-session": "latest",
+    "cookie-parser": "*",
+    "bcrypt": "*"
   }
 }
