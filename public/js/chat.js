@@ -1,29 +1,41 @@
 $(function() {
 
-    // var socket = io();
-    // socket.emit("hearing",{
-    //     user_email: user_email
-    // });
+    var socket = io();
+    socket.emit("hearing",{
+        user_email: user_email
+    });
 
     //TODO When loading main chat page, emit to check conversation list and unread message etc.
 
+    //After login, check available conversation
+
+    socket.emit("check available conversation",{
+        user_email: user_email
+    });
+
+    socket.on("available conversation detected",function (data) {
+        var chat_info_message = "";
+        data.conversation_list.forEach(function (val,i) {
+            chat_info_message += "Conversation_id : "+ val.id +", member_list : " + val.member_list + ", organizer_email : " + val.organizer + "\n"
+        });
+        //TODO do something after detected available conversation
+        $(".chat_info_message").text(chat_info_message);
+
+    });
+
+
+    //Listen response from server that conversation is ready
     socket.on("conversation ready",function (data) {
         var chat_info_message = "Conversation_id : "+ data.conversation_id +", member_list : " + data.member_list + ", organizer_email : " + data.organizer_email
-        console.log("conversation ready");
-        console.log(chat_info_message);
-
-        if(data.member_list.split(",").indexOf(user_email) != -1 || user_email == data.organizer_email){
-            $(".chat_info_message").text(chat_info_message);
-        }
-
-
+        //TODO do something when server response that conversation is ready
+        $(".chat_info_message").text(chat_info_message);
 
 
     });
 
     $("#send_message").on("click",function () {
         var message_text = $(".message_text").val();
-
+        //TODO send the message to only conversation's member
         socket.emit("send message",{
             user_email: user_email,
             message_text : message_text
@@ -31,6 +43,7 @@ $(function() {
 
     })
 
+    //TODO Only send message to users who are in conversation
     socket.on("new message",function (data) {
         console.log("new message from "+data.user_email+". Content is: '" + data.message_text +"'.");
         $(".message_text").val("");
@@ -65,8 +78,9 @@ $(function() {
 
                 }else{
                     var conversation_id = data.conversation_id;
-                    // Tell the server your username
+                    // Start new conversation
                     socket.emit('start new conversation', {organizer_email: organizer_email, member_list: user_list_string, conversation_id: conversation_id});
+                    //TODO do something after create new conversation
                     $("#create_new_chat").modal("hide");
                 }
 

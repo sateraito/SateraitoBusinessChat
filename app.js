@@ -348,21 +348,54 @@ app.post("/create-chat", jsonParser, function (req, res) {
 
 io.on('connection', function (socket) {
 
-    // when the client emits 'add user', this listens and executes
-    socket.on('user login', function (user_email) {
-        socket.user_email = user_email;
-
-    });
 
 
     socket.on("hearing", function (data) {
         console.log("I am hearing, " + data.user_email);
         socket.emit('joined', {
-            user_email: socket.user_email
+            user_email: data.user_email
         })
 
     });
 
+    //Server check user conversation request from client
+    socket.on("check available conversation", function (data) {
+        var connection = utilities.getMySqlConnection();
+        connection.query('SELECT * FROM Conversation WHERE organizer="' + data.user_email + '" OR member LIKE "'+data.user_email+'"', function (err, rows) {
+            if (!err) {
+                //in case of having available conversation
+                if (rows.length > 0) {
+                    var conversation_list = [];
+                    rows.forEach(function (val,i) {
+                        var conversation_info = {};
+                        conversation_info.id = val.id;
+                        conversation_info.organizer = val.organizer;
+                        conversation_info.member_list = val.member;
+                        conversation_list.push(conversation_info);
+                        
+                    });
+                    
+                    socket.emit("available conversation detected",{
+                        conversation_list : conversation_list
+                            
+                    });
+
+
+                } else {
+                    console.log('No available conversation');
+
+                }
+
+            } else {
+                console.log('Error while Check user');
+
+            }
+
+        });
+
+    });
+
+    //Listen generating new conversation from client
     socket.on("start new conversation", function (data) {
         console.log("conversation started, conversation_id is " + data.conversation_id);
         socket.emit('conversation ready', {
@@ -374,6 +407,7 @@ io.on('connection', function (socket) {
     });
 
 
+    //TODO send the message to only conversation's member
     socket.on("send message", function (data) {
         console.log("message is " + data.message_text);
         console.log("user is " + data.user_email);
@@ -381,8 +415,8 @@ io.on('connection', function (socket) {
         var message_info = {
             user_email: data.user_email,
             message_text: data.message_text
-        }
-        message_list.push(message_info);
+        };
+        // message_list.push(message_info);
 
         io.sockets.emit("new message", {
             user_email: data.user_email,
