@@ -133,6 +133,7 @@ app.post("/do-sign-up", jsonParser, function (req, res) {
 
         }
 
+
     });
 
 
@@ -194,7 +195,6 @@ app.post("/user-login", jsonParser, function (req, res) {
     });
 
 });
-
 
 app.get("/chat-room", function (req, res) {
     console.log("req.session.user_id", req.session.user_id);
