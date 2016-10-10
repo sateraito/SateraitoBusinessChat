@@ -207,6 +207,16 @@ app.get("/chat-room", function (req, res) {
 
 });
 
+app.get("/conversation", function (req, res) {
+    if (req.session.user_id) {
+        res.render("conversation", {user_email: req.session.user_email, user_id: req.session.user_id, conversation_id: req.query.conversation_id})
+    }
+    else {
+        res.redirect("/");
+    }
+
+});
+
 // app.get("/chat-room-2", function (req, res) {
 //     console.log("req.session.user_id", req.session.user_id);
 //     if (req.session.user_id) {
@@ -412,15 +422,10 @@ io.on('connection', function (socket) {
         console.log("message is " + data.message_text);
         console.log("user is " + data.user_email);
 
-        var message_info = {
-            user_email: data.user_email,
-            message_text: data.message_text
-        };
-        // message_list.push(message_info);
-
         io.sockets.emit("new message", {
             user_email: data.user_email,
-            message_text: data.message_text
+            message_text: data.message_text,
+            conversation_id: data.conversation_id
         })
 
     });

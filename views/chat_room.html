@@ -11,7 +11,7 @@
     <script src="js/chat.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        user_email = "<%= user_email %>"
+        user_email = "<%= user_email %>";
     </script>
 
 </head>
@@ -47,11 +47,11 @@
 
 
     </div>
-    <div class="send_message_wrapper">
-        <input type="text" class="message_text" name="message_text" placeholder="メッセージを入れてください。">
-        <input type="hidden" value="">
-        <button id="send_message">送信</button>
-    </div>
+    <!--<div class="send_message_wrapper">-->
+        <!--<input type="text" class="message_text" name="message_text" placeholder="メッセージを入れてください。">-->
+        <!--<input type="hidden" value="">-->
+        <!--<button id="send_message">送信</button>-->
+    <!--</div>-->
     <a href="javascript:void(0)" onclick="createNewChat()" class="create_chat_icon"><img src="image/new_chat_icon.png"></a>
 
 </div>
