@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> c435a092cc5d7f3bd81d58af9ccc7031067d4cd9
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
     <OptionsSetting value="true" id="Remove" />
@@ -11,6 +14,7 @@
     <ConfirmationsSetting value="0" id="Add" />
     <ConfirmationsSetting value="0" id="Remove" />
   </component>
+<<<<<<< HEAD
 </project>
 =======
   <component name="ProjectInspectionProfilesVisibleTreeState">
@@ -40,3 +44,6 @@
 </project>
 
 >>>>>>> b3c111fba541344a4af12cc80a8a716ced548aaa
+=======
+</project>
+>>>>>>> c435a092cc5d7f3bd81d58af9ccc7031067d4cd9
