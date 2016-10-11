@@ -7,6 +7,7 @@ var mysql      = require('mysql');
 
 
 
+
 exports.getMySqlConnection = function () {
     //config MYSQL
     var connection = mysql.createConnection({
