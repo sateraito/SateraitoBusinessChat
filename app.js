@@ -25,12 +25,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routing
 var nodemailer = require('nodemailer');
 
-// //Config datastore
-// var Datastore = require('@google-cloud/datastore');
-//
-// // Instantiate a datastore client
-// var datastore = Datastore();
-
 
 //Config Express
 app.use(express.static(__dirname + '/views'));
