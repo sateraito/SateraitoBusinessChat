@@ -1,10 +1,10 @@
 {
-  "name": "appengine-datastore",
-  "description": "Sample for Google Cloud Datastore on Google App Engine",
+  "name": "business_chat",
+  "description": "My chat app",
   "version": "0.0.1",
   "private": true,
   "license": "Apache Version 2.0",
-  "author": "Google Inc.",
+  "author": "huutri1983@gmail.com",
   "engines": {
     "node": "^4.2.2"
   },
