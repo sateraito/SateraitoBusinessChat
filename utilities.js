@@ -1,8 +1,15 @@
 var exports = module.exports = {};
 var mysql      = require('mysql');
+var pg = require('pg');
 
 
+exports.getPGConnection = function () {
+    var connectionString = process.env.DATABASE_URL || 'postgres://cudcioesptipdc:xbNqUbvoI8xewRADT7iK4JXfS7@ec2-54-235-125-38.compute-1.amazonaws.com:5432/d68cmv6jh8ac58';
 
+    var client = new pg.Client(connectionString);
+    client.connect();
+    return client;
+};
 
 
 
