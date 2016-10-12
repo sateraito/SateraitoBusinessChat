@@ -1,0 +1,66 @@
+body{
+    padding: 0px!important;
+    margin: 0px!important;
+}
+
+.chat_container {
+    float: left;
+    width: 100%;
+}
+
+.chat_title {
+    float: left;
+    width: 100%;
+    text-align: center;
+}
+
+.chat_wrapper {
+    float: left;
+    width: 100%;
+    background: lightgray;
+    overflow: scroll;
+    height: 650px;
+}
+
+.send_message_wrapper {
+    float: left;
+    width: 100%;
+}
+
+.message_text {
+    float: left;
+    width: 90%;
+    padding: 10px;
+}
+
+.send_message_wrapper button {
+    float: left;
+    width: 6%;
+    margin-left: 1%;
+    padding: 12px;
+}
+
+
+
+.create_chat_icon {
+    position: absolute;
+    right: 30px;
+    bottom: 100px;
+}
+
+.create_chat_icon img {
+    width: 50px;
+}
+
+#chat_user {
+    width: 100%;
+    padding: 10px;
+}
+
+.modal-header{
+    border: none;
+}
+
+.modal-footer {
+    border: none;
+}

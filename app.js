@@ -1,130 +1,101 @@
-// Copyright 2015-2016, Google, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-// [START app]
-'use strict';
-
-// [START setup]
-var express = require('express');
-var crypto = require('crypto');
-
+var express = require("express");
+var path = require('path')
 var app = express();
-app.enable('trust proxy');
+var server = require("http").createServer(app);
+var io = require('socket.io')(server);
+var fs = require("fs");
 
-// By default, the client will authenticate using the service account file
-// specified by the GOOGLE_APPLICATION_CREDENTIALS environment variable and use
-// the project specified by the GCLOUD_PROJECT environment variable. See
-// https://googlecloudplatform.github.io/gcloud-node/#/docs/google-cloud/latest/guides/authentication
-// These environment variables are set automatically on Google App Engine
-var Datastore = require('@google-cloud/datastore');
+//Config EJS
+var bodyParser = require('body-parser');
+var jsonParser = bodyParser.json();
 
-// Instantiate a datastore client
-var datastore = Datastore();
-// [END setup]
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-// [START insertVisit]
-/**
- * Insert a visit record into the database.
- *
- * @param {object} visit The visit record to insert.
- * @param {function} callback The callback function.
- */
-function insertVisit (visit, callback) {
-  datastore.save({
-    key: datastore.key('visit'),
-    data: visit
-  }, function (err) {
-    if (err) {
-      return callback(err);
-    }
-    return callback();
-  });
-}
-// [END insertVisit]
+app.engine('.html', require('ejs').__express);
+// app.set('/', __dirname + '/views');
+app.set('view engine', 'html');
+app.use(express.static(path.join(__dirname, 'public')));
 
-// [START getVisits]
-/**
- * Retrieve the latest 10 visit records from the database.
- *
- * @param {function} callback The callback function.
- */
-function getVisits (callback) {
-  var query = datastore.createQuery('visit')
-    .order('-timestamp')
-    .limit(10);
-
-  datastore.runQuery(query, function (err, entities) {
-    if (err) {
-      return callback(err);
-    }
-    return callback(null, entities.map(function (entity) {
-      return 'Time: ' + entity.data.timestamp + ', AddrHash: ' + entity.data.userIp;
-    }));
-  });
-}
-// [END getVisits]
-
-app.get('/', function (req, res, next) {
-  // Create a visit record to be stored in the database
-  var visit = {
-    timestamp: new Date(),
-    // Store a hash of the visitor's ip address
-    userIp: crypto.createHash('sha256').update(req.ip).digest('hex').substr(0, 7)
-  };
-
-  insertVisit(visit, function (err) {
-    if (err) {
-      return next(err);
+//Config session
+var session = require('express-session');
+app.use(session(
+    {
+        secret: '123456789',
+        resave: true,
+        saveUninitialized: true
     }
 
-    // Query the last 10 visits from the datastore.
-    getVisits(function (err, visits) {
-      if (err) {
-        return next(err);
-      }
+    ));
+// Routing
+var nodemailer = require('nodemailer');
 
-      return res
-        .status(200)
-        .set('Content-Type', 'text/plain')
-        .send('Last 10 visits test:\n' + visits.join('\n'));
+app.use(express.static(__dirname + '/views'));
+
+server.listen(process.env.PORT || 3000);
+
+app.get("/", function(req, res){
+    // res.sendFile(__dirname + "/tri-test/index.html");
+    res.render("index",{})
+});
+
+app.post("/chat-room", jsonParser, function(req, res){
+    var user_name = req.body.user_name;
+    sess = req.session;
+    sess.user_name = user_name;
+    // res.sendFile(__dirname + "/tri-test/chat_room.html", { name: user_name });
+    res.render("chat_room", { name: user_name });
+
+    // res.send(__dirname + "/tri-test/chat_room.html");
+});
+
+var numUsers = 0;
+var user_list = [];
+var message_list = [];
+
+io.on('connection', function (socket) {
+    var addedUser = false;
+
+    // when the client emits 'add user', this listens and executes
+    socket.on('add user', function (username) {
+        if (addedUser) return;
+
+        socket.user_name = username;
+        user_list.push(username);
+        ++numUsers;
+        addedUser = true;
+
     });
-  });
+
+
+
+    socket.on("hearing",function(data){
+        console.log("I am hearing, " + data.user_name);
+        socket.emit('joined', {
+            user_list: user_list,
+            numUsers: numUsers,
+            user_name: socket.user_name
+        })
+
+    });
+
+
+
+    socket.on("send message",function(data){
+        console.log("message is " + data.message_text);
+        console.log("user is " + data.user_name);
+
+        var message_info = {
+            user_name: data.user_name,
+            message_text : data.message_text
+        }
+        message_list.push(message_info);
+
+        io.sockets.emit("new message",{
+            user_name: data.user_name,
+            message_text : data.message_text
+        })
+
+    });
+
 });
-
-// [START listen]
-var server = app.listen(process.env.PORT || 8080, function () {
-  console.log('App listening on port %s', server.address().port);
-  console.log('Press Ctrl+C to quit.');
-});
-// [END listen]
-// [END app]
-
-module.exports = app;
-
-//
-//fs = require('fs');
-//
-//
-//fs.readFile('./test_2.html', function (err, html) {
-//    if (err) {
-//        throw err;
-//    }
-//
-//    http.createServer(function(request, response) {
-//        response.writeHeader(200, {"Content-Type": "text/html"});
-//        response.write(html);
-//        response.end();
-//    }).listen(8080);
-//    console.log('test');
-//});
