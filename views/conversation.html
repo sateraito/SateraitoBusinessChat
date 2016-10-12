@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>会話詳細</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="js/conversation.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        user_email = "<%= user_email %>"
+        conversation_id = "<%= conversation_id%>";
+    </script>
+
+</head>
+<style>
+
+</style>
+
+<body>
+<div class="chat_container">
+    <h2 class="chat_title"><%= user_email %></h2>
+    <p class="chat_info_message" style="color:red">Conversation id :  <%= conversation_id%></p>
+    <div class="chat_wrapper">
+
+
+    </div>
+    <div class="send_message_wrapper">
+        <input type="text" class="message_text" name="message_text" placeholder="メッセージを入れてください。">
+        <input type="hidden" value="">
+        <button id="send_message">送信</button>
+    </div>
+    <a href="javascript:void(0)" onclick="createNewChat()" class="create_chat_icon"><img src="image/new_chat_icon.png"></a>
+
+</div>
+
+</body>
+</html>

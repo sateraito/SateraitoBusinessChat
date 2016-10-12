@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Home</title>
+    <title>サテライト・ビジネシ・チャット</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
 
     <link rel="stylesheet" type="text/css" href="css/style.css">
@@ -17,16 +17,32 @@
 
 </head>
 <body>
-<div class="login_modal_sns">
-    <form method="POST" action="/chat-room" id="enter_chat_room">
-        <legend>メールアドレスを入れてください</legend>
-        <input type="text" name="user_name" id="user_name">
-        <input type="button" value="チャット開始" id="enter_chat_btn">
+<!--<div class="main_wrapper">-->
+    <!--<div class="block_wrapper">-->
+        <!--<div class="">-->
+
+        <!--</div>-->
+
+    <!--</div>-->
+
+<!--</div>-->
+<div class="login_form_wrapper">
+    <form method="POST" action="/user-login" id="login_form" class="login_form">
+        <legend>ログイン画面</legend>
+        <p class="login_error_message"></p>
+        <div class="login_row">
+            <label>メールアドレス</label>
+            <input type="text" name="email" id="login_email" class="login_input">
+        </div>
+        <div class="login_row">
+            <label>パスワード</label>
+            <input type="password" name="password" id="login_password" class="login_input">
+        </div>
+        <a href="/sign-up" class="home_signup">アカウント登録</a>
+
+        <input type="button" value="ログイン" id="login_btn" class="login_btn">
 
     </form>
-
-
-
 
 </div>
 

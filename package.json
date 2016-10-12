@@ -18,7 +18,10 @@
     "socketio-file-upload": "^0.4.4",
     "ejs": "latest",
     "body-parser": "latest",
+    "nodemailer": "latest",
+    "mysql": "^2.11.0",
     "express-session": "latest",
-    "nodemailer": "latest"
+    "cookie-parser": "*",
+    "bcrypt": "*"
   }
 }
