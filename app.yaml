@@ -12,7 +12,6 @@
 # limitations under the License.
 
 # [START app_yaml]
-version: nhutth
 runtime: nodejs
 vm: true
 api_version: 1
