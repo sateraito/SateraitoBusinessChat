@@ -5,13 +5,45 @@ var express = require("express");
 var path = require('path');
 var app = express();
 
-//var server = require("http").createServer(app);
-var server = require("http").Server(app);
+var server = require("http").createServer(app);
+//var server = require("http").Server(app);
 //var WebSocketServer = require('ws').Server;
-var passport = require('passport');
-var TwitterStrategy = require('passport-twitter').Strategy;
+//var passport = require('passport');
+//var TwitterStrategy = require('passport-twitter').Strategy;
 
 var io = require('socket.io')(server);
+
+// Require HTTP module (to start server) and Socket.IO
+//var http = require('http'), io = require('socket.io');
+
+// Start the server at port 8080
+//var server = http.createServer(function(req, res){
+//    res.render("index", {});
+	// Send HTML headers and message
+//	res.writeHead(200,{ 'Content-Type': 'text/html' });
+//	res.end('<h1>Hello Socket Lover!</h1>');
+//});
+//server.listen(8080);
+
+// Create a Socket.IO instance, passing it our server
+//var socket = io.listen(server);
+var socket = io.connect(server);
+
+
+// Add a connect listener
+//socket.on('connection', function(client){
+//    console.log('connection socket on');
+//	// Success!  Now listen to messages to be received
+//	client.on('message',function(event){
+//		console.log('Received message from client!',event);
+//	});
+//	client.on('disconnect',function(){
+////		clearInterval(interval);
+//		console.log('Server has disconnected');
+//	});
+//
+//});
+
 var fs = require("fs");
 var bcrypt = require('bcrypt');
 // Create a password salt
@@ -25,14 +57,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 app.engine('.html', require('ejs').__express);
-// app.set('/', __dirname + '/views');
+//app.set('/', __dirname + '/views');
 app.set('view engine', 'html');
 
-app.use(cookieParser());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(session({ secret: 'keyboard cat', key: 'sid'}));
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use(express.static(path.join(__dirname, 'public')));
 // Routing
@@ -49,7 +76,7 @@ var nodemailer = require('nodemailer');
 app.use(express.static(__dirname + '/views'));
 
 server.listen(process.env.PORT || 8000);
-
+//server.listen(8080);
 
 //Config session
 //TODO generate secret for Node session instead of sateraito_secret
@@ -64,6 +91,9 @@ app.use(session(
         saveUninitialized: true
     }
 ));
+
+//app.use(passport.initialize());
+//app.use(passport.session());
 
 app.get("/", function (req, res) {
 
@@ -369,60 +399,51 @@ app.post("/create-chat", jsonParser, function (req, res) {
 });
 
 // Passport session setup.
-passport.serializeUser(function(user, done) {
-    done(null, user);
-});
-
-passport.deserializeUser(function(obj, done) {
-    done(null, obj);
-});
+//passport.serializeUser(function(user, done) {
+//    done(null, user);
+//});
+//
+//passport.deserializeUser(function(obj, done) {
+//    done(null, obj);
+//});
 
 // Use the TwitterStrategy within Passport.
 
-passport.use(new TwitterStrategy({
-    consumerKey: 'KNft6WqrLQh1q8ufyClcAbOSR',
-    consumerSecret: 'uNzO3vQkVEJgtYx0eBeoDwTlnFTopi0pnpl2IVszuh751flgiD',
-    callbackURL: 'https://sateraito-business-chat.appspot.com/general/twcallback'
-    },
-    function(token, tokenSecret, profile, done) {
-        process.nextTick(function () {
-            //Check whether the User exists or not using profile.id
-            if (config.use_database === 'true') {
-                //Perform MySQL operations.
-            }
-            return done(null, profile);
-        });
-    }
-));
+//passport.use(new TwitterStrategy({
+//    consumerKey: 'KNft6WqrLQh1q8ufyClcAbOSR',
+//    consumerSecret: 'uNzO3vQkVEJgtYx0eBeoDwTlnFTopi0pnpl2IVszuh751flgiD',
+//    callbackURL: 'https://sateraito-business-chat.appspot.com/general/twcallback'
+//    },
+//    function(token, tokenSecret, profile, done) {
+//        console.log(profile);
+//        console.log(done);
+//        process.nextTick(function () {
+//            //Check whether the User exists or not using profile.id
+//            if (config.use_database === 'true') {
+//                //Perform MySQL operations.
+//            }
+//            return done(null, profile);
+//        });
+//    }
+//));
+
+//app.get('/auth/twitter', passport.authenticate('twitter'));
+//
+//app.get('/general/twcallback',
+//    passport.authenticate('twitter', { successRedirect : '/', failureRedirect: '/login' }),
+//    function(req, res) {
+//        console.log('test twitter');
+//        console.log(req);
+//        console.log(res);
+//        res.redirect('/');
+//    });
 //var numClients = 0;
 
 io.on('connection', function (socket) {
-//    var wss = new WebSocketServer({
-//        server: server,
-//        path: '/' + socket.id
+//    socket.emit('news', { hello: 'world' });
+//    socket.on('my other event', function (data) {
+//        console.log(data);
 //    });
-//    wss.on('connection', function(ws) {
-//        ws.on('message', function (message) {
-//            console.log(message);
-//        });
-//
-//        ws.on('event', function (data) {
-//            console.log('A client sent us this dumb message:', data.message);
-//        });
-//
-//        numClients++;
-//        io.emit('stats', { numClients: numClients });
-//
-//        console.log('Connected clients:', numClients);
-//
-//        ws.on('disconnect', function () {
-//            numClients--;
-//            io.emit('stats', { numClients: numClients });
-//
-//            console.log('Connected clients:', numClients);
-//        });
-//    });
-
 
     socket.on("hearing", function (data) {
         console.log("I am hearing, " + data.user_email);
