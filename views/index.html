@@ -14,22 +14,28 @@
     <script src="js/main.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 
+    <script src="https://apis.google.com/js/client.js"></script>
+    <script src="https://connect.facebook.net/en_US/sdk.js"></script>
+    <script type="text/javascript" src="/js/facebook_sign_in.js"></script>
+    <script type="text/javascript" src="/js/google_sign_in.js"></script>
+
 
 </head>
 <body>
 <!--<div class="main_wrapper">-->
-    <!--<div class="block_wrapper">-->
-        <!--<div class="">-->
+<!--<div class="block_wrapper">-->
+<!--<div class="">-->
 
-        <!--</div>-->
+<!--</div>-->
 
-    <!--</div>-->
+<!--</div>-->
 
 <!--</div>-->
 <div class="login_form_wrapper">
     <form method="POST" action="/user-login" id="login_form" class="login_form">
         <legend>ログイン画面</legend>
         <p class="login_error_message"></p>
+
         <div class="login_row">
             <label>メールアドレス</label>
             <input type="text" name="email" id="login_email" class="login_input">
@@ -41,9 +47,32 @@
         <a href="/sign-up" class="home_signup">アカウント登録</a>
 
         <input type="button" value="ログイン" id="login_btn" class="login_btn">
-
     </form>
 
+    <div class="login_modal_or">
+        <p>OR</p>
+    </div>
+    <div class="login_modal_sns">
+        <a class="login_modal_row login_modal_row_facebook" href="javascript:void(0)" onclick="FacebookLogin()">
+            <div class="social_media_icon social_media_icon_facebook">
+                <img src="/image/fb-sign-up.png">
+            </div>
+            <p style="color: #2976bb">Login with Facebook</p>
+        </a>
+        <a class="login_modal_row login_modal_row_google" href="javascript:void(0)" onclick="GoogleLogin()">
+            <div class="social_media_icon social_media_icon_google">
+                <img src="/image/google-sign-in.png">
+            </div>
+            <p style="color: #f05c62">Login with Google</p>
+        </a>
+        <!--<a class="login_modal_row login_modal_row_twitter" href="javascript:void(0)" onclick="twitterLogin()">-->
+        <a class="login_modal_row login_modal_row_twitter" href="/auth/twitter">
+            <div class="social_media_icon social_media_icon_twitter">
+                <img src="/image/tw-sign-in.png">
+            </div>
+            <p style="color: #00abf0">Login with Twitter</p>
+        </a>
+    </div>
 </div>
 
 </body>

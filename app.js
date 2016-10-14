@@ -4,7 +4,13 @@ var utilities = require("./utilities");
 var express = require("express");
 var path = require('path');
 var app = express();
-var server = require("http").createServer(app);
+
+//var server = require("http").createServer(app);
+var server = require("http").Server(app);
+//var WebSocketServer = require('ws').Server;
+var passport = require('passport');
+var TwitterStrategy = require('passport-twitter').Strategy;
+
 var io = require('socket.io')(server);
 var fs = require("fs");
 var bcrypt = require('bcrypt');
@@ -21,6 +27,13 @@ app.use(bodyParser.json());
 app.engine('.html', require('ejs').__express);
 // app.set('/', __dirname + '/views');
 app.set('view engine', 'html');
+
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(session({ secret: 'keyboard cat', key: 'sid'}));
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.static(path.join(__dirname, 'public')));
 // Routing
 var nodemailer = require('nodemailer');
@@ -355,9 +368,60 @@ app.post("/create-chat", jsonParser, function (req, res) {
 
 });
 
+// Passport session setup.
+passport.serializeUser(function(user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function(obj, done) {
+    done(null, obj);
+});
+
+// Use the TwitterStrategy within Passport.
+
+passport.use(new TwitterStrategy({
+    consumerKey: 'KNft6WqrLQh1q8ufyClcAbOSR',
+    consumerSecret: 'uNzO3vQkVEJgtYx0eBeoDwTlnFTopi0pnpl2IVszuh751flgiD',
+    callbackURL: 'https://sateraito-business-chat.appspot.com/general/twcallback'
+    },
+    function(token, tokenSecret, profile, done) {
+        process.nextTick(function () {
+            //Check whether the User exists or not using profile.id
+            if (config.use_database === 'true') {
+                //Perform MySQL operations.
+            }
+            return done(null, profile);
+        });
+    }
+));
+//var numClients = 0;
 
 io.on('connection', function (socket) {
-
+//    var wss = new WebSocketServer({
+//        server: server,
+//        path: '/' + socket.id
+//    });
+//    wss.on('connection', function(ws) {
+//        ws.on('message', function (message) {
+//            console.log(message);
+//        });
+//
+//        ws.on('event', function (data) {
+//            console.log('A client sent us this dumb message:', data.message);
+//        });
+//
+//        numClients++;
+//        io.emit('stats', { numClients: numClients });
+//
+//        console.log('Connected clients:', numClients);
+//
+//        ws.on('disconnect', function () {
+//            numClients--;
+//            io.emit('stats', { numClients: numClients });
+//
+//            console.log('Connected clients:', numClients);
+//        });
+//    });
 
 
     socket.on("hearing", function (data) {
@@ -382,12 +446,12 @@ io.on('connection', function (socket) {
                         conversation_info.organizer = val.organizer;
                         conversation_info.member_list = val.member;
                         conversation_list.push(conversation_info);
-                        
+
                     });
-                    
+
                     socket.emit("available conversation detected",{
                         conversation_list : conversation_list
-                            
+
                     });
 
 

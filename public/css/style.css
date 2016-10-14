@@ -110,3 +110,54 @@ body{
 .modal-footer {
     border: none;
 }
+
+.login_modal_row {
+    border: 1px solid #e8e8e8;
+    float: left;
+    height: 40px;
+    margin-bottom: 10px;
+    margin-left: 30%;
+    width: 40%;
+}
+
+.login_modal_or {
+    background: white none repeat scroll 0 0;
+    float: left;
+    margin-left: 30%;
+    text-align: center;
+    width: 40%;
+}
+
+.social_media_icon {
+    float: left;
+    margin-right: 20px;
+}
+.social_media_icon {
+    float: left;
+    height: 40px;
+    margin-left: 0;
+    text-align: center;
+    width: 20%;
+}
+.social_media_icon_facebook {
+    background: #2976bb none repeat scroll 0 0;
+}
+
+.social_media_icon_google {
+    background: #f05c62 none repeat scroll 0 0;
+}
+
+.social_media_icon_twitter {
+    background: #00abf0 none repeat scroll 0 0;
+}
+
+.social_media_icon img {
+    margin-top: 10px;
+}
+
+.login_modal_row p {
+    float: left;
+    font-size: 15px;
+    margin: 10px 0 0 20px;
+    text-align: left;
+}
