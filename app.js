@@ -6,43 +6,8 @@ var path = require('path');
 var app = express();
 
 var server = require("http").createServer(app);
-//var server = require("http").Server(app);
-//var WebSocketServer = require('ws').Server;
-//var passport = require('passport');
-//var TwitterStrategy = require('passport-twitter').Strategy;
 
-var io = require('socket.io')(server);
-
-// Require HTTP module (to start server) and Socket.IO
-//var http = require('http'), io = require('socket.io');
-
-// Start the server at port 8080
-//var server = http.createServer(function(req, res){
-//    res.render("index", {});
-	// Send HTML headers and message
-//	res.writeHead(200,{ 'Content-Type': 'text/html' });
-//	res.end('<h1>Hello Socket Lover!</h1>');
-//});
-//server.listen(8080);
-
-// Create a Socket.IO instance, passing it our server
-//var socket = io.listen(server);
-var socket = io.connect(server);
-
-
-// Add a connect listener
-//socket.on('connection', function(client){
-//    console.log('connection socket on');
-//	// Success!  Now listen to messages to be received
-//	client.on('message',function(event){
-//		console.log('Received message from client!',event);
-//	});
-//	client.on('disconnect',function(){
-////		clearInterval(interval);
-//		console.log('Server has disconnected');
-//	});
-//
-//});
+//var io = require('socket.io')(server);
 
 var fs = require("fs");
 var bcrypt = require('bcrypt');
@@ -76,7 +41,6 @@ var nodemailer = require('nodemailer');
 app.use(express.static(__dirname + '/views'));
 
 server.listen(process.env.PORT || 8000);
-//server.listen(8080);
 
 //Config session
 //TODO generate secret for Node session instead of sateraito_secret
@@ -439,7 +403,14 @@ app.post("/create-chat", jsonParser, function (req, res) {
 //    });
 //var numClients = 0;
 
+var io = require('socket.io')(server);
+//io.listen(server);
+
+// Send data to client
+// maybe can use io.socket.on('connection', function(socket) {
 io.on('connection', function (socket) {
+    console.log('socket test 1');
+    console.log(socket);
 //    socket.emit('news', { hello: 'world' });
 //    socket.on('my other event', function (data) {
 //        console.log(data);
