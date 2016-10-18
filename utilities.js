@@ -11,6 +11,7 @@ exports.getMySqlConnection = function () {
     //config MYSQL
     var connection = mysql.createConnection({
         host     : 'localhost',
+//        host     : 'localhost:8000',
         user     : 'root',
         password : 'Search2007,,',
         database : 'sateraito_business_chat',

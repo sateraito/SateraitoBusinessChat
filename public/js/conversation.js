@@ -18,7 +18,7 @@ $(function() {
             conversation_id : conversation_id
         })
 
-    })
+    });
 
     //TODO Only send message to users who are in conversation
     socket.on("new message",function (data) {

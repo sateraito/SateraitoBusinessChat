@@ -16,6 +16,7 @@
         "express": "*",
         "socket.io": "*",
         "socketio-file-upload": "^0.4.4",
+        "socket.io-client": "~1.1.0",
         "ejs": "latest",
         "body-parser": "latest",
         "nodemailer": "latest",

@@ -1,7 +1,9 @@
 
 
 $(function() {
-    var socket = io();
+    console.log('main js');
+//    var socket = io();
+    var socket = io.connect();
 
     $("#login_btn").on("click",function () {
         var email = $("#login_email").val();
@@ -10,7 +12,7 @@ $(function() {
         $(".login_error_message").text("");
 
         if(!isValidateEmail(email)){
-            $(".login_error_message").text("不正なメールアドレスです！")
+            $(".login_error_message").text("不正なメールアドレスです！");
             return false;
 
         }else if (!$.trim(password)) {

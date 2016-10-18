@@ -6,6 +6,7 @@ var path = require('path');
 var app = express();
 
 var server = require("http").createServer(app);
+//var server = require("http").Server(app);
 
 //var io = require('socket.io')(server);
 
@@ -40,7 +41,9 @@ var nodemailer = require('nodemailer');
 //Config Express
 app.use(express.static(__dirname + '/views'));
 
-server.listen(process.env.PORT || 8000);
+//server.listen(app.get('port'), app.get('ipaddress'), function(){
+//    console.log('Express server listening on port ' + app.get('port'));
+//});
 
 //Config session
 //TODO generate secret for Node session instead of sateraito_secret
@@ -403,87 +406,106 @@ app.post("/create-chat", jsonParser, function (req, res) {
 //    });
 //var numClients = 0;
 
-var io = require('socket.io')(server);
 //io.listen(server);
+server.listen(process.env.PORT || 8000);
+//var io = require('socket.io').listen(server);
+
+//var allowedOrigins = "http://localhost:* http://127.0.0.1:*";
+var allowedOrigins = "https://sateraito-business-chat.appspot.com:* https://216.58.209.145:*";
+var path ='/stomp'; // you need this if you want to connect to something other than the default socket.io path
+var io = require('socket.io')(server, {
+    origins: allowedOrigins,
+    path : path
+});
+//var io = require('socket.io').listen(server);
+
+//var sio_server = io(server, {
+//    origins: allowedOrigins,
+//    path : path
+//});
 
 // Send data to client
 // maybe can use io.socket.on('connection', function(socket) {
-io.on('connection', function (socket) {
-    console.log('socket test 1');
-    console.log(socket);
-//    socket.emit('news', { hello: 'world' });
-//    socket.on('my other event', function (data) {
+io.sockets.on('connection', function (socket) {
+//    socket.broadcast.emit('news', { hello: 'world' , port: process.env.PORT, or: 8000});
+//    socket.on('test', function (data) {
+//        console.log(process.env.PORT);
+//        console.log('or');
+//        console.log('8000');
+//        console.log('show in app js');
 //        console.log(data);
 //    });
 
-    socket.on("hearing", function (data) {
-        console.log("I am hearing, " + data.user_email);
-        socket.emit('joined', {
-            user_email: data.user_email
-        })
-
-    });
-
-    //Server check user conversation request from client
-    socket.on("check available conversation", function (data) {
-        var connection = utilities.getMySqlConnection();
-        connection.query('SELECT * FROM Conversation WHERE organizer="' + data.user_email + '" OR member LIKE "'+data.user_email+'"', function (err, rows) {
-            if (!err) {
-                //in case of having available conversation
-                if (rows.length > 0) {
-                    var conversation_list = [];
-                    rows.forEach(function (val,i) {
-                        var conversation_info = {};
-                        conversation_info.id = val.id;
-                        conversation_info.organizer = val.organizer;
-                        conversation_info.member_list = val.member;
-                        conversation_list.push(conversation_info);
-
-                    });
-
-                    socket.emit("available conversation detected",{
-                        conversation_list : conversation_list
-
-                    });
-
-
-                } else {
-                    console.log('No available conversation');
-
-                }
-
-            } else {
-                console.log('Error while Check user');
-
-            }
-
-        });
-
-    });
-
-    //Listen generating new conversation from client
-    socket.on("start new conversation", function (data) {
-        console.log("conversation started, conversation_id is " + data.conversation_id);
-        socket.emit('conversation ready', {
-            conversation_id: data.conversation_id,
-            organizer_email: data.organizer_email,
-            member_list: data.member_list
-        })
-
-    });
-
-
-    //TODO send the message to only conversation's member
-    socket.on("send message", function (data) {
-        console.log("message is " + data.message_text);
-        console.log("user is " + data.user_email);
-
-        io.sockets.emit("new message", {
-            user_email: data.user_email,
-            message_text: data.message_text,
-            conversation_id: data.conversation_id
-        })
-
-    });
+//    socket.on("hearing", function (data) {
+//        console.log("I am hearing, " + data.user_email);
+//        socket.emit('joined', {
+//            user_email: data.user_email
+//        })
+//
+//    });
+//
+//    //Server check user conversation request from client
+//    socket.on("check available conversation", function (data) {
+//        var connection = utilities.getMySqlConnection();
+//        connection.query('SELECT * FROM Conversation WHERE organizer="' + data.user_email + '" OR member LIKE "'+data.user_email+'"', function (err, rows) {
+//            if (!err) {
+//                //in case of having available conversation
+//                if (rows.length > 0) {
+//                    var conversation_list = [];
+//                    rows.forEach(function (val,i) {
+//                        var conversation_info = {};
+//                        conversation_info.id = val.id;
+//                        conversation_info.organizer = val.organizer;
+//                        conversation_info.member_list = val.member;
+//                        conversation_list.push(conversation_info);
+//
+//                    });
+//
+//                    socket.emit("available conversation detected",{
+//                        conversation_list : conversation_list
+//
+//                    });
+//
+//
+//                } else {
+//                    console.log('No available conversation');
+//
+//                }
+//
+//            } else {
+//                console.log('Error while Check user');
+//
+//            }
+//
+//        });
+//
+//    });
+//
+//    //Listen generating new conversation from client
+//    socket.on("start new conversation", function (data) {
+//        console.log("conversation started, conversation_id is " + data.conversation_id);
+//        socket.emit('conversation ready', {
+//            conversation_id: data.conversation_id,
+//            organizer_email: data.organizer_email,
+//            member_list: data.member_list
+//        })
+//
+//    });
+//
+//
+//    //TODO send the message to only conversation's member
+//    socket.on("send message", function (data) {
+//        console.log("message is " + data.message_text);
+//        console.log("user is " + data.user_email);
+//
+//        io.sockets.emit("new message", {
+//            user_email: data.user_email,
+//            message_text: data.message_text,
+//            conversation_id: data.conversation_id
+//        })
+//
+//    });
 
 });
+
+//server.listen(process.env.PORT || 8000, (function () {console.error('listening on http://localhost:8000/'); console.log(process.env.PORT);}));
