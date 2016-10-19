@@ -1,10 +1,11 @@
 var utilities = require("./utilities");
 
 var express = require("express");
+var request = require('request');
 var path = require('path');
 var app = express();
 var server = require("http").createServer(app);
-var io = require('socket.io')(server);
+// var io = require('socket.io')(server);
 var fs = require("fs");
 var bcrypt = require('bcrypt');
 // Create a password salt
@@ -21,9 +22,6 @@ app.engine('.html', require('ejs').__express);
 // app.set('/', __dirname + '/views');
 app.set('view engine', 'html');
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Routing
-var nodemailer = require('nodemailer');
 
 
 //Config Express
@@ -47,39 +45,52 @@ app.use(session(
 ));
 
 
+app.get("/", function (req, res) {
 
+    getExternalIp(function (externalIp) {
+        res.render('home', {externalIp: externalIp});
+    });
 
-// var pg = require('pg');
+    // if(req.session.user_id){
+    //     res.redirect("/main-space")
+    // }else{
+    //     res.render("home", {})
+    // }
+
+});
+
+// app.get("/home", function (req, res) {
+//     console.log("req.session.user_id",req.session.user_id);
+//     if(req.session.user_id){
+//         res.redirect("/main-space")
+//     }else{
+//         res.render("index", {})
+//     }
 //
-// app.get('/', function (request, response) {
-//     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-//         client.query('SELECT * FROM test_table', function(err, result) {
-//             done();
-//             if (err)
-//             { console.error(err); response.send("Error " + err); }
-//             else
-//             { response.render('pages/db', {results: result.rows} ); }
-//         });
-//     });
 // });
 
 
 
-app.get("/", function (req, res) {
 
-    res.send("Hello world");
 
-    // res.render("index", {})
+app.get("/logout", function (req, res) {
+    req.session.user_id = null;
+    req.session.user_email = null;
+    res.redirect("/");
+
 });
 
 app.get("/sign-up", function (req, res) {
 
-    res.render("sign-up", {})
+    getExternalIp(function (externalIp) {
+        console.log("gfsdsagfsadas");
+        console.log(io);
+        res.render('sign-up', {externalIp: externalIp});
+    });
 });
 
 app.post("/do-sign-up", jsonParser, function (req, res) {
     //Create MySQL connection
-    var connection = utilities.getMySqlConnection();
     var email = req.body.email;
     var password = req.body.password;
     var password_again = req.body.password_again;
@@ -90,359 +101,306 @@ app.post("/do-sign-up", jsonParser, function (req, res) {
     }
 
     //Check email is existed or not
-    connection.query('SELECT * FROM UserInfo WHERE email="' + email + '"', function (err, rows) {
-        if (!err) {
-            //Email is already registered
-            if (rows.length == 0) {
-                //Create new account in DB
-                var new_user_id = utilities.generateUserId();
-                // Salt and hash password
-                var hash_password = bcrypt.hashSync(password, salt)
-                var post = {id: new_user_id, email: email, password: hash_password};
-                connection.query('INSERT INTO UserInfo SET ?', post, function (err, rows) {
-                    if (!err) {
-                        if (rows.affectedRows == 1) {
-                            console.log("registereddffdsfs");
-                            req.session.user_id = new_user_id;
-                            req.session.user_email = email;
-
-                            //Close connection
-                            connection.end(function (err) {
-
-                            });
-                            console.log("registered!!");
-                            res.json({"status": "ok"})
-
-
-                        } else {
-                            //Close connection
-                            connection.end(function (err) {
-
-                            });
-                            console.log("registered failed");
-                            res.json({"status": "db error"})
-
-                        }
-
-
-                    } else {
-                        console.log('Error while Sign up new user');
-                    }
-
-
-                });
-
-
-            } else {
-                //Close connection
-                connection.end(function (err) {
-
-                });
-                console.log("email is already existed");
-                res.json({"status": "email existed"})
-            }
-
+    utilities.runPGQuery("SELECT * FROM UserInfo WHERE email = '" + email + "'",function (rows) {
+        //Email is already registered
+        if (rows.length == 0) {
+            //Create new account in DB
+            var new_user_id = utilities.generateUserId();
+            // Salt and hash password
+            var hash_password = bcrypt.hashSync(password, salt)
+            // var post = {id: new_user_id, email: email, password: hash_password};
+            var insert_user_string = "INSERT INTO UserInfo (id, user_name, password, validation_code, is_validated, email, last_name, first_name, friend_list, conversation_list, birthday, address, company, created_date, updated_datetime) VALUES ('"+new_user_id+"', '', '"+hash_password+"', '', 0, '"+email+"', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)";
+            utilities.runPGQuery(insert_user_string,function (result) {;
+                req.session.user_id = new_user_id;
+                req.session.user_email = email;
+                console.log("registered!!");
+                res.json({"status": "ok"})
+            });
 
         } else {
-            console.log('Error while Check user existing');
-
+            console.log("email is already existed");
+            res.json({"status": "email existed"})
         }
 
-
     });
-
 
 });
 
 app.post("/user-login", jsonParser, function (req, res) {
-    //Create MySQL connection
-    var connection = utilities.getMySqlConnection();
+
     var email = req.body.email;
+    console.log("email param is");
+    console.log(email);
     var password = req.body.password;
 
+    utilities.runPGQuery("SELECT * FROM UserInfo WHERE email = '" + email + "'",function (rows) {
+        if (rows.length > 0) {
+            //check if password is OK
+            bcrypt.compare(password, rows[0].password, function (err, matches) {
+                if (err) {
+                    console.log('Error while checking password');
+                } else if (matches) {
+                    req.session.user_id = rows[0].id;
+                    req.session.user_email = email;
 
-    connection.query('SELECT * FROM UserInfo WHERE email="' + email + '"', function (err, rows) {
-        if (!err) {
-            //email is ok
-            if (rows.length > 0) {
-                //check if password is OK
-                bcrypt.compare(password, rows[0].password, function (err, matches) {
-                    if (err) {
-                        console.log('Error while checking password');
-                    } else if (matches) {
-                        req.session.user_id = rows[0].id;
-                        req.session.user_email = email;
-
-                        res.json({"status": "ok"})
-                        console.log("login ok");
-                        //Close connection
-                        connection.end(function (err) {
-
-                        });
-                    } else {
-                        res.json({"status": "invalid account"})
-                        console.log("password wrong");
-                        //Close connection
-                        connection.end(function (err) {
-
-                        });
-
-                    }
-
-                });
-
-            } else {
-                //Email is not ok
-                res.json({"status": "invalid account"});
-                console.log("email wrong");
-                //Close connection
-                connection.end(function (err) {
-
-                });
-
-            }
-
-        } else {
-            console.log('Error while Check user');
-
-        }
-
-    });
-
-});
-
-app.get("/chat-room", function (req, res) {
-    console.log("req.session.user_id", req.session.user_id);
-    if (req.session.user_id) {
-        res.render("chat_room", {user_email: req.session.user_email, user_id: req.session.user_id})
-    }
-    else {
-        res.redirect("/");
-    }
-
-});
-
-app.get("/conversation", function (req, res) {
-    if (req.session.user_id) {
-        res.render("conversation", {user_email: req.session.user_email, user_id: req.session.user_id, conversation_id: req.query.conversation_id})
-    }
-    else {
-        res.redirect("/");
-    }
-
-});
-
-// app.get("/chat-room-2", function (req, res) {
-//     console.log("req.session.user_id", req.session.user_id);
-//     if (req.session.user_id) {
-//         res.render("chat_room_2", {
-//             user_email: req.session.user_email,
-//             user_id: req.session.user_id,
-//             member_list: req.session.member_list
-//         })
-//     }
-//     else {
-//         res.redirect("/");
-//     }
-//
-// });
-
-
-app.post("/create-chat", jsonParser, function (req, res) {
-    var connection = utilities.getMySqlConnection();
-    var member_list = req.body.member_list;
-    var organizer_email = req.body.organizer_email;
-
-
-
-    //TODO Check if conversation member have already register "Sateraito Business Chat". If yes create conversation, if no invite them
-    //TODO and force they register Sateraito business chat
-
-    //Create new conversation
-    var new_conversation_id = utilities.generateConversationId();
-    var post = {
-        id: new_conversation_id,
-        organizer: organizer_email,
-        member: member_list
-
-    };
-
-    connection.query('INSERT INTO Conversation SET ?', post, function (err, rows) {
-        if (!err) {
-            if (rows.affectedRows == 1) {
-                req.session.member_list = member_list;
-                req.session.conversation_id = new_conversation_id;
-
-                res.json({"status": "ok","conversation_id": new_conversation_id});
-                //Close connection
-                connection.end(function (err) {
-
-                });
-
-                //TODO update friend_list and conversation_list of user
-                // //Created conversation and saved it into DB of organizer
-                // connection.query('SELECT * FROM UserInfo WHERE email="' + organizer_email + '"', function (err, rows) {
-                //     if (!err) {
-                //         //update user friend list and conversation list
-                //         if (rows.length > 0) {
-                //             var current_friend_list = rows[0].friend_list;
-                //             var current_conversation_list = rows[0].conversation_list;
-                //
-                //             var new_friend_list = null;
-                //             var new_conversation_list = null;
-                //
-                //
-                //             if (current_friend_list) {
-                //                 var current_friend_array = current_friend_list.split(",");
-                //                 member_list.split(",").forEach(function (val, i) {
-                //                     if (current_friend_array.indexOf(val) == -1) {
-                //                         current_friend_array.push(val);
-                //
-                //                     }
-                //                     new_friend_list = current_friend_array.toString();
-                //                 });
-                //
-                //             } else {
-                //                 new_friend_list = member_list;
-                //             }
-                //
-                //
-                //             if (current_conversation_list) {
-                //                 var current_conversation_array = current_conversation_list.split(",");
-                //                 new_conversation_list = current_conversation_array.push(new_conversation_id).toString();
-                //             } else {
-                //                 new_conversation_list = new_conversation_id;
-                //             }
-                //
-                //             if (new_friend_list) {
-                //                 //Update user friend list
-                //                 connection.query('UPDATE UserInfo SET friend_list = ? WHERE email = ?', [new_friend_list, organizer_email])
-                //             }
-                //
-                //             if (new_conversation_list) {
-                //                 //Update user conversation list
-                //                 connection.query('UPDATE UserInfo SET conversation_list = ? WHERE email = ?', [new_conversation_list, organizer_email])
-                //             }
-                //
-                //             res.json({"status": "ok"});
-                //             //Close connection
-                //             connection.end(function (err) {
-                //
-                //             });
-                //
-                //
-                //         } else {
-                //             //Email is not ok
-                //             res.json({"status": "invalid account"});
-                //             console.log("email wrong");
-                //             //Close connection
-                //             connection.end(function (err) {
-                //
-                //             });
-                //
-                //         }
-                //
-                //     } else {
-                //         console.log('Error while Check user');
-                //
-                //     }
-                //
-                // });
-
-
-            } else {
-                //something went wrong
-                res.json({"status": "not ok"});
-                //Close connection
-                connection.end(function (err) {
-
-                });
-
-            }
-
-        } else {
-            console.log('Error while add new conversation');
-
-        }
-
-    });
-
-
-});
-
-
-io.on('connection', function (socket) {
-
-
-
-    socket.on("hearing", function (data) {
-        console.log("I am hearing, " + data.user_email);
-        socket.emit('joined', {
-            user_email: data.user_email
-        })
-
-    });
-
-    //Server check user conversation request from client
-    socket.on("check available conversation", function (data) {
-        var connection = utilities.getMySqlConnection();
-        connection.query('SELECT * FROM Conversation WHERE organizer="' + data.user_email + '" OR member LIKE "'+data.user_email+'"', function (err, rows) {
-            if (!err) {
-                //in case of having available conversation
-                if (rows.length > 0) {
-                    var conversation_list = [];
-                    rows.forEach(function (val,i) {
-                        var conversation_info = {};
-                        conversation_info.id = val.id;
-                        conversation_info.organizer = val.organizer;
-                        conversation_info.member_list = val.member;
-                        conversation_list.push(conversation_info);
-                        
-                    });
-                    
-                    socket.emit("available conversation detected",{
-                        conversation_list : conversation_list
-                            
-                    });
-
+                    res.json({"status": "ok"})
+                    console.log("login ok");
 
                 } else {
-                    console.log('No available conversation');
+                    res.json({"status": "invalid account"})
+                    console.log("password wrong");
 
                 }
 
-            } else {
-                console.log('Error while Check user');
+            });
 
+        } else {
+            //Email is not ok
+            res.json({"status": "invalid account"});
+            console.log("email wrong");
+
+        }
+        
+    });
+
+
+});
+
+app.get("/main-space", function (req, res) {
+    console.log("req.session.user_id", req.session.user_id);
+    if (req.session.user_id) {
+        utilities.runPGQuery("SELECT * FROM UserInfo WHERE email = '"+req.session.user_email+"'",function (rows) {
+            if (rows.length > 0){
+                var user_friend_list = rows[0].friend_list;
+                var user_conversation_list = rows[0].conversation_list;
+                res.render("main_space", {
+                    user_email: req.session.user_email,
+                    user_id: req.session.user_id,
+                    user_friend_list: user_friend_list,
+                    user_conversation_list: user_conversation_list
+                })
+            };
+        });
+
+
+    }
+    else {
+        res.redirect("/");
+    }
+
+});
+
+
+app.post("/add-user-list", jsonParser, function (req, res) {
+    var member_list = req.body.member_list;
+    var user_email = req.session.user_email;
+
+    //Update friend list of user
+    utilities.runPGQuery("SELECT * FROM UserInfo WHERE email = '" + user_email + "'", function (rows) {
+        if (rows.length > 0) {
+            var current_friend_list = rows[0].friend_list;
+            var new_friend_list = null;
+
+
+            if (current_friend_list) {
+                var current_friend_array = current_friend_list.split(",");
+                member_list.split(",").forEach(function (val, i) {
+                    if (current_friend_array.indexOf(val) == -1) {
+                        current_friend_array.push(val);
+
+                    }
+                    new_friend_list = current_friend_array.toString();
+                });
+
+            } else {
+                new_friend_list = member_list;
             }
+
+            if (new_friend_list) {
+                //Update user friend list
+                utilities.runPGQuery("UPDATE UserInfo SET friend_list = '" + new_friend_list + "' WHERE email = '" + user_email + "'",
+                    function (result) {
+                    });
+            }
+
+
+
+            res.json({"status": "ok"});
+
+
+        } else {
+            //Email is not ok
+            res.json({"status": "invalid account"});
+            console.log("email wrong");
+
+        }
+
+    });
+});
+
+app.post("/send-a-message", jsonParser, function (req, res) {
+    var sender = req.body.sender;
+    var receiver = req.body.receiver;
+    var conversation_id = req.body.conversation_id;
+    var message_text = req.body.message_text;
+    var user_conversation_list = req.body.user_conversation_list;
+
+    //If this is a new conversation
+    if(user_conversation_list.split(",").indexOf(conversation_id) == -1){
+
+        var member_array = receiver.split(",");
+        member_array.push(sender);
+
+        //TODO catch error while operate query
+
+        //Create new conversation into database
+        utilities.runPGQuery("INSERT INTO Conversation (id, organizer, member, memo, todo) VALUES ('"+conversation_id+"', '"+sender+"', '"+member_array.toString()+"', NULL, NULL)",function (rows) {
 
         });
 
+        //Update conversation list to sender
+        var new_conversation_array = user_conversation_list.split(",");
+        new_conversation_array.push(conversation_id);
+        utilities.runPGQuery("UPDATE UserInfo SET conversation_list = '"+new_conversation_array.toString()+"' WHERE email = '"+sender+"'",function (rows) {
+
+        });
+
+        //update conversation list to receiver
+        receiver.split(",").forEach(function (val,i) {
+            utilities.runPGQuery("SELECT * from UserInfo WHERE email = '"+val+"'",function (rows) {
+                if(rows.length > 0){
+                    var receiver_conversation_array = rows[0].conversation_list.split(",");
+                    receiver_conversation_array.push(conversation_id);
+                    utilities.runPGQuery("UPDATE UserInfo SET conversation_list = '"+receiver_conversation_array.toString()+"' WHERE email = '"+val+"'",function (rows) {
+
+                    });
+
+                }
+
+            });
+
+
+        });
+
+    }
+
+    //Then add this message to database
+    //Create new conversation into database
+    var message_id = utilities.generateMessageId()
+    utilities.runPGQuery("INSERT INTO message_info (id, conversation_id, content, sender, receiver) VALUES ('"+message_id+"','"+conversation_id+"', '"+message_text+"', '"+sender+"', '"+receiver+"')",function (rows) {
     });
 
-    //Listen generating new conversation from client
-    socket.on("start new conversation", function (data) {
-        console.log("conversation started, conversation_id is " + data.conversation_id);
-        socket.emit('conversation ready', {
-            conversation_id: data.conversation_id,
-            organizer_email: data.organizer_email,
-            member_list: data.member_list
-        })
 
-    });
-
-
-    //TODO send the message to only conversation's member
-    socket.on("send message", function (data) {
-        console.log("message is " + data.message_text);
-        console.log("user is " + data.user_email);
-
-        io.sockets.emit("new message", {
-            user_email: data.user_email,
-            message_text: data.message_text,
-            conversation_id: data.conversation_id
-        })
-
-    });
 
 });
+
+
+app.post("/continue-conversation", jsonParser, function (req, res) {
+    var conversation_id = req.body.conversation_id;
+
+    utilities.runPGQuery("SELECT * FROM Conversation WHERE id = '"+conversation_id+"'",function (results) {
+        if (results.length > 0){
+
+            //TODO Load messages of conversation, implement limit
+            utilities.runPGQuery("SELECT * FROM message_info WHERE conversation_id = '"+conversation_id+"' ORDER BY created_datetime ASC",function (rows) {
+
+                res.json({message_list: rows , organizer: results[0].organizer , member: results[0].member})
+
+            });
+
+        }
+
+
+    });
+
+
+
+
+
+
+});
+
+// [START external_ip]
+// In order to use websockets on App Engine, you need to connect directly to
+// application instance using the instance's public external IP. This IP can
+// be obtained from the metadata server.
+var METADATA_NETWORK_INTERFACE_URL = 'http://metadata/computeMetadata/v1/' +
+    '/instance/network-interfaces/0/access-configs/0/external-ip';
+
+function getExternalIp (cb) {
+    var options = {
+        url: METADATA_NETWORK_INTERFACE_URL,
+        headers: {
+            'Metadata-Flavor': 'Google'
+        }
+    };
+
+    request(options, function (err, resp, body) {
+        if (err || resp.statusCode !== 200) {
+            console.log('Error while talking to metadata server, assuming localhost');
+            return cb('localhost');
+        }
+        return cb(body);
+    });
+}
+
+
+// setup new webserver for socket.io listening on 65080
+var app_chat = require('express')();
+var server1 = require('http').Server(app_chat);
+var io = require('socket.io')(server1);
+server1.listen(65080);
+
+io.on('connection', function (socket) {
+    console.log('user connected');
+    socket.on('chat_message', function (data) {
+        console.log('client sent:',data);
+        socket.emit('chat_message', 'Server is echoing your message: ' + data);
+    });
+});
+
+
+// io.on('connection', function (socket) {
+//
+//     socket.emit('news', { hello: 'world' });
+//
+//     socket.on("just enter",function (data) {
+//         console.log("There is a person entered. His name is ", data.name);
+//         io.sockets.emit("welcome",{name: data.name})
+//     });
+//
+//     //TODO send the message to only conversation's member
+//
+//     socket.on("send a message", function (data) {
+//         var room = "room numner 1";
+//         socket.join(room);
+//         io.sockets.in(room).emit("notify a new message", {
+//             sender: data.sender,
+//             receiver: data.receiver,
+//             message_text: data.message_text,
+//             conversation_id: data.conversation_id,
+//             room: room
+//         })
+//
+//     });
+//
+//     socket.on("typing",function (data) {
+//         io.sockets.emit("notify typing",{
+//             sender: data.sender,
+//             receiver: data.receiver,
+//             conversation_id: data.conversation_id
+//
+//         });
+//
+//     });
+//
+//     socket.on("stop typing",function (data) {
+//         io.sockets.emit("notify stop typing",{
+//             sender: data.sender,
+//             receiver: data.receiver,
+//             conversation_id: data.conversation_id
+//         });
+//
+//     });
+//
+// });

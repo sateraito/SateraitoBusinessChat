@@ -1,6 +1,26 @@
 
 $(function() {
-    var socket = io();
+    /* The external ip is determined by app.js and passed into the template. */
+    var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
+    var webSocketUri =  webSocketHost + externalIp + ':65080';
+    console.log(webSocketUri);
+
+    var socket = io(webSocketUri);
+
+
+    socket.on('chat_message', function(msg){
+        console.log(msg);
+        console.log('Msg from server: ' + msg);
+    });
+
+    socket.on('connect' ,function(msg){
+        console.log('Connected to server: socketio');
+    });
+
+    socket.on('disconnect' ,function(msg){
+        console.log('Disconnected from server: socketio');
+    });
+
 
     $("#login_btn").on("click",function () {
         var email = $("#login_email").val();
@@ -17,7 +37,8 @@ $(function() {
 
             return false;
         }
-        //call signup AJAX
+
+        // call signup AJAX
         $.post("/user-login",
             {
                 email: email,
@@ -35,7 +56,7 @@ $(function() {
                     // Tell the server your username
                     socket.emit('user login', email);
 
-                    $(location).attr("href","/chat-room");
+                    $(location).attr("href","/main-space");
 
                 }
 
@@ -94,7 +115,7 @@ $(function() {
                     // Tell the server your username
                     socket.emit('user login', email);
 
-                    $(location).attr("href","/chat-room");
+                    $(location).attr("href","/main-space");
 
                 }
 
