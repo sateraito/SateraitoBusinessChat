@@ -1,3 +1,4 @@
+
 var utilities = require("./utilities");
 
 var express = require("express");
@@ -22,6 +23,7 @@ app.engine('.html', require('ejs').__express);
 // app.set('/', __dirname + '/views');
 app.set('view engine', 'html');
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 
 //Config Express

@@ -12,6 +12,7 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "@google-cloud/datastore": "^0.1.1",
     "express": "*",
     "socket.io": "*",
     "socketio-file-upload": "^0.4.4",

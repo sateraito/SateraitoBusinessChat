@@ -1,4 +1,5 @@
 
+
 $(function() {
     /* The external ip is determined by app.js and passed into the template. */
     var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
@@ -125,9 +126,6 @@ $(function() {
 
 
     });
-
-
-
 
 
 
