@@ -508,4 +508,8 @@ io.sockets.on('connection', function (socket) {
 
 });
 
-//server.listen(process.env.PORT || 8000, (function () {console.error('listening on http://localhost:8000/'); console.log(process.env.PORT);}));
+// These environment variables are set automatically on Google App Engine
+var Datastore = require('@google-cloud/datastore');
+
+// Instantiate a datastore client
+var datastore = Datastore();
