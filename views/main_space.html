@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>チャット画面</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <script src="https://connect.facebook.net/en_US/all.js"></script>
+    <script src="https://apis.google.com/js/client:platform.js" async defer></script>
+
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/chat.js"></script>
+    <script src="/js/main.js"></script>
+
+    <script>
+        user_email = "<%= user_email %>";
+        user_friend_list = "<%= user_friend_list %>";
+        user_conversation_list = "<%= user_conversation_list %>";
+        externalIp = "<%= externalIp %>"
+
+    </script>
+
+</head>
+<style>
+
+</style>
+
+<body onload="mainSpaceLoad()">
+<div id="add_user_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">友達リストにユーザーを追加する</h4>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="chat_user_list" placeholder="ユーザーのメールアドレスを入れてください。複数の場合、コマで分ける">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="add_user_list">ユーザーを追加する</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="page_container">
+    <div class="page_header">
+        <p class="page_title">サテライトビジネシチャット</p>
+        <div class="page_list">
+            <ul class="page_main_list">
+                <li><a href="javascript:void(0)" id="con_list_icon" class="page_main_list_icon"><img src="image/conversation-icon-active.png"></a></li>
+                <li><a href="javascript:void(0)" id="user_list_icon" class="page_main_list_icon"><img src="image/contact-icon.png"></a></li>
+                <li><a href="javascript:void(0)" id="add_user_icon" class="page_main_list_icon"><img src="image/addfriend-icon-normal.png"></a></li>
+                <li><a href="javascript:void(0)" id="favorite_icon" class="page_main_list_icon"><img src="image/favorite-normal.png"></a></li>
+            </ul>
+            
+            <a class="page_main_info_icon" href="javascript:void(0)" onclick="show_user_option_list()"><img src="image/option-normal.png"></a>
+            <ul class="user_option_list">
+                <li><a href="javascript:void(0)">プロフィール</a></li>
+                <li><a href="javascript:void(0)" onclick="do_logout('<%= user_type %>')">ログアウト</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="page_header_2">
+        <div class="page_header_2_left">
+            <a href="javascript:void(0)" id="create_new_chat_icon" class="page_main_left_header_icon"><img src="image/add-group-chat-icon.png">&nbsp;&nbsp;グループチャットを作成する</a>
+
+        </div>
+        <div class="page_header_2_right">
+            <input type="text" placeholder="名前、メール、グループの名前、電話番号など" id="main_search_input">
+            <a class="main_search_button" href="javascript:void(0)"><img src="image/search-icon.png"></a>
+
+        </div>
+
+    </div>
+    <div class="page_main_wrapper">
+        <div class="page_main_left_wrapper">
+            <div class="page_main_left_body">
+                <ul class="user_friend_list page_main_left_body_list">
+
+
+                </ul>
+                <ul class="user_conversation_list page_main_left_body_list">
+
+
+                </ul>
+
+            </div>
+
+            <div class="page_main_left_footer">
+                <div class="page_main_left_footer_inner">
+                    <a href="javascript:void(0)" id="show_user_list" class="page_main_left_footer_icon"><img src="image/search-contact-normal.png"></a>
+                    <a href="javascript:void(0)" id="show_conversation_list" class="page_main_left_footer_icon footer_icon_active"><img src="image/conversation-list-active.png"></a>
+
+                </div>
+
+            </div>
+
+
+        </div>
+        <div class="page_main_right_wrapper">
+
+        </div>
+
+        <div class="chat_screen_area">
+
+
+
+
+        </div>
+
+
+    </div>
+    <div class="page_footer">
+        <ul class="page_footer_main">
+            <li style="text-align: right;padding-right: 15px;padding-top: 15px;border-right: 1px solid #405b9c;"><img src="image/conversation-icon-active.png" class="page_footer_chat_icon">&nbsp;サテライトビジネスチャット</li>
+            <li style="text-align: left;padding-top: 15px;padding-left: 15px;">Copyright@Sateraito Office</li>
+
+        </ul>
+
+
+    </div>
+
+
+
+
+
+</div>
+
+</body>
+</html>
