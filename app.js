@@ -1,4 +1,3 @@
-
 var utilities = require("./utilities");
 
 var express = require("express");
@@ -6,7 +5,6 @@ var request = require('request');
 var path = require('path');
 var app = express();
 var server = require("http").createServer(app);
-// var io = require('socket.io')(server);
 var fs = require("fs");
 var bcrypt = require('bcrypt');
 // Create a password salt
@@ -25,11 +23,17 @@ app.set('view engine', 'html');
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-
 //Config Express
 app.use(express.static(__dirname + '/views'));
 
 server.listen(process.env.PORT || 8000);
+
+//Datastore config
+app.enable('trust proxy');
+var Datastore = require('@google-cloud/datastore');
+// Instantiate a datastore client
+var datastore = Datastore();
+
 
 
 //Config session
@@ -50,29 +54,15 @@ app.use(session(
 app.get("/", function (req, res) {
 
     getExternalIp(function (externalIp) {
-        res.render('home', {externalIp: externalIp});
+        if (req.session.user_id) {
+
+            res.redirect("/main-space", {externalIp: externalIp})
+        } else {
+            res.render('home', {externalIp: externalIp});
+        }
     });
 
-    // if(req.session.user_id){
-    //     res.redirect("/main-space")
-    // }else{
-    //     res.render("home", {})
-    // }
-
 });
-
-// app.get("/home", function (req, res) {
-//     console.log("req.session.user_id",req.session.user_id);
-//     if(req.session.user_id){
-//         res.redirect("/main-space")
-//     }else{
-//         res.render("index", {})
-//     }
-//
-// });
-
-
-
 
 
 app.get("/logout", function (req, res) {
@@ -85,14 +75,12 @@ app.get("/logout", function (req, res) {
 app.get("/sign-up", function (req, res) {
 
     getExternalIp(function (externalIp) {
-        console.log("gfsdsagfsadas");
-        console.log(io);
         res.render('sign-up', {externalIp: externalIp});
     });
+
 });
 
 app.post("/do-sign-up", jsonParser, function (req, res) {
-    //Create MySQL connection
     var email = req.body.email;
     var password = req.body.password;
     var password_again = req.body.password_again;
@@ -102,86 +90,234 @@ app.post("/do-sign-up", jsonParser, function (req, res) {
         res.json({"status": "password error"})
     }
 
-    //Check email is existed or not
-    utilities.runPGQuery("SELECT * FROM UserInfo WHERE email = '" + email + "'",function (rows) {
-        //Email is already registered
-        if (rows.length == 0) {
-            //Create new account in DB
-            var new_user_id = utilities.generateUserId();
-            // Salt and hash password
-            var hash_password = bcrypt.hashSync(password, salt)
-            // var post = {id: new_user_id, email: email, password: hash_password};
-            var insert_user_string = "INSERT INTO UserInfo (id, user_name, password, validation_code, is_validated, email, last_name, first_name, friend_list, conversation_list, birthday, address, company, created_date, updated_datetime) VALUES ('"+new_user_id+"', '', '"+hash_password+"', '', 0, '"+email+"', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)";
-            utilities.runPGQuery(insert_user_string,function (result) {;
-                req.session.user_id = new_user_id;
-                req.session.user_email = email;
-                console.log("registered!!");
-                res.json({"status": "ok"})
-            });
+    var hash_password = bcrypt.hashSync(password, salt)
 
-        } else {
-            console.log("email is already existed");
-            res.json({"status": "email existed"})
+    var query = datastore.createQuery('UserInfo')
+        .filter('email', '=', email);
+
+    datastore.runQuery(query, function (err, entities) {
+        if (err) {
+            return res.json({"status": "db error", "message": "invalid account query error"});
         }
+        if (entities.length > 0) {
+            return res.json({"status": "email existed", "message": "Account is exist", "email": email});
+        } else {
+            var arr = email.split("@").map(function (val) {
+                return val;
+            });
+            var userinfo = {
+                // Store a hash of the use
+                id: generateUserId(),
+                user_name: arr[0],
+                password: hash_password,
+                validation_code: generateRandomString(),
+                email: email,
+                first_name: arr[0],
+                last_name: '',
+                image_url: '',
+                friend_list: '',
+                conversation_list: '',
+                is_validated: '',
+                birthday: '',
+                address: '',
+                company: '',
+                created_date: new Date(),
+                updated_datetime: new Date()
+            };
 
+            datastore.save({
+                key: datastore.key('UserInfo'),
+                data: userinfo
+            }, function (err) {
+                if (err) {
+                    return res.json({"status": "db error", "message": "invalid account", "error": 'save datastore error'});
+                } else {
+                    req.session.user_id = userinfo.id;
+                    req.session.user_email = email;
+                    req.session.user_type = "account";
+                    return res.json({"status": "success", "message": "Your account already!"});
+                }
+            });
+        }
     });
 
 });
 
 app.post("/user-login", jsonParser, function (req, res) {
-
     var email = req.body.email;
-    console.log("email param is");
-    console.log(email);
     var password = req.body.password;
+    var query = datastore.createQuery('UserInfo')
+        .filter('email', '=', email);
 
-    utilities.runPGQuery("SELECT * FROM UserInfo WHERE email = '" + email + "'",function (rows) {
-        if (rows.length > 0) {
+    datastore.runQuery(query, function (err, entities) {
+        if (err) {
+            return res.json({"status": "fail", "message": "invalid account query error","email": email});
+        }
+        if (entities.length > 0) {
             //check if password is OK
-            bcrypt.compare(password, rows[0].password, function (err, matches) {
+            bcrypt.compare(password, entities[0].data.password, function (err, matches) {
                 if (err) {
                     console.log('Error while checking password');
                 } else if (matches) {
-                    req.session.user_id = rows[0].id;
+                    req.session.user_id = entities[0].data.id;
                     req.session.user_email = email;
+                    req.session.user_type = "account";
 
-                    res.json({"status": "ok"})
-                    console.log("login ok");
+                    res.json({"status": "success"})
 
-                } else {
-                    res.json({"status": "invalid account"})
+                }else {
+                    res.json({"status": "invalid password"})
                     console.log("password wrong");
 
                 }
-
-            });
+            })
 
         } else {
-            //Email is not ok
-            res.json({"status": "invalid account"});
-            console.log("email wrong");
-
+            return res.json({"status": "invalid email"});
         }
-        
     });
 
 
 });
 
-app.get("/main-space", function (req, res) {
-    console.log("req.session.user_id", req.session.user_id);
-    if (req.session.user_id) {
-        utilities.runPGQuery("SELECT * FROM UserInfo WHERE email = '"+req.session.user_email+"'",function (rows) {
-            if (rows.length > 0){
-                var user_friend_list = rows[0].friend_list;
-                var user_conversation_list = rows[0].conversation_list;
-                res.render("main_space", {
-                    user_email: req.session.user_email,
-                    user_id: req.session.user_id,
-                    user_friend_list: user_friend_list,
-                    user_conversation_list: user_conversation_list
-                })
+app.post("/user-login-facebook", jsonParser, function (req, res) {
+
+    var email = req.body.email;
+    var query = datastore.createQuery('UserInfo')
+        .filter('email', '=', email);
+
+    datastore.runQuery(query, function (err, entities) {
+        if (err) {
+            return res.json({"status": "db error", "error": "invalid account query error"});
+        }
+        if (entities.length > 0) {
+            return res.json({"status": "success"});
+        } else {
+            var arr = email.split("@").map(function (val) {
+                return val;
+            });
+            var userinfo = {
+                // Store a hash of the use
+                id: generateUserId(),
+                user_name: arr[0],
+                password: '',
+                validation_code: generateRandomString(),
+                email: email,
+                first_name: arr[0],
+                last_name: '',
+                image_url: '',
+                friend_list: '',
+                conversation_list: '',
+                is_validated: '',
+                birthday: '',
+                address: '',
+                company: '',
+                created_date: new Date(),
+                updated_datetime: new Date()
             };
+
+            datastore.save({
+                key: datastore.key('UserInfo'),
+                data: userinfo
+            }, function (err) {
+                if (err) {
+                    return res.json({"status": "db error", "error": 'save datastore error'});
+                } else {
+                    req.session.user_id = userinfo.id;
+                    req.session.user_email = email;
+                    req.session.user_type = "facebook";
+                    return res.json({"status": "success"});
+                }
+            });
+        }
+    });
+
+});
+
+app.post("/user-login-google", jsonParser, function (req, res) {
+
+    var email = req.body.email;
+    var query = datastore.createQuery('UserInfo')
+        .filter('email', '=', email);
+
+    datastore.runQuery(query, function (err, entities) {
+        if (err) {
+            return res.json({"status": "db error", "error": "invalid account query error"});
+        }
+        if (entities.length > 0) {
+            return res.json({"status": "success"});
+        } else {
+            var arr = email.split("@").map(function (val) {
+                return val;
+            });
+            var userinfo = {
+                // Store a hash of the use
+                id: generateUserId(),
+                user_name: arr[0],
+                password: '',
+                validation_code: generateRandomString(),
+                email: email,
+                first_name: arr[0],
+                last_name: '',
+                image_url: '',
+                friend_list: '',
+                conversation_list: '',
+                is_validated: '',
+                birthday: '',
+                address: '',
+                company: '',
+                created_date: new Date(),
+                updated_datetime: new Date()
+            };
+
+            datastore.save({
+                key: datastore.key('UserInfo'),
+                data: userinfo
+            }, function (err) {
+                if (err) {
+                    return res.json({"status": "db error", "error": 'save datastore error'});
+                } else {
+                    req.session.user_id = userinfo.id;
+                    req.session.user_email = email;
+                    req.session.user_type = "google";
+                    return res.json({"status": "success"});
+                }
+            });
+        }
+    });
+
+
+});
+
+
+
+app.get("/main-space", function (req, res) {
+
+    if (req.session.user_id) {
+        // Query datastore user info with email
+        var query = datastore.createQuery('UserInfo')
+            .filter('email', '=', req.session.user_email);
+        datastore.runQuery(query, function (err, entities) {
+            if (entities.length > 0) {
+                var user_friend_list = entities[0].data.friend_list;
+                var user_conversation_list = entities[0].data.conversation_list;
+                for(var i = 1; i < entities.length; i++){
+                    user_friend_list += ',' + entities[i].data.friend_list;
+                    user_conversation_list = ',' + entities[i].data.conversation_list;
+                }
+
+                getExternalIp(function (externalIp) {
+                    res.render("main_space", {
+                        user_email: req.session.user_email,
+                        user_id: req.session.user_id,
+                        user_friend_list: user_friend_list,
+                        user_conversation_list: user_conversation_list,
+                        user_type : req.session.user_type,
+                        externalIp: externalIp
+                    });
+                });
+
+            }
         });
 
 
@@ -198,18 +334,29 @@ app.post("/add-user-list", jsonParser, function (req, res) {
     var user_email = req.session.user_email;
 
     //Update friend list of user
-    utilities.runPGQuery("SELECT * FROM UserInfo WHERE email = '" + user_email + "'", function (rows) {
-        if (rows.length > 0) {
-            var current_friend_list = rows[0].friend_list;
+    var query = datastore.createQuery('UserInfo')
+        .filter('email', '=', user_email);
+
+    datastore.runQuery(query, function (err, entities) {
+        if (entities.length > 0) {
+            var current_friend_list = entities[0].data.friend_list;
+            var new_user = entities[0].data;
             var new_friend_list = null;
-
-
+            var is_update = true;
             if (current_friend_list) {
                 var current_friend_array = current_friend_list.split(",");
                 member_list.split(",").forEach(function (val, i) {
+                    var query_list = datastore.createQuery('UserInfo')
+                        .filter('email', '=', val);
+                    datastore.runQuery(query_list, function (err, entity) {
+                        if (entity.length > 0) {
+                        } else {
+                            is_update = false;
+                        }
+
+                    });
                     if (current_friend_array.indexOf(val) == -1) {
                         current_friend_array.push(val);
-
                     }
                     new_friend_list = current_friend_array.toString();
                 });
@@ -218,25 +365,38 @@ app.post("/add-user-list", jsonParser, function (req, res) {
                 new_friend_list = member_list;
             }
 
+            new_user.friend_list = new_friend_list;
             if (new_friend_list) {
-                //Update user friend list
-                utilities.runPGQuery("UPDATE UserInfo SET friend_list = '" + new_friend_list + "' WHERE email = '" + user_email + "'",
-                    function (result) {
+                if (is_update == true) {
+                    //Update user friend list
+                    datastore.update({
+//                    key: datastore.key('UserInfo'),
+//                    ds.key([kind, parseInt(id, 10)])
+                        key: datastore.key(['UserInfo', entities[0].key.id]),
+                        data: new_user
+                    }, function (err) {
+                        if (!err) {
+                            return res.json({"status": "success", "message": "update", 'update_value': entities[0], "is_update": is_update});
+                            // Task updated successfully.
+                        } else {
+                            return res.json({"status": "fail", "message": "update friend list fail", 'update_value': entities[0], "is_update": is_update});
+                        }
+
                     });
+                } else {
+                    return res.json({"status": "fail", "message": "update friend list fail", 'update_value': entities[0], "is_update": is_update});
+                }
+            } else {
+                res.json({"status": "fail", "message": "nobody friend update"});
             }
-
-
-
-            res.json({"status": "ok"});
+//            res.json({"status": "ok"});
 
 
         } else {
             //Email is not ok
-            res.json({"status": "invalid account"});
-            console.log("email wrong");
+            res.json({"status": "fail", "message": "invalid account"});
 
         }
-
     });
 });
 
@@ -248,7 +408,7 @@ app.post("/send-a-message", jsonParser, function (req, res) {
     var user_conversation_list = req.body.user_conversation_list;
 
     //If this is a new conversation
-    if(user_conversation_list.split(",").indexOf(conversation_id) == -1){
+    if (user_conversation_list.split(",").indexOf(conversation_id) == -1) {
 
         var member_array = receiver.split(",");
         member_array.push(sender);
@@ -256,31 +416,98 @@ app.post("/send-a-message", jsonParser, function (req, res) {
         //TODO catch error while operate query
 
         //Create new conversation into database
-        utilities.runPGQuery("INSERT INTO Conversation (id, organizer, member, memo, todo) VALUES ('"+conversation_id+"', '"+sender+"', '"+member_array.toString()+"', NULL, NULL)",function (rows) {
+        var coversation = {
+            // Store a hash of the use
+            id: conversation_id,
+            organizer: sender,
+            member: member_array.toString(),
+            memo: '',
+            todo: '',
+            created_date: new Date()
+        };
 
+        datastore.save({
+            key: datastore.key('Conversation'),
+            data: coversation
+        }, function (err) {
+            if (err) {
+                return res.json({
+                    "status": "fail",
+                    "message": "conversation input fail",
+                    "error": 'save datastore conversation error'
+                });
+            }
         });
 
-        //Update conversation list to sender
-        var new_conversation_array = user_conversation_list.split(",");
-        new_conversation_array.push(conversation_id);
-        utilities.runPGQuery("UPDATE UserInfo SET conversation_list = '"+new_conversation_array.toString()+"' WHERE email = '"+sender+"'",function (rows) {
+        // Update conversation list of user info
+        var query = datastore.createQuery('UserInfo')
+            .filter('email', '=', sender);
+        datastore.runQuery(query, function (err, entities) {
+            if (entities.length > 0) {
+               var current_conversation_list = entities[0].data.conversation_list;
+               var current_conversation_array = current_conversation_list.split(",");
+                if (current_conversation_array.indexOf(conversation_id) == -1){
+                    //Update user friend list
+                    var new_conversation_array = current_conversation_array.push(conversation_id);
+                    var new_user = entities[0].data;
+                    new_user.conversation_list = new_conversation_array.toString();
+                    datastore.update({
+                        key: datastore.key(['UserInfo', entities[0].key.id]),
+                        data: new_user
+                    }, function (err) {
+                        if (err) {
+                            res.json({"status": "fail", "message": "update conversation list fail"});
+                            // Task updated successfully.
+                        } else {
+                            res.json({"status": "success", "message": "update", 'update_value': entities[0]});
+                        }
+                    });
+                }
 
+
+
+            } else {
+                //Email is not ok
+                res.json({"status": "fail", "message": "invalid account"});
+
+            }
         });
 
         //update conversation list to receiver
-        receiver.split(",").forEach(function (val,i) {
-            utilities.runPGQuery("SELECT * from UserInfo WHERE email = '"+val+"'",function (rows) {
-                if(rows.length > 0){
-                    var receiver_conversation_array = rows[0].conversation_list.split(",");
+        receiver.split(",").forEach(function (val, i) {
+            var query = datastore.createQuery('UserInfo')
+                .filter('email', '=', val);
+            datastore.runQuery(query, function (err, entities) {
+                if (entities.length > 0) {
+                    var receiver_conversation_array = entities[0].conversation_list.split(",");
                     receiver_conversation_array.push(conversation_id);
-                    utilities.runPGQuery("UPDATE UserInfo SET conversation_list = '"+receiver_conversation_array.toString()+"' WHERE email = '"+val+"'",function (rows) {
 
-                    });
+                    var new_user = entities[0].data;
+                    new_user.conversation_list = receiver_conversation_array;
+                    if (receiver_conversation_array) {
+
+                        //Update user friend list
+                        datastore.update({
+                            key: datastore.key(['UserInfo', entities[0].key.id]),
+                            data: new_user
+                        }, function (err) {
+                            if (err) {
+                                res.json({"status": "fail", "message": "update conversation list fail"});
+                                // Task updated successfully.
+                            } else {
+                                res.json({"status": "success", "message": "update", 'update_value': entities[0]});
+                            }
+                        });
+                    } else {
+                        res.json({"status": "fail", "message": "No conversation list updated"});
+                    }
+
+                } else {
+                    //Email is not ok
+                    res.json({"status": "fail", "message": "invalid account"});
 
                 }
-
             });
-
 
         });
 
@@ -288,8 +515,31 @@ app.post("/send-a-message", jsonParser, function (req, res) {
 
     //Then add this message to database
     //Create new conversation into database
-    var message_id = utilities.generateMessageId()
-    utilities.runPGQuery("INSERT INTO message_info (id, conversation_id, content, sender, receiver) VALUES ('"+message_id+"','"+conversation_id+"', '"+message_text+"', '"+sender+"', '"+receiver+"')",function (rows) {
+    var message_id = utilities.generateMessageId();
+
+    var message_info = {
+        // Store a hash of the use
+        id: message_id,
+        conversation_id: conversation_id,
+        content: message_text,
+        sender: sender,
+        receiver: receiver,
+        is_read: false,
+        created_date: new Date()
+    };
+
+    datastore.save({
+        key: datastore.key('MessageInfo'),
+        data: message_info
+    }, function (err) {
+        if (err) {
+            return res.json({
+                "status": "fail",
+                "message": "conversation input fail",
+                "error": 'save datastore conversation error'
+            });
+        }
+
     });
 
 
@@ -300,32 +550,27 @@ app.post("/send-a-message", jsonParser, function (req, res) {
 app.post("/continue-conversation", jsonParser, function (req, res) {
     var conversation_id = req.body.conversation_id;
 
-    utilities.runPGQuery("SELECT * FROM Conversation WHERE id = '"+conversation_id+"'",function (results) {
-        if (results.length > 0){
-
-            //TODO Load messages of conversation, implement limit
-            utilities.runPGQuery("SELECT * FROM message_info WHERE conversation_id = '"+conversation_id+"' ORDER BY created_datetime ASC",function (rows) {
-
-                res.json({message_list: rows , organizer: results[0].organizer , member: results[0].member})
+    var query = datastore.createQuery('Conversation')
+        .filter('id', '=', conversation_id);
+    datastore.runQuery(query, function (err, entities) {
+        if (entities.length > 0) {
+            var query_message = datastore.createQuery('MessageInfo')
+                .filter('id', '=', conversation_id)
+                // .order('-created_date');
+            datastore.runQuery(query_message, function (err, message) {
+                res.json({message_list: message, organizer: entities[0].organizer, member: entities[0].member})
 
             });
 
         }
-
-
     });
-
-
 
 
 
 
 });
 
-// [START external_ip]
-// In order to use websockets on App Engine, you need to connect directly to
-// application instance using the instance's public external IP. This IP can
-// be obtained from the metadata server.
+
 var METADATA_NETWORK_INTERFACE_URL = 'http://metadata/computeMetadata/v1/' +
     '/instance/network-interfaces/0/access-configs/0/external-ip';
 
@@ -342,9 +587,11 @@ function getExternalIp (cb) {
             console.log('Error while talking to metadata server, assuming localhost');
             return cb('localhost');
         }
+        console.log(cb);
         return cb(body);
     });
 }
+
 
 
 // setup new webserver for socket.io listening on 65080
@@ -353,56 +600,74 @@ var server1 = require('http').Server(app_chat);
 var io = require('socket.io')(server1);
 server1.listen(65080);
 
+
+
+
 io.on('connection', function (socket) {
-    console.log('user connected');
-    socket.on('chat_message', function (data) {
-        console.log('client sent:',data);
-        socket.emit('chat_message', 'Server is echoing your message: ' + data);
+
+    socket.emit('news', { hello: 'world' });
+
+    socket.on("just enter",function (data) {
+        console.log("There is a person entered. His name is ", data.name);
+        io.sockets.emit("welcome",{name: data.name})
     });
+
+    //TODO send the message to only conversation's member
+
+    socket.on("send a message", function (data) {
+        // var room = "room numner 1";
+        // socket.join(room);
+        io.sockets.emit("notify a new message", {
+            sender: data.sender,
+            receiver: data.receiver,
+            message_text: data.message_text,
+            conversation_id: data.conversation_id,
+
+        })
+
+    });
+
+    socket.on("typing",function (data) {
+        io.sockets.emit("notify typing",{
+            sender: data.sender,
+            receiver: data.receiver,
+            conversation_id: data.conversation_id
+
+        });
+
+    });
+
+    socket.on("stop typing",function (data) {
+        io.sockets.emit("notify stop typing",{
+            sender: data.sender,
+            receiver: data.receiver,
+            conversation_id: data.conversation_id
+        });
+
+    });
+
 });
 
 
-// io.on('connection', function (socket) {
-//
-//     socket.emit('news', { hello: 'world' });
-//
-//     socket.on("just enter",function (data) {
-//         console.log("There is a person entered. His name is ", data.name);
-//         io.sockets.emit("welcome",{name: data.name})
-//     });
-//
-//     //TODO send the message to only conversation's member
-//
-//     socket.on("send a message", function (data) {
-//         var room = "room numner 1";
-//         socket.join(room);
-//         io.sockets.in(room).emit("notify a new message", {
-//             sender: data.sender,
-//             receiver: data.receiver,
-//             message_text: data.message_text,
-//             conversation_id: data.conversation_id,
-//             room: room
-//         })
-//
-//     });
-//
-//     socket.on("typing",function (data) {
-//         io.sockets.emit("notify typing",{
-//             sender: data.sender,
-//             receiver: data.receiver,
-//             conversation_id: data.conversation_id
-//
-//         });
-//
-//     });
-//
-//     socket.on("stop typing",function (data) {
-//         io.sockets.emit("notify stop typing",{
-//             sender: data.sender,
-//             receiver: data.receiver,
-//             conversation_id: data.conversation_id
-//         });
-//
-//     });
-//
-// });
+function generateRandomString() {
+    Date.prototype.yyyymmdd = function() {
+        var mm = this.getMonth() + 1; // getMonth() is zero-based
+        var dd = this.getDate();
+
+        return [this.getFullYear(), !mm[1] && '', mm, !dd[1] && '0', dd].join(''); // padding
+    };
+
+    var date = new Date();
+
+
+    var user_id = date.yyyymmdd();
+
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < 20; i++ )
+        user_id += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return user_id;
+
+
+};

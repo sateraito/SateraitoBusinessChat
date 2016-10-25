@@ -1,3 +1,7 @@
+a:hover {
+    text-decoration: none;
+}
+
 body{
     padding: 0px!important;
     margin: 0px!important;
@@ -49,56 +53,6 @@ body{
 }
 
 
-.chat_container {
-    float: left;
-    width: 100%;
-}
-
-.chat_title {
-    float: left;
-    width: 100%;
-    text-align: center;
-}
-
-.chat_wrapper {
-    float: left;
-    width: 100%;
-    background: lightgray;
-    overflow: scroll;
-    height: 740px;
-}
-
-.send_message_wrapper {
-    float: left;
-    width: 100%;
-}
-
-.message_text {
-    float: left;
-    width: 100%;
-    padding: 5px;
-    outline: 0;
-    border: 1px solid #d7d7d7;
-}
-
-.send_message_wrapper button {
-    float: left;
-    width: 6%;
-    margin-left: 1%;
-    padding: 12px;
-}
-
-
-
-.create_chat_icon {
-    position: absolute;
-    right: 30px;
-    top: 100px;
-}
-
-.create_chat_icon img {
-    width: 50px;
-}
 
 #chat_user_list {
     width: 100%;
@@ -136,84 +90,500 @@ body{
     text-align: center;
 }
 
-.user_friend_list {
-    float: left;
-    width: 100%;
-    padding: 0;
-    list-style: none;
-    height: 250px;
-    overflow-x: scroll;
-}
-
-.user_friend_list li {
-    line-height: 30px;
-}
-
-.user_conversation_list {
-    float: left;
-    width: 100%;
-    padding: 0;
-    list-style: none;
-    height: 250px;
-    overflow-x: scroll;
-
-}
 
 .chat_screen_area {
-    width: 95%;
+    width: 80%;
     height: 350px;
     position: fixed;
-    bottom: 0px;
+    bottom: 50px;
     right: 0px;
+    overflow : hidden;
 }
 
 
+
+
+
+/*New CSS*/
+/*Start header*/
+.page_header {
+    float: left;
+    width: 100%;
+    height: 130px;
+    background: #3e5999;
+}
+
+.page_title {
+    color: white;
+    margin: 0 auto;
+    text-align: center;
+    padding-top: 25px;
+    padding-bottom: 15px;
+    font-size: 20px;
+
+}
+
+.page_list {
+    float: left;
+    width: 100%;
+    height: 52px;
+}
+
+.page_main_list {
+    height: 52px;
+    width: 400px;
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+}
+
+.page_main_list li {
+    display: inline;
+    float: left;
+    width: 25%;
+}
+
+.page_main_list_icon {
+    margin-left: 30px;
+}
+
+.page_main_list_icon img {
+    width: 31px;
+}
+
+.page_main_info_icon {
+    float: right;
+    margin-top: -40px;
+    margin-right: 5px;
+}
+
+.page_main_info_icon img {
+    width: 30px;
+}
+
+.page_header_2 {
+    float: left;
+    width: 100%;
+    height: 50px;
+    background: #edf0f7;
+    border-bottom: 1px solid #d4d8e2;
+}
+
+.page_header_2_left {
+    float: left;
+    height: 50px;
+    padding: 15px;
+}
+
+.page_main_left_header_icon {
+    color: #3f3f3f;
+}
+
+.page_main_left_header_icon img {
+    width: 30px;
+}
+
+.page_header_2_right {
+    float: right;
+    height: 50px;
+    padding: 8px 30px 10px 0px;
+}
+
+#main_search_input {
+    float: left;
+    width: 450px;
+    padding: 5px;
+    border: 1px solid #d4d8e2;
+}
+
+.main_search_button {
+    float: left;
+    margin: 4px 0px 0px -30px;
+}
+
+.main_search_button img {
+    width: 25px;
+}
+
+.user_option_list {
+    background: white;
+    position: absolute;
+    right: 5px;
+    list-style: none;
+    padding: 0;
+    width: 150px;
+    border: 1px solid #d7d7d7;
+    margin-top: -15px;
+    display: none;
+}
+
+.user_option_list li {
+    float: left;
+    width: 100%;
+    padding: 10px;
+}
+
+.user_option_list li a {
+    color: black;
+}
+
+/*End header*/
+
+/*Start main page*/
+
+.page_main_wrapper {
+    float: left;
+    width: 100%;
+}
+
+.page_main_left_wrapper {
+    float: left;
+    width: 300px;
+    border-right: 1px solid #d4d8e2;
+}
+
+.user_friend_list {
+    display: none;
+}
+
+.page_main_left_wrapper {
+    background: #edf0f7;
+}
+.page_main_left_body {
+    float: left;
+    width: 100%;
+    overflow-x: auto;
+}
+
+.page_main_left_body_list {
+    list-style: none;
+    padding: 0;
+
+}
+
+.page_main_left_body_list li {
+    padding: 0px;
+    border: 1px solid #d4d8e2;
+    height: 65px;
+
+}
+
+.user_friend_email, .user_conversation_id {
+    float: left;
+    margin-left: 10px;
+    width: 90%;
+    overflow: hidden;
+    margin-top: 6px;
+}
+
+.user_conversation_list li:hover, .user_friend_list li:hover {
+    background: white;
+}
+
+
+.user_friend_email img, .user_conversation_id img {
+    width: 40px;
+    float: left;
+    margin-top: 4px;
+}
+
+.user_friend_email p, .user_conversation_id p {
+    width: 220px;
+    padding-left: 10px;
+    float: left;
+    overflow: hidden;
+    margin-top: 4px;
+
+}
+
+.user_friend_action_button, .user_conversation_action_button {
+    float: right;
+    margin-top: 15px;
+    color: #405b9c;
+}
+
+.page_main_left_footer {
+    float: left;
+    background: #d8dde8;
+    width: 100%;
+}
+
+.page_main_left_footer_inner {
+    width: 100px;
+    height: 50px;
+    margin: 0 auto;
+}
+
+.page_main_left_footer_icon {
+    float: left;
+    width: 50%;
+    height: 50px;
+}
+
+.footer_icon_active {
+    background: white;
+}
+
+.page_main_left_footer_icon img {
+    width: 60%;
+    margin-left: 20%;
+    margin-top: 8px;
+}
+
+.chat_screen_header_2 {
+    height: 30px;
+    float: left;
+    width: 100%;
+}
+
+.add_user_chat_screen img {
+    width: 22px;
+}
+
+.chat_screen_option img {
+    width: 24px;
+}
+
+
+
+.add_user_chat_screen {
+    float: left;
+    margin: 2px 0px 0px 15px;
+}
+
+.chat_screen_option {
+    float: right;
+    margin: 2px 15px 0px 0px;
+}
+
+
+.chat_screen_body {
+    float: left;
+    width: 100%;
+    height: 233px;
+    padding: 5px;
+    overflow-x: auto;
+    overflow-y: auto;
+    background: #e1e6ef
+
+}
+
+
+.sender_chat_message {
+    float: left;
+    width: 100%;
+    margin-bottom: 5px;
+    overflow: auto;
+}
+
+.receiver_chat_message {
+    float: left;
+    width: 90%;
+    margin-left: 7%;
+    margin-bottom: 5px;
+    overflow: auto;
+}
+
+
+.receiver_chat_message p {
+    background: white;
+    color: #3e3e3e;
+    font-size: 13px;
+    padding: 5px 5px 5px 10px;
+    margin-right: 5px;
+    float: right;
+    border-radius: 5px;
+    word-break: break-all;
+}
+
+.sender_chat_message .chat_user_icon img{
+    width: 30px;
+}
+
+.sender_chat_message p {
+    background: #b9f794;
+    color: #3e3e3e;
+    font-size: 13px;
+    padding: 5px 10px 5px 5px;
+    margin-left: 37px;
+    margin-top: -10px;
+    float: left;
+    border-radius: 5px;
+    word-break: break-all;
+}
+
+.receiver_chat_message_arrow {
+    margin: 0px 0px -10px 258px;
+    float: right;
+}
+
+
+.sender_chat_message_arrow {
+    margin: -30px 0px 0px 31px;
+}
+
+.receiver_chat_message_wrapper .chat_message_option{
+    float: right;
+    margin: 0px 12px -10px 0px;
+    display: none;
+}
+
+.sender_chat_message_wrapper .chat_message_option{
+    float: left;
+    margin: 0px 0px -10px 35px;
+    display: none;
+}
+
+.message_favorite_button img {
+    width: 13px;
+}
+
+.edit_message_button {
+    font-size: 10px;
+    color: #0072bc;
+}
+
+
+
+
+
+/*End main page*/
+
+
+
+
+/*Start chat screen*/
 .chat_screen_detail {
     float: right;
-    width: 300px;
-    height:350px;
+    width: 262px;
+    height:380px;
     background: white;
     margin-right: 10px;
-    border: 1px solid #d7d7d7;
+    border: 1px solid #d4d8e2;
 }
 
 .chat_screen_header {
     float: left;
     width: 100%;
-    background: black;
+    height: 40px;
+    background: #2f4375;
+    /*Background of chat_screen header when unread message is #08a4da*/
+}
+
+.chat_screen_header_text {
+    float: left;
+    width: 70%;
+    height: 40px;
+}
+
+.chat_screen_header_text img {
+    width: 17px;
+    float: left;
+    margin: 8px 0px 0px 10px;
 }
 
 .chat_screen_friend {
-    color: white;
     float: left;
-    width: 90%;
-    padding: 5px;
-    text-align: center;
-    font-weight: bold;
+    width: 140px;
+    overflow: hidden;
+    color: white;
+    margin: 10px 0px 0px 10px;
+    white-space:nowrap;
 }
 
-.close_chat_screen {
-    float: right;
-    padding: 5px;
-    margin-right: 2%;
-    color: white;
+.chat_screen_header_button {
+    float: left;
+    width: 30%;
+    height: 40px;
 }
 
-.chat_screen_body {
+.minimize_chat_screen,.maximize_chat_screen, .close_chat_screen {
     float: left;
-    width: 100%;
-    height: 275px;
-    padding: 5px;
-    overflow-y: scroll;
+    margin-left: 11px;
+    margin-top: 8px;
+
+}
+
+.minimize_chat_screen img {
+    width: 12px;
+}
+
+.maximize_chat_screen img {
+    width: 12px;
+}
+
+.close_chat_screen img {
+    width: 12px;
 }
 
 .chat_screen_footer {
     float: left;
     width: 100%;
-    background: pink;
+    border: 1px solid #d4d8e2;
+    padding: 10px;
+
 }
 
-.logout_button {
-    float: right;
-    margin: 0px 10px 10px 0px;
+.show_emotional_icon {
+    float: left;
 }
+
+.show_emotional_icon img{
+    width: 21px;
+}
+
+.message_text {
+    float: left;
+    height: 30px;
+    width: 170px;
+    margin-left: 5px;
+    margin-right: 10px;
+    border: 0;
+    outline: 0;
+    resize: none;
+    font-size: 13px;
+}
+
+.chat_screen_footer {
+    float: left;
+}
+
+.chat_screen_footer .chat_upload_image img{
+    width: 21px;
+
+}
+/*End chat screen*/
+
+
+/*Start footer*/
+.page_footer {
+    float: left;
+    width: 100%;
+    background: #2f4375;
+    height: 50px;
+}
+
+.page_footer_main {
+    width: 600px;
+    margin: 0 auto;
+    height: 50px;
+    list-style: none;
+    padding: 0;
+}
+
+.page_footer_main li {
+    display: inline;
+    width: 50%;
+    height: 50px;
+    float: left;
+    color: white;
+}
+
+.page_footer_chat_icon {
+    width: 25px;
+}
+/*End footer*/
+
+
+/*End new CSS*/
+

@@ -19,12 +19,17 @@ api_version: 1
 # [START env_variables]
 env_variables:
     GCLOUD_PROJECT: sateraito-business-chat
+    GCLOUD_STORAGE_BUCKET: sateraito-business-chat
 
 # [END env_variables]
 # [END app_yaml]
 
 manual_scaling:
   instances: 1
+
+#automatic_scaling:
+#  min_num_instances: 1
+#  max_num_instances: 1
 
 network:
   forwarded_ports:
