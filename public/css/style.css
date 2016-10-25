@@ -65,7 +65,7 @@ body{
     width: 100%;
     background: lightgray;
     overflow: scroll;
-    height: 650px;
+    height: 740px;
 }
 
 .send_message_wrapper {
@@ -75,8 +75,10 @@ body{
 
 .message_text {
     float: left;
-    width: 90%;
-    padding: 10px;
+    width: 100%;
+    padding: 5px;
+    outline: 0;
+    border: 1px solid #d7d7d7;
 }
 
 .send_message_wrapper button {
@@ -91,7 +93,7 @@ body{
 .create_chat_icon {
     position: absolute;
     right: 30px;
-    bottom: 100px;
+    top: 100px;
 }
 
 .create_chat_icon img {
@@ -119,6 +121,14 @@ body{
     margin-left: 30%;
     width: 40%;
 }
+
+.login_modal_row p {
+    float: left;
+    font-size: 15px;
+    margin: 10px 0 0 20px;
+    text-align: left;
+}
+
 
 .login_modal_or {
     background: white none repeat scroll 0 0;
@@ -155,9 +165,106 @@ body{
     margin-top: 10px;
 }
 
-.login_modal_row p {
+.user_chat_list {
     float: left;
-    font-size: 15px;
-    margin: 10px 0 0 20px;
-    text-align: left;
+    background: red;
+    margin: 10px 0px 0px 10px;
+    padding: 10px;
+    width: 250px;
+}
+
+.user_chat_list_block {
+    float: left;
+    background: white;
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+.user_chat_list_block h4 {
+    float: left;
+    width: 100%;
+    text-align: center;
+}
+
+.user_friend_list {
+    float: left;
+    width: 100%;
+    padding: 0;
+    list-style: none;
+    height: 250px;
+    overflow-x: scroll;
+}
+
+.user_friend_list li {
+    line-height: 30px;
+}
+
+.user_conversation_list {
+    float: left;
+    width: 100%;
+    padding: 0;
+    list-style: none;
+    height: 250px;
+    overflow-x: scroll;
+
+}
+
+.chat_screen_area {
+    width: 95%;
+    height: 350px;
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+}
+
+
+.chat_screen_detail {
+    float: right;
+    width: 300px;
+    height:350px;
+    background: white;
+    margin-right: 10px;
+    border: 1px solid #d7d7d7;
+}
+
+.chat_screen_header {
+    float: left;
+    width: 100%;
+    background: black;
+}
+
+.chat_screen_friend {
+    color: white;
+    float: left;
+    width: 90%;
+    padding: 5px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.close_chat_screen {
+    float: right;
+    padding: 5px;
+    margin-right: 2%;
+    color: white;
+}
+
+.chat_screen_body {
+    float: left;
+    width: 100%;
+    height: 275px;
+    padding: 5px;
+    overflow-y: scroll;
+}
+
+.chat_screen_footer {
+    float: left;
+    width: 100%;
+    background: pink;
+}
+
+.logout_button {
+    float: right;
+    margin: 0px 10px 10px 0px;
 }

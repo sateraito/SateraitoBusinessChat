@@ -1,28 +1,31 @@
 {
-    "name": "appengine-datastore",
-    "description": "Sample for Google Cloud Datastore on Google App Engine",
-    "version": "0.0.1",
-    "private": true,
-    "license": "Apache Version 2.0",
-    "author": "Google Inc.",
-    "engines": {
-        "node": "^4.2.2"
-    },
-    "scripts": {
-        "start": "node app.js"
-    },
-    "dependencies": {
-        "@google-cloud/datastore": "^0.1.1",
-        "express": "*",
-        "socket.io": "*",
-        "socketio-file-upload": "^0.4.4",
-        "socket.io-client": "~1.1.0",
-        "ejs": "latest",
-        "body-parser": "latest",
-        "nodemailer": "latest",
-        "mysql": "^2.11.0",
-        "express-session": "latest",
-        "cookie-parser": "*",
-        "bcrypt": "*"
-    }
+  "name": "business_chat",
+  "description": "My chat app",
+  "version": "0.0.1",
+  "private": true,
+  "license": "Apache Version 2.0",
+  "author": "huutri1983@gmail.com",
+  "engines": {
+    "node": "^4.2.2"
+  },
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "@google-cloud/datastore": "^0.1.1",
+    "bcrypt": "*",
+    "body-parser": "latest",
+    "cookie-parser": "*",
+    "ejs": "latest",
+    "express": "*",
+    "express-session": "latest",
+    "express-ws": "^1.0.0-rc.2",
+    "gstore-node": "^0.6.4",
+    "mysql": "^2.11.0",
+    "nodemailer": "latest",
+    "pg": "4.x",
+    "request": "^2.69.0",
+    "socket.io": "*",
+    "socketio-file-upload": "^0.4.4"
+  }
 }

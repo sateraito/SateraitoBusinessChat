@@ -11,9 +11,21 @@
 
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="js/main.js"></script>
+    <script src="/js/main.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script>
+        externalIp = "<%= externalIp %>";
+       var socket = io.connect();
+        socket.on('entities' ,function(msg){
+            console.log(msg);
+            console.log('*********');
+        });
 
+        socket.on('test_id' ,function(msg){
+            console.log(msg);
+            console.log('****test_id*****');
+        });
+    </script>
 
 </head>
 <body>
@@ -38,10 +50,6 @@
         <input type="button" value="アカウント登録" id="signup_btn" class="login_btn">
 
     </form>
-
-
-
-
 </div>
 
 </body>

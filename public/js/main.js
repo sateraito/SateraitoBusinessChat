@@ -1,9 +1,27 @@
-
-
 $(function() {
     console.log('main js');
 //    var socket = io();
-    var socket = io.connect();
+//    var socket = io.connect();
+    /* The external ip is determined by app.js and passed into the template. */
+    var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
+    var webSocketUri =  webSocketHost + externalIp + ':65080';
+    console.log(webSocketUri);
+    console.log(externalIp != '<%= externalIp %>');
+
+    var socket = io(webSocketUri);
+
+    socket.on('chat_message', function(msg){
+        console.log(msg);
+        console.log('Msg from server: ' + msg);
+    });
+
+    socket.on('connect' ,function(msg){
+        console.log('Connected to server: socketio');
+    });
+
+    socket.on('disconnect' ,function(msg){
+        console.log('Disconnected from server: socketio');
+    });
 
     $("#login_btn").on("click",function () {
         var email = $("#login_email").val();
@@ -20,33 +38,28 @@ $(function() {
 
             return false;
         }
-        //call signup AJAX
-        $.post("/user-login",
-            {
-                email: email,
-                password: password
 
-
-            },
-            function (data) {
-
-                if (data.status == "invalid account") {
+        // call signin AJAX
+        $.ajax({
+            url: "/user-login",
+            method: "POST",
+            dataType: "JSON",
+            data: '&email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password),
+            async: false,
+            success: function (respone){
+                console.log(respone);
+                if(respone.status == "fail"){
                     $(".login_error_message").text("不正なアカウント情報です。");
                     return false;
-
-                }else{
+                } else {
                     // Tell the server your username
                     socket.emit('user login', email);
+//                    window.location.href = "/main-space";
 
-                    $(location).attr("href","/chat-room");
-
+                    $(location).attr("href", "/main-space");
                 }
-
             }
-        );
-
-
-
+        });
     });
 
     $("#signup_btn").on("click",function () {
@@ -57,7 +70,7 @@ $(function() {
         $(".signup_error_message").text("");
 
         if(!isValidateEmail(email)){
-            $(".signup_error_message").text("不正なメールアドレスです！")
+            $(".signup_error_message").text("不正なメールアドレスです！");
             return false;
 
         }else if (password != password_again){
@@ -71,38 +84,57 @@ $(function() {
         }
 
         //call signup AJAX
-        $.post("/do-sign-up",
-            {
-                email: email,
-                password: password,
-                password_again: password_again
-
-            },
-            function (data) {
-
-                if (data.status == "email existed") {
-                    $(".signup_error_message").text("メールアドレスは既に登録されます。他のメールアドレスを登録してください。");
+       $.ajax({
+            url: "/do-sign-up",
+            method: "POST",
+            dataType: "JSON",
+            data: '&email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password) + '&password_again=' + encodeURIComponent(password_again),
+            async: false,
+            success: function (respone){
+                console.log(respone);
+                if(respone.status == "fail"){
+                    console.log(respone.message);
+                    $(".login_error_message").text("不正なアカウント情報です。");
                     return false;
-
-                } else if(data.status == "db error") {
-                    $(".signup_error_message").text("データベースへの接続はエラ発生です");
-                    return false;
-
-
-                }else if (data.status == "password error"){
-                    $(".signup_error_message").text("パスワードとパスワード再入力は一致しません。");
-                    return false;
-
-                }else{
+                } else {
                     // Tell the server your username
                     socket.emit('user login', email);
+//                    window.location.href = "/main-space";
 
-                    $(location).attr("href","/chat-room");
-
+                    $(location).attr("href", "/main-space");
                 }
-
             }
-        );
+        });
+//        $.post("/do-sign-up",
+//            {
+//                email: email,
+//                password: password,
+//                password_again: password_again
+//            },
+//            function (data) {
+//                if (data.status == "email existed") {
+//                    $(".signup_error_message").text("メールアドレスは既に登録されます。他のメールアドレスを登録してください。");
+//                    return false;
+//
+//                } else if(data.status == "db error") {
+//                    $(".signup_error_message").text("データベースへの接続はエラ発生です");
+//                    return false;
+//
+//
+//                }else if (data.status == "password error"){
+//                    $(".signup_error_message").text("パスワードとパスワード再入力は一致しません。");
+//                    return false;
+//
+//                }else{
+//                    // Tell the server your username
+//                    socket.emit('user login', email);
+//
+//                    $(location).attr("href","/main-space");
+//
+//                }
+//
+//            }
+//        );
 
 
 

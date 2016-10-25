@@ -19,6 +19,7 @@ api_version: 1
 # [START env_variables]
 env_variables:
     GCLOUD_PROJECT: sateraito-business-chat
+    GCLOUD_STORAGE_BUCKET: sateraito-business-chat
 
 # [END env_variables]
 # [END app_yaml]
@@ -26,7 +27,17 @@ env_variables:
 manual_scaling:
   instances: 1
 
-handlers:
-- url: /.*
-  script: IGNORED
-  secure: always
+#automatic_scaling:
+#  min_num_instances: 1
+#  max_num_instances: 1
+
+network:
+  forwarded_ports:
+  - 65080
+  instance_tag: websocket
+
+
+#handlers:
+#- url: /.*
+#  script: IGNORED
+#  secure: always
