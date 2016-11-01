@@ -2,60 +2,73 @@
 $(function() {
     /* The external ip is determined by app.js and passed into the template. */
     var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
-    var webSocketUri = webSocketHost + externalIp + ':65080';
+    var webSocketUri = webSocketHost + externalIp + ':65080/main-space';
+//    var webSocketUri = webSocketHost + externalIp;
+    console.log('*****Test4*****');
     console.log(webSocketUri);
-    console.log(externalIp != '<%= externalIp %>');
-    console.log('<%= externalIp %>');
+//    console.log(externalIp != '<%= externalIp %>');
+//    console.log('<%= externalIp %>');
 
 
     var socket = io(webSocketUri);
+    socket.on('hi', function(data){
+        console.log('hi');
+        console.log(data);
+    });
+//    var socket = io(webSocketUri + '/main-space/socket.io');
+//    var socket = io(webSocketUri, {path: '/main-space/socket.io'});
+//    var socket = io(webSocketUri);
+//    var socket = io.connect(webSocketUri + '/main-space/');
+
+//    var socket = io.connect(webSocketUri, {secure: true});
 
     //Login process
-    $("#login_btn").on("click",function () {
-        var email = $("#login_email").val();
-        var password = $("#login_password").val();
-
-        $(".login_error_message").text("");
-
-        if (!isValidateEmail(email)) {
-            $(".login_error_message").text("不正なメールアドレスです！")
-            return false;
-
-        } else if (!$.trim(password)) {
-            $(".login_error_message").text("パスワードは必須です。");
-
-            return false;
-        }
-
-        // call signin AJAX
-        $.ajax({
-            url: "/user-login",
-            method: "POST",
-            dataType: "JSON",
-            data: '&email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password),
-            async: false,
-            success: function (respone) {
-                console.log(respone);
-                if (respone.status == "invalid email" || respone.status == "invalid password") {
-                    $(".login_error_message").text("不正なアカウント情報です。");
-                    return false;
-                } else if (respone.status == "success") {
-                    $(location).attr("href", "/main-space");
-
-                }
-//                if(respone.status == "fail"){
+//    $("#login_btn").on("click",function () {
+//        console.log('chat');
+//        var email = $("#login_email").val();
+//        var password = $("#login_password").val();
+//
+//        $(".login_error_message").text("");
+//
+//        if (!isValidateEmail(email)) {
+//            $(".login_error_message").text("不正なメールアドレスです！")
+//            return false;
+//
+//        } else if (!$.trim(password)) {
+//            $(".login_error_message").text("パスワードは必須です。");
+//
+//            return false;
+//        }
+//
+//        // call signin AJAX
+//        $.ajax({
+//            url: "/user-login",
+//            method: "POST",
+//            dataType: "JSON",
+//            data: '&email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password),
+//            async: false,
+//            success: function (respone) {
+//                console.log(respone);
+//                if (respone.status == "invalid email" || respone.status == "invalid password") {
 //                    $(".login_error_message").text("不正なアカウント情報です。");
 //                    return false;
-//                } else {
-//                    // Tell the server your username
-//                    socket.emit('user login', email);
-////                    window.location.href = "/main-space";
-//
+//                } else if (respone.status == "success") {
 //                    $(location).attr("href", "/main-space");
+//
 //                }
-            }
-        });
-    });
+////                if(respone.status == "fail"){
+////                    $(".login_error_message").text("不正なアカウント情報です。");
+////                    return false;
+////                } else {
+////                    // Tell the server your username
+////                    socket.emit('user login', email);
+//////                    window.location.href = "/main-space";
+////
+////                    $(location).attr("href", "/main-space");
+////                }
+//            }
+//        });
+//    });
 
     $("#add_user_list").on("click", function () {
         var user_list_string = $("#chat_user_list").val();
@@ -84,6 +97,7 @@ $(function() {
 
     //Receiver new message
     socket.on("notify a new message", function (data) {
+        console.log('notify a new message');
         console.log("rofsdsddasd", data.room);
         if (user_email == data.receiver || user_email == data.sender) {
             var current_conversation = false;
@@ -224,23 +238,23 @@ $(function() {
                         html_string += '<div class="chat_screen_detail" id="screen-' + screen_id + '">';
                         html_string += '<div class="chat_screen_header">';
                         html_string += '<div class="chat_screen_header_text">';
-                        html_string += '<img src="image/conversation-icon-active.png">'
-                        html_string += '<p class="chat_screen_friend">' + chat_screen_friend.toString() + '</p>'
+                        html_string += '<img src="image/conversation-icon-active.png">';
+                        html_string += '<p class="chat_screen_friend">' + chat_screen_friend.toString() + '</p>';
 
                         html_string += '</div>';
 
-                        html_string += '<div class="chat_screen_header_button">'
+                        html_string += '<div class="chat_screen_header_button">';
                         html_string += '<a href="javascript:void(0)" class="minimize_chat_screen" onclick="minimize_chat_screen(\'' + screen_id + '\')"><img src="image/minimum-box-chat.png"></a>';
                         html_string += '<a href="javascript:void(0)" class="maximize_chat_screen"><img src="image/new-finder-boxchat.png"></a>';
                         html_string += '<a href="javascript:void(0)" class="close_chat_screen" onclick="close_chat_screen(\'' + screen_id + '\')"><img src="image/close-icon.png"></a>';
-                        html_string += '</div>'
+                        html_string += '</div>';
                         html_string += '</div>';
                         html_string += '<div class="chat_screen_header_2">';
                         html_string += '<a class="add_user_chat_screen" href="javascript:void(0)">';
-                        html_string += '<img src="image/add-people-normal.png">'
+                        html_string += '<img src="image/add-people-normal.png">';
                         html_string += '</a>';
                         html_string += '<a class="chat_screen_option" href="javascript:void(0)">';
-                        html_string += '<img src="image/setup-boxchat-active.png">'
+                        html_string += '<img src="image/setup-boxchat-active.png">';
                         html_string += '</a>';
                         html_string += '</div>';
                         html_string += '<div class="chat_screen_body" data-conversation-id="' + conversation_id + '">';
@@ -254,11 +268,11 @@ $(function() {
                         html_string += '<input type="hidden" class="receiver_email" value="' + receiver + '">';
 
                         html_string += '<input type="hidden" class="conversation_id" value="' + conversation_id + '">';
-                        html_string += '<div class="send_message_area">'
-                        html_string += '<a href="javascript:void(0)" class="show_emotional_icon"><img src="image/amotion-icon-normail.png"></a>'
+                        html_string += '<div class="send_message_area">';
+                        html_string += '<a href="javascript:void(0)" class="show_emotional_icon"><img src="image/amotion-icon-normail.png"></a>';
                         html_string += '<textarea class="message_text" name="message_text" placeholder="メッセージを送信"></textarea>';
-                        html_string += '<a href="javascript:void(0)" class="chat_upload_image"><img src="image/send-image-icon-normal.png"></a>'
-                        html_string += '</div>'
+                        html_string += '<a href="javascript:void(0)" class="chat_upload_image"><img src="image/send-image-icon-normal.png"></a>';
+                        html_string += '</div>';
                         html_string += '</div>';
                         html_string += '</div>';
 
@@ -314,7 +328,6 @@ $(function() {
                                     dataType: "JSON",
                                     data: '&sender=' + encodeURIComponent(user_email) + '&receiver=' + encodeURIComponent(receiver) +
                                         '&conversation_id=' + encodeURIComponent(conversation_id) + '&message_text=' + encodeURIComponent(message_text) +
-
                                         '&user_conversation_list=' + encodeURIComponent(user_conversation_list),
                                     async: false,
                                     success: function (respone) {
@@ -347,7 +360,6 @@ $(function() {
 
     });
 
-
     //Switch between conversation_list and user_list
     $("#show_conversation_list").on("click", function () {
         $(".page_main_left_footer_icon").removeClass("footer_icon_active");
@@ -368,6 +380,7 @@ $(function() {
 
 
     });
+
     //Listen user typing event
     socket.on("notify typing", function (data) {
         if (user_email == data.receiver) {
@@ -404,25 +417,75 @@ $(function() {
         }
 
     });
+
+    /* Establish the WebSocket connection and register event handlers. */
+//        var websocket = new WebSocket(webSocketUri);
+//
+//        websocket.onopen = function() {
+//          console.log('Connected');
+//        };
+//
+//        websocket.onclose = function() {
+//          console.log('Closed');
+//        };
+//
+//        websocket.onmessage = function(e) {
+//          console.log('Message received');
+//          output.text(e.data);
+//        };
+//
+//        websocket.onerror = function(e) {
+//          console.log('Error (see console)');
+//          console.log(e);
+//        };
+//
+//        websocket.onsend = function(e) {
+//          console.log('send ');
+//          console.log(e);
+//        };
 });
-
-
-
 
 //Create new chat
 function addUserList(){
     $("#add_user_modal").modal("show");
-
 }
 
 function mainSpaceLoad() {
     /* The external ip is determined by app.js and passed into the template. */
     var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
-    var webSocketUri = webSocketHost + externalIp + ':65080';
+//    var webSocketUri = webSocketHost + externalIp + ':65080';
+    var webSocketUri = webSocketHost + externalIp + ':65080/main-space';
     console.log(webSocketUri);
+    console.log(webSocketUri + '/main-space');
 
+//    var socket = io(webSocketUri + '/main-space/socket.io');
+//    var socket = io(webSocketUri, {path: '/main-space/socket.io'});
     var socket = io(webSocketUri);
+//    var websocket = new WebSocket(webSocketUri);
 
+//        websocket.onopen = function() {
+//          console.log('Connected');
+//        };
+//
+//        websocket.onclose = function() {
+//          console.log('Closed');
+//        };
+//
+//        websocket.onmessage = function(e) {
+//          console.log('Message received');
+//          console.log(e);
+//        };
+//
+//        websocket.onerror = function(e) {
+//          console.log('Error (see console)');
+//          console.log(e);
+//        };
+
+//        websocket.ontyping = function(e) {
+//          console.log('typing');
+//          console.log(e);
+//        };
+//    var socket = io(webSocketUri + '/main-space');
 
     var html_string = "";
     user_friend_list.split(",").forEach(function (val, i) {
@@ -478,6 +541,12 @@ function mainSpaceLoad() {
                 receiver: receiver,
                 conversation_id: conversation_id
             });
+
+//            websocket.on('typing', {
+//                sender: sender,
+//                receiver: receiver,
+//                conversation_id: conversation_id
+//            });
             if (e.keyCode == 13) {
                 //Clear message from input first
                 $('.message_text').val("");
@@ -703,7 +772,7 @@ function generateConversationId() {
     return user_id;
 
 
-};
+}
 
 function generateMessageId() {
     Date.prototype.yyyymmdd = function() {
@@ -726,7 +795,7 @@ function generateMessageId() {
     return user_id;
 
 
-};
+}
 
 
 function generateRandomString() {
@@ -750,7 +819,7 @@ function generateRandomString() {
     return user_id;
 
 
-};
+}
 
 function minimize_chat_screen(screen_id){
     var screen = $("#screen-"+screen_id);
@@ -857,8 +926,7 @@ function FacebookLogout() {
 
 //Google logout
 
-function GoogleLogout()
-{
+function GoogleLogout(){
     gapi.auth.signOut();
     location.reload();
 }

@@ -9,23 +9,39 @@
     <script src="https://connect.facebook.net/en_US/all.js"></script>
     <script src="https://apis.google.com/js/client:platform.js" async defer></script>
 
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/js/chat.js"></script>
     <script src="/js/main.js"></script>
+    <script src="/js/chat.js"></script>
 
     <script>
         user_email = "<%= user_email %>";
         user_friend_list = "<%= user_friend_list %>";
         user_conversation_list = "<%= user_conversation_list %>";
-        externalIp = "<%= externalIp %>"
+        externalIp = "<%= externalIp %>";
+            var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
+    var webSocketUri = webSocketHost + externalIp + ':65080/main-space';
+//    var webSocketUri = webSocketHost + externalIp;
+    console.log('*****Test4*****');
+    console.log(webSocketUri);
+//    console.log(externalIp != '<%= externalIp %>');
+//    console.log('<%= externalIp %>');
 
+
+    var socket = io(webSocketUri);
+    socket.on('hi', function(data){
+        console.log('hi');
+        console.log(data);
+    });
+    socket.on('welcome', function(data){
+        console.log('welcome');
+        console.log(data);
+    });
     </script>
 
 </head>
 <style>
-
 </style>
 
 <body onload="mainSpaceLoad()">
@@ -55,7 +71,7 @@
             <ul class="page_main_list">
                 <li><a href="javascript:void(0)" id="con_list_icon" class="page_main_list_icon"><img src="image/conversation-icon-active.png"></a></li>
                 <li><a href="javascript:void(0)" id="user_list_icon" class="page_main_list_icon"><img src="image/contact-icon.png"></a></li>
-                <li><a href="javascript:void(0)" id="add_user_icon" class="page_main_list_icon"><img src="image/addfriend-icon-normal.png"></a></li>
+                <li><a href="javascript:void(0)" id="add_user_icon" class="page_main_list_icon" onclick="addUserList()"><img src="image/addfriend-icon-normal.png"></a></li>
                 <li><a href="javascript:void(0)" id="favorite_icon" class="page_main_list_icon"><img src="image/favorite-normal.png"></a></li>
             </ul>
             

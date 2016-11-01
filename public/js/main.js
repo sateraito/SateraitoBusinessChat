@@ -1,25 +1,26 @@
 
 $(function() {
-    var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
-    console.log(externalIp != '<%= externalIp %>');
-    if (externalIp != '<%= externalIp %>'){
-        externalIp = '<%= externalIp %>';
-    }
-    var webSocketUri =  webSocketHost + externalIp + ':65080';
-    console.log(webSocketUri);
-
-
-    var socket = io(webSocketUri);
+//    var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
+//    console.log(externalIp != '<%= externalIp %>');
+//    if (externalIp != '<%= externalIp %>'){
+//        externalIp = '<%= externalIp %>';
+//    }
+//    var webSocketUri =  webSocketHost + externalIp + ':65080';
+//    console.log(webSocketUri);
+//
+//
+//    var socket = io(webSocketUri);
 
     //Login process
     $("#login_btn").on("click",function () {
+        console.log('main');
         var email = $("#login_email").val();
         var password = $("#login_password").val();
 
         $(".login_error_message").text("");
 
         if(!isValidateEmail(email)){
-            $(".login_error_message").text("不正なメールアドレスです！")
+            $(".login_error_message").text("不正なメールアドレスです！");
             return false;
 
         }else if (!$.trim(password)) {
@@ -118,8 +119,6 @@ $(function() {
         }
     });
 
-
-
     //Signup proccess
     $("#signup_btn").on("click",function () {
         var email = $("#signup_email").val();
@@ -129,7 +128,7 @@ $(function() {
         $(".signup_error_message").text("");
 
         if(!isValidateEmail(email)){
-            $(".signup_error_message").text("不正なメールアドレスです！")
+            $(".signup_error_message").text("不正なメールアドレスです！");
             return false;
 
         }else if (password != password_again){
@@ -283,6 +282,7 @@ function fbAsyncInit() {
         version    : 'v2.8'
     });
 }
+
 function FacebookLogin() {
     FB.login(
         function(response) {
@@ -331,15 +331,13 @@ fbAsyncInit();
 
 //Login with Google
 
-function onLoadCallback()
-{
+function onLoadCallback(){
     gapi.client.setApiKey('AIzaSyDyGW6BnT_AeFqJ33vdmDY3Zb_rZbAIicw'); //set your API KEY
     gapi.client.load('plus', 'v1',function(){});//Load Google + API
 }
 
 
-function GoogleLogin()
-{
+function GoogleLogin(){
     var myParams = {
         'clientid' : '713589055067-mrq68sea8m9minugb8lqmgnnvqqqqa84.apps.googleusercontent.com', //You need to set client id
         'cookiepolicy' : 'single_host_origin',
@@ -351,8 +349,7 @@ function GoogleLogin()
     gapi.auth.signIn(myParams);
 }
 
-function loginCallback(result)
-{
+function loginCallback(result){
 
     console.log("google result",result);
     console.log("gapi.client", gapi.client);
@@ -414,7 +411,6 @@ function loginCallback(result)
     }
 
 }
-
 
 //End login with Google
 

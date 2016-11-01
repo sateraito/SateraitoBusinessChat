@@ -12,13 +12,11 @@
     <script src="https://connect.facebook.net/en_US/all.js"></script>
     <script src="https://apis.google.com/js/client:platform.js" async defer></script>
 
-    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://connect.facebook.net/en_US/sdk.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     <script src="/js/main.js"></script>
-
     <script type="text/javascript">
         (function () {
             var po = document.createElement('script');
@@ -30,14 +28,15 @@
         })();
     </script>
     <script>
-        externalIp = "<%= externalIp %>"
+        externalIp = "<%= externalIp %>";
     </script>
 
 
 
 
 </head>
-<body onload="login_page_load()">
+<!--<body onload="login_page_load()">-->
+<body>
     <div class="login_container">
         <div class="login_wrapper">
             <div class="login_row_1 login_row">
@@ -63,10 +62,13 @@
                 </div>
             </form>
             <div class="login_row_4 login_row">
-                <a href="javascript:void(0)" id="sign_in_with_facebook" class="social_login_btn" onclick="FacebookLogin()"><img src="image/facebook_icon.png" width="13"><p>FacebookのIDでログイン</p></a>
-                <a href="javascript:void(0)" id="sign_in_with_google" class="social_login_btn"  onclick="GoogleLogin()"><img src="image/google_icon.png" width="20"><p>グーグルのIDでログイン</p></a>
-                <a href="javascript:void(0)" id="sign_in_with_twitter" class="social_login_btn"  onclick="TwitterLogin()"><img src="image/twitter_icon.png" width="20"><p>ツイッターのIDでログイン</p></a>
+                <!--<a href="javascript:void(0)" id="sign_in_with_facebook" class="social_login_btn" onclick="FacebookLogin()"><img src="image/facebook_icon.png" width="13"><p>FacebookのIDでログイン</p></a>-->
+                <!--<a href="javascript:void(0)" id="sign_in_with_google" class="social_login_btn"  onclick="GoogleLogin()"><img src="image/google_icon.png" width="20"><p>グーグルのIDでログイン</p></a>-->
+                <!--<a href="javascript:void(0)" id="sign_in_with_twitter" class="social_login_btn"  onclick="TwitterLogin()"><img src="image/twitter_icon.png" width="20"><p>ツイッターのIDでログイン</p></a>-->
 
+                <a href="javascript:void(0)" id="sign_in_with_facebook" class="social_login_btn"><img src="image/facebook_icon.png" width="13"><p>FacebookのIDでログイン</p></a>
+                <a href="javascript:void(0)" id="sign_in_with_google" class="social_login_btn"><img src="image/google_icon.png" width="20"><p>グーグルのIDでログイン</p></a>
+                <a href="javascript:void(0)" id="sign_in_with_twitter" class="social_login_btn"><img src="image/twitter_icon.png" width="20"><p>ツイッターのIDでログイン</p></a>
             </div>
 
             <div class="login_row_5 login_row">

@@ -44,6 +44,12 @@ app.use(session(
         saveUninitialized: true
     }
 ));
+//app.io('/main-space', function(socket){
+//    socket.emit('stop typing', {data: 'value detail'});
+//    socket.on('send a message', function(data){
+//        console.log(data);
+//    });
+//});
 
 server.listen(process.env.PORT || 8000);
 
@@ -63,6 +69,156 @@ var datastore = Datastore();
 
 //app.use(passport.initialize());
 //app.use(passport.session());
+
+// Passport session setup.
+//passport.serializeUser(function(user, done) {
+//    done(null, user);
+//});
+//
+//passport.deserializeUser(function(obj, done) {
+//    done(null, obj);
+//});
+
+// Use the TwitterStrategy within Passport.
+
+//passport.use(new TwitterStrategy({
+//    consumerKey: 'KNft6WqrLQh1q8ufyClcAbOSR',
+//    consumerSecret: 'uNzO3vQkVEJgtYx0eBeoDwTlnFTopi0pnpl2IVszuh751flgiD',
+//    callbackURL: 'https://sateraito-business-chat.appspot.com/general/twcallback'
+//    },
+//    function(token, tokenSecret, profile, done) {
+//        console.log(profile);
+//        console.log(done);
+//        process.nextTick(function () {
+//            //Check whether the User exists or not using profile.id
+//            if (config.use_database === 'true') {
+//                //Perform MySQL operations.
+//            }
+//            return done(null, profile);
+//        });
+//    }
+//));
+
+//app.get('/auth/twitter', passport.authenticate('twitter'));
+//
+//app.get('/general/twcallback',
+//    passport.authenticate('twitter', { successRedirect : '/', failureRedirect: '/login' }),
+//    function(req, res) {
+//        console.log('test twitter');
+//        console.log(req);
+//        console.log(res);
+//        res.redirect('/');
+//    });
+//var numClients = 0;
+
+//io.listen(server);
+
+//var io = require('socket.io').listen(server);
+
+//var allowedOrigins = "http://localhost:* http://127.0.0.1:*";
+//var allowedOrigins = "https://sateraito-business-chat.appspot.com:* https://216.58.209.145:*";
+//var path ='/stomp'; // you need this if you want to connect to something other than the default socket.io path
+//var io = require('socket.io')(server, {
+//    origins: allowedOrigins,
+//    path : path
+//});
+//var io = require('socket.io').listen(server);
+
+//var sio_server = io(server, {
+//    origins: allowedOrigins,
+//    path : path
+//});
+
+// Send data to client
+// maybe can use io.socket.on('connection', function(socket) {
+//io.on('connection', function (socket) {
+//    socket.emit('news', { hello: 'world' , port: process.env.PORT, or: 8000});
+//    socket.on('test', function (data) {
+//        console.log(process.env.PORT);
+//        console.log('or');
+//        console.log('8000');
+//        console.log('show in app js');
+//        console.log(data);
+//    });
+//});
+
+
+var METADATA_NETWORK_INTERFACE_URL = 'http://metadata/computeMetadata/v1/' +
+    '/instance/network-interfaces/0/access-configs/0/external-ip';
+
+function getExternalIp (cb) {
+    var options = {
+        url: METADATA_NETWORK_INTERFACE_URL,
+        headers: {
+            'Metadata-Flavor': 'Google'
+        }
+    };
+
+    request(options, function (err, resp, body) {
+        if (err || resp.statusCode !== 200) {
+            console.log('Error while talking to metadata server, assuming localhost');
+            return cb('localhost');
+        }
+        return cb(body);
+    });
+}
+
+// setup new webserver for socket.io listening on 65080
+var app_chat = require('express')();
+var server1 = require('http').Server(app_chat);
+var io = require('socket.io')(server1);
+server1.listen(65080);
+
+io.on('connection', function (socket) {
+    socket.on("just enter", function (data) {
+        console.log("There is a person entered. His name is ", data.name);
+        io.sockets.emit("welcome", {name: data.name})
+    });
+
+    //TODO send the message to only conversation's member
+
+    socket.on("send a message", function (data) {
+        console.log('send a message');
+        console.log(data);
+        // var room = "room numner 1";
+        // socket.join(room);
+        io.sockets.emit("notify a new message", {
+            sender: data.sender,
+            receiver: data.receiver,
+            message_text: data.message_text,
+            conversation_id: data.conversation_id
+        })
+
+    });
+
+    socket.on("typing", function (data) {
+        console.log('typing');
+        console.log(data);
+        io.sockets.emit("notify typing", {
+            sender: data.sender,
+            receiver: data.receiver,
+            conversation_id: data.conversation_id
+        });
+
+    });
+
+    socket.on("stop typing", function (data) {
+        io.sockets.emit("notify stop typing", {
+            sender: data.sender,
+            receiver: data.receiver,
+            conversation_id: data.conversation_id
+        });
+
+    });
+});
+
+var nsp = io.of('/main-space');
+nsp.on('connection', function(socket){
+  console.log('someone connected');
+  io.sockets.emit("welcome", {name: 'welcome'})
+});
+nsp.emit('hi', 'everyone!');
+
 app.get("/", function (req, res) {
     getExternalIp(function (externalIp) {
         if (req.session.user_id) {
@@ -161,8 +317,8 @@ app.post("/user-login", jsonParser, function (req, res) {
         if (entities.length > 0) {
             //check if password is OK
 //            if (bcrypt.hashSync(password, salt) == entities[0].data.password) {
-            bcrypt.compare(password, entities[0].data.password, function (err, matches) {
-                if (!err) {
+            bcrypt.compare(password, entities[0].data.password, function (com_err, matches) {
+                if (!com_err) {
                     if (matches) {
                         req.session.user_id = entities[0].data.id;
                         req.session.user_email = email;
@@ -179,6 +335,7 @@ app.post("/user-login", jsonParser, function (req, res) {
         }
     });
 });
+
 app.post("/user-login-facebook", jsonParser, function (req, res) {
 
     var email = req.body.email;
@@ -272,8 +429,8 @@ app.post("/user-login-google", jsonParser, function (req, res) {
             datastore.save({
                 key: datastore.key('UserInfo'),
                 data: userinfo
-            }, function (err) {
-                if (err) {
+            }, function (save_err) {
+                if (save_err) {
                     return res.json({"status": "db error", "error": 'save datastore error'});
                 } else {
                     req.session.user_id = userinfo.id;
@@ -327,226 +484,71 @@ app.get("/main-space", function (req, res) {
 
 });
 
-
 app.post("/add-user-list", jsonParser, function (req, res) {
     var member_list = req.body.member_list;
     var user_email = req.session.user_email;
 
+
     //Update friend list of user
     var query = datastore.createQuery('UserInfo')
-            .filter('email', '=', user_email);
+        .filter('email', '=', user_email);
     datastore.runQuery(query, function (err, entities) {
         if (!err) {
             if (entities.length > 0) {
                 var current_friend_list = entities[0].data.friend_list;
 //                var friend_list_valid = null;
-                var friend_list_invalid = '';
+//                var friend_list_invalid = '';
 
                 var new_user = entities[0].data;
-                var is_update = null;
                 var current_friend_array = current_friend_list.split(",");
 
                 member_list.split(",").forEach(function (val, i) {
                     var query_list = datastore.createQuery('UserInfo')
-                        .filter('email', '=', val);
-                    datastore.runQuery(query_list, function (err, entity) {
-                        if (entity.length <= 0) {
-                            is_update = "invalid email!";
-                            if (friend_list_invalid != ''){
-                                friend_list_invalid += ','
-                            }
-                            friend_list_invalid += entity[0].data.email;
-                        } else {
-                            if (current_friend_array.indexOf(val) == -1) {
-                                current_friend_array.push(val);
+                        .filter('email', '=', val.trim());
+                    datastore.runQuery(query_list, function (check_err, check_entity) {
+                        if (!check_err) {
+                            if (check_entity.length > 0) {
+                                var check_mail = val.replace(/' '/g, '');
+                                if (current_friend_array.indexOf(check_mail) == -1) {
+                                    current_friend_array.push(check_mail);
+                                    var new_friend_list = current_friend_array.toString();
+                                    if (new_user.friend_list != ''){
+                                        new_user.friend_list += ',';
+                                    }
+                                    new_user.friend_list += check_mail;
+                                    if (new_friend_list) {
+                                        //Update user friend list
+                                        datastore.update({
+    //                            key: datastore.key(['UserInfo', entities[0].key.id]),
+                                            key: entities[0].key,
+                                            data: new_user
+                                        }, function (update_err, update) {
+                                            if (!update_err) {
+                                                res.json({"status": "success", "message": "updated", 'update_value': update,
+                                                     "new_friend_list": new_friend_list, "new_user": new_user});
+                                                // Task updated successfully.
+                                            } else {
+                                                res.json({"status": "fail", "message": "update friend list fail", 'update_value': entities[0]});
+                                            }
+
+                                        });
+                                    } else {
+                                        res.json({"status": "fail", "message": "nobody friend update or email not exist!"});
+                                    }
+                                }
                             }
                         }
-
                     });
                 });
-
-                var new_friend_list = current_friend_array.toString();
-                new_user.friend_list = new_friend_list;
-                if (new_friend_list) {
-                    if (!is_update) {
-                        //Update user friend list
-                        datastore.update({
-//                    key: datastore.key('UserInfo'),
-//                    ds.key([kind, parseInt(id, 10)])
-                            key: datastore.key(['UserInfo', entities[0].key.id]),
-                            data: new_user
-                        }, function (err) {
-                            if (!err) {
-                                return res.json({"status": "success", "message": "update", 'update_value': entities[0], "is_update": is_update});
-                                // Task updated successfully.
-                            } else {
-                                return res.json({"status": "fail", "message": "update friend list fail", 'update_value': entities[0], "is_update": is_update});
-                            }
-
-                        });
-                    } else {
-                        return res.json({"status": "fail", "message": "update friend list fail", 'update_value': entities[0], "is_update": is_update});
-                    }
-                } else {
-                    return res.json({"status": "fail", "message": "nobody friend update or email not exist!"});
-                }
-//            res.json({"status": "ok"});
-
-
             } else {
                 //Email is not ok
-                return res.json({"status": "fail", "message": "invalid account"});
+                res.json({"status": "fail", "message": "invalid account"});
             }
         } else {
-            return res.json({"status": "fail", "message": "invalid query"});
+            res.json({"status": "fail", "message": "invalid query"});
         }
-
     });
-
 });
-
-// Passport session setup.
-//passport.serializeUser(function(user, done) {
-//    done(null, user);
-//});
-//
-//passport.deserializeUser(function(obj, done) {
-//    done(null, obj);
-//});
-
-// Use the TwitterStrategy within Passport.
-
-//passport.use(new TwitterStrategy({
-//    consumerKey: 'KNft6WqrLQh1q8ufyClcAbOSR',
-//    consumerSecret: 'uNzO3vQkVEJgtYx0eBeoDwTlnFTopi0pnpl2IVszuh751flgiD',
-//    callbackURL: 'https://sateraito-business-chat.appspot.com/general/twcallback'
-//    },
-//    function(token, tokenSecret, profile, done) {
-//        console.log(profile);
-//        console.log(done);
-//        process.nextTick(function () {
-//            //Check whether the User exists or not using profile.id
-//            if (config.use_database === 'true') {
-//                //Perform MySQL operations.
-//            }
-//            return done(null, profile);
-//        });
-//    }
-//));
-
-//app.get('/auth/twitter', passport.authenticate('twitter'));
-//
-//app.get('/general/twcallback',
-//    passport.authenticate('twitter', { successRedirect : '/', failureRedirect: '/login' }),
-//    function(req, res) {
-//        console.log('test twitter');
-//        console.log(req);
-//        console.log(res);
-//        res.redirect('/');
-//    });
-//var numClients = 0;
-
-//io.listen(server);
-
-//var io = require('socket.io').listen(server);
-
-//var allowedOrigins = "http://localhost:* http://127.0.0.1:*";
-//var allowedOrigins = "https://sateraito-business-chat.appspot.com:* https://216.58.209.145:*";
-//var path ='/stomp'; // you need this if you want to connect to something other than the default socket.io path
-//var io = require('socket.io')(server, {
-//    origins: allowedOrigins,
-//    path : path
-//});
-//var io = require('socket.io').listen(server);
-
-//var sio_server = io(server, {
-//    origins: allowedOrigins,
-//    path : path
-//});
-
-// Send data to client
-// maybe can use io.socket.on('connection', function(socket) {
-//io.sockets.on('connection', function (socket) {
-//    socket.broadcast.emit('news', { hello: 'world' , port: process.env.PORT, or: 8000});
-//    socket.on('test', function (data) {
-//        console.log(process.env.PORT);
-//        console.log('or');
-//        console.log('8000');
-//        console.log('show in app js');
-//        console.log(data);
-//    });
-
-//    socket.on("hearing", function (data) {
-//        console.log("I am hearing, " + data.user_email);
-//        socket.emit('joined', {
-//            user_email: data.user_email
-//        })
-//
-//    });
-//
-//    //Server check user conversation request from client
-//    socket.on("check available conversation", function (data) {
-//        var connection = utilities.getMySqlConnection();
-//        connection.query('SELECT * FROM Conversation WHERE organizer="' + data.user_email + '" OR member LIKE "'+data.user_email+'"', function (err, rows) {
-//            if (!err) {
-//                //in case of having available conversation
-//                if (rows.length > 0) {
-//                    var conversation_list = [];
-//                    rows.forEach(function (val,i) {
-//                        var conversation_info = {};
-//                        conversation_info.id = val.id;
-//                        conversation_info.organizer = val.organizer;
-//                        conversation_info.member_list = val.member;
-//                        conversation_list.push(conversation_info);
-//
-//                    });
-//
-//                    socket.emit("available conversation detected",{
-//                        conversation_list : conversation_list
-//
-//                    });
-//
-//
-//                } else {
-//                    console.log('No available conversation');
-//
-//                }
-//
-//            } else {
-//                console.log('Error while Check user');
-//
-//            }
-//
-//        });
-//
-//    });
-//
-//    //Listen generating new conversation from client
-//    socket.on("start new conversation", function (data) {
-//        console.log("conversation started, conversation_id is " + data.conversation_id);
-//        socket.emit('conversation ready', {
-//            conversation_id: data.conversation_id,
-//            organizer_email: data.organizer_email,
-//            member_list: data.member_list
-//        })
-//
-//    });
-//
-//
-//    //TODO send the message to only conversation's member
-//    socket.on("send message", function (data) {
-//        console.log("message is " + data.message_text);
-//        console.log("user is " + data.user_email);
-//
-//        io.sockets.emit("new message", {
-//            user_email: data.user_email,
-//            message_text: data.message_text,
-//            conversation_id: data.conversation_id
-//        })
-//
-//    });
-
-//});
 
 app.post("/send-a-message", jsonParser, function (req, res) {
     var sender = req.body.sender;
@@ -569,6 +571,8 @@ app.post("/send-a-message", jsonParser, function (req, res) {
             id: conversation_id,
             organizer: sender,
             member: member_array.toString(),
+            image_url: '',
+            title: '',
             memo: '',
             todo: '',
             created_date: new Date()
@@ -577,9 +581,9 @@ app.post("/send-a-message", jsonParser, function (req, res) {
         datastore.save({
             key: datastore.key('Conversation'),
             data: coversation
-        }, function (err) {
-            if (err) {
-                res.json({"status": "fail", "message": "conversation input fail", "error": 'save datastore conversation error'});
+        }, function (save_err) {
+            if (save_err) {
+               res.json({"status": "fail", "message": "conversation input fail", "error": 'save datastore conversation error'});
 //            } else {
 //                res.json({"status": "success", "message": "Your account already!", "conversation": coversation});
             }
@@ -597,9 +601,9 @@ app.post("/send-a-message", jsonParser, function (req, res) {
 
         var query = datastore.createQuery('UserInfo')
             .filter('email', '=', sender);
-        datastore.runQuery(query, function (err, entities) {
-            if (entities.length > 0) {
-                var current_conversation_list = entities[0].data.conversation_list;
+        datastore.runQuery(query, function (sender_err, sender_entities) {
+            if (sender_entities.length > 0) {
+                var current_conversation_list = sender_entities[0].data.conversation_list;
                 var current_conversation_array = current_conversation_list.split(",");
 //                var new_user = entities[0].data;
 //                var new_conversation_array = user_conversation_list.split(",");
@@ -608,69 +612,47 @@ app.post("/send-a-message", jsonParser, function (req, res) {
                 if (current_conversation_array.indexOf(conversation_id) == -1) {
                     //Update user friend list
                     var new_conversation_array = current_conversation_array.push(conversation_id);
-                    var new_user = entities[0].data;
+                    var new_user = sender_entities[0].data;
                     new_user.conversation_list = new_conversation_array.toString();
 
                     datastore.update({
-                        key: datastore.key(['UserInfo', entities[0].key.id]),
+                        key: sender_entities[0].key,
                         data: new_user
-                    }, function (err) {
-                        if (err) {
+                    }, function (update_err) {
+                        if (update_err) {
                             res.json({"status": "fail", "message": "update conversation list fail"});
                             // Task updated successfully.
                         } else {
-                            res.json({"status": "success", "message": "update", 'update_value': entities[0]});
+                            res.json({"status": "success", "message": "update", 'update_value': sender_entities[0]});
                         }
                     });
-
-
                 }
-//                if (new_conversation_array) {
-//
-//                    //Update user friend list
-//                    datastore.update({
-//                        key: datastore.key(['UserInfo', entities[0].key.id]),
-//                        data: new_user
-//                    }, function (err) {
-//                        if (err) {
-//                            res.json({"status": "fail", "message": "update conversation list fail"});
-//                            // Task updated successfully.
-////                        } else {
-////                            res.json({"status": "success", "message": "update", 'update_value': entities[0]});
-//                        }
-//                    });
-//                } else {
-//                    res.json({"status": "fail", "message": "No conversation list updated"});
-//                }
-//            res.json({"status": "ok"});
-
 
             } else {
                 //Email is not ok
                 res.json({"status": "fail", "message": "invalid account"});
-
             }
         });
 
         //update conversation list to receiver
         receiver.split(",").forEach(function (val, i) {
             var query = datastore.createQuery('UserInfo')
-                .filter('email', '=', val);
-            datastore.runQuery(query, function (err, entities_receiver) {
+                .filter('email', '=', val.trim());
+            datastore.runQuery(query, function (receiver_err, entities_receiver) {
                 if (entities_receiver.length > 0) {
                     var receiver_conversation_array = entities_receiver[0].conversation_list.split(",");
                     receiver_conversation_array.push(conversation_id);
 
-                    var new_user = entities_receiver[0].data;
-                    new_user.conversation_list = receiver_conversation_array;
+                    var new_user_receive = entities_receiver[0].data;
+                    new_user_receive.conversation_list = receiver_conversation_array;
                     if (receiver_conversation_array) {
 
                         //Update user friend list
                         datastore.update({
-                            key: datastore.key(['UserInfo', entities_receiver[0].key.id]),
-                            data: new_user
-                        }, function (err) {
-                            if (err) {
+                            key:entities_receiver[0].key,
+                            data: new_user_receive
+                        }, function (update_receiver_err) {
+                            if (update_receiver_err) {
                                 res.json({"status": "fail", "message": "update conversation list fail"});
                                 // Task updated successfully.
                             } else {
@@ -711,15 +693,19 @@ app.post("/send-a-message", jsonParser, function (req, res) {
     datastore.save({
         key: datastore.key('MessageInfo'),
         data: message_info
-    }, function (err) {
-        if (err) {
-            return res.json({
+    }, function (msg_err) {
+        if (msg_err) {
+            res.json({
                 "status": "fail",
                 "message": "conversation input fail",
                 "error": 'save datastore conversation error'
             });
         }
     });
+
+    res.json({
+        'status': "finish writeline chat"
+    })
 });
 
 app.post("/continue-conversation", jsonParser, function (req, res) {
@@ -727,19 +713,21 @@ app.post("/continue-conversation", jsonParser, function (req, res) {
 
     var query = datastore.createQuery('Conversation')
         .filter('id', '=', conversation_id);
-    datastore.runQuery(query, function (err, entities) {
-        if (entities.length > 0) {
+    datastore.runQuery(query, function (con_err, con_entities) {
+        if (con_entities.length > 0) {
             var query_message = datastore.createQuery('MessageInfo')
                 .filter('id', '=', conversation_id)
                 .order('-created_date');
-            datastore.runQuery(query_message, function (err, message) {
-                if (!err) {
-                    res.json({message_list: message, organizer: entities[0].organizer, member: entities[0].member})
+            datastore.runQuery(query_message, function (msg_err, message) {
+                if (!msg_err) {
+                    res.json({message_list: message, organizer: con_entities[0].organizer, member: con_entities[0].member})
                 }
             });
 
         }
     });
+
+    res.json({status: "ok"});
 
 //    utilities.runPGQuery("SELECT * FROM Conversation WHERE id = '" + conversation_id + "'", function (results) {
 //        if (results.length > 0) {
@@ -754,77 +742,89 @@ app.post("/continue-conversation", jsonParser, function (req, res) {
 //    });
 });
 
-var METADATA_NETWORK_INTERFACE_URL = 'http://metadata/computeMetadata/v1/' +
-    '/instance/network-interfaces/0/access-configs/0/external-ip';
+//var auth = io.of('/main-space').use(function(socket, next) {
+//    socket.on("send a message", function (data) {
+//        console.log('send a message');
+//        console.log(data);
+//        // var room = "room numner 1";
+//        // socket.join(room);
+//        io.sockets.emit("notify a new message", {
+//            sender: data.sender,
+//            receiver: data.receiver,
+//            message_text: data.message_text,
+//            conversation_id: data.conversation_id
+//        })
+//
+//    });
+//
+//    socket.on("typing", function (data) {
+//        console.log('typing');
+//        console.log(data);
+//        io.sockets.emit("notify typing", {
+//            sender: data.sender,
+//            receiver: data.receiver,
+//            conversation_id: data.conversation_id
+//        });
+//
+//    });
+//    console.log("Authenticating...");
+//    next();
+//});
 
-function getExternalIp (cb) {
-    var options = {
-        url: METADATA_NETWORK_INTERFACE_URL,
-        headers: {
-            'Metadata-Flavor': 'Google'
-        }
-    };
+//auth.on('connection', function(socket){
+//    console.log("Connected to namespace /test");
+//        //TODO send the message to only conversation's member
+//
+//    socket.on("send a message", function (data) {
+//        console.log('send a message');
+//        console.log(data);
+//        // var room = "room numner 1";
+//        // socket.join(room);
+//        io.sockets.emit("notify a new message", {
+//            sender: data.sender,
+//            receiver: data.receiver,
+//            message_text: data.message_text,
+//            conversation_id: data.conversation_id
+//        })
+//
+//    });
+//
+//    socket.on("typing", function (data) {
+//        console.log('typing');
+//        console.log(data);
+//        io.sockets.emit("notify typing", {
+//            sender: data.sender,
+//            receiver: data.receiver,
+//            conversation_id: data.conversation_id
+//        });
+//
+//    });
+//});
 
-    request(options, function (err, resp, body) {
-        if (err || resp.statusCode !== 200) {
-            console.log('Error while talking to metadata server, assuming localhost');
-            return cb('localhost');
-        }
-        return cb(body);
-    });
-}
+//function sendTime() {
+//    io.of('/main-space').emit('time', { time: new Date().toJSON() });
+//}
+//
+//setInterval(sendTime, 100);
 
-// setup new webserver for socket.io listening on 65080
-var app_chat = require('express')();
-var server1 = require('http').Server(app_chat);
-var io = require('socket.io')(server1);
-server1.listen(65080);
-
-
-io.on('connection', function (socket) {
-
-    socket.emit('news', { hello: 'world' });
-
-    socket.on("just enter",function (data) {
-        console.log("There is a person entered. His name is ", data.name);
-        io.sockets.emit("welcome",{name: data.name})
-    });
-
-    //TODO send the message to only conversation's member
-
-    socket.on("send a message", function (data) {
-        // var room = "room numner 1";
-        // socket.join(room);
-        io.sockets.emit("notify a new message", {
-            sender: data.sender,
-            receiver: data.receiver,
-            message_text: data.message_text,
-            conversation_id: data.conversation_id,
-
-        })
-
-    });
-
-    socket.on("typing",function (data) {
-        io.sockets.emit("notify typing",{
-            sender: data.sender,
-            receiver: data.receiver,
-            conversation_id: data.conversation_id
-
-        });
-
-    });
-
-    socket.on("stop typing",function (data) {
-        io.sockets.emit("notify stop typing",{
-            sender: data.sender,
-            receiver: data.receiver,
-            conversation_id: data.conversation_id
-        });
-
-    });
-
-});
+// Use express-ws to enable web sockets.
+//require('express-ws')(app);
+//
+//// A simple echo service.
+//app.ws('/main-space', function (ws) {
+//  ws.on('message', function (msg) {
+//    ws.send(msg);
+//  });
+//
+//  ws.on('typing', function (msg) {
+//    ws.send('aabssscsss');
+//  });
+//});
+//
+//// Start the websocket server
+//var wsServer = app.listen('65080', function () {
+//  console.log('Websocket server listening on port %s', wsServer.address().port);
+//});
 
 function generateUserId() {
     Date.prototype.yyyymmdd = function() {
