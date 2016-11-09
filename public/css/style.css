@@ -93,7 +93,7 @@ body{
 
 .chat_screen_area {
     width: 80%;
-    height: 350px;
+    /*height: 350px;*/
     position: fixed;
     bottom: 50px;
     right: 0px;

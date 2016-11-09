@@ -20,24 +20,6 @@
         user_friend_list = "<%= user_friend_list %>";
         user_conversation_list = "<%= user_conversation_list %>";
         externalIp = "<%= externalIp %>";
-            var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
-    var webSocketUri = webSocketHost + externalIp + ':65080/main-space';
-//    var webSocketUri = webSocketHost + externalIp;
-    console.log('*****Test4*****');
-    console.log(webSocketUri);
-//    console.log(externalIp != '<%= externalIp %>');
-//    console.log('<%= externalIp %>');
-
-
-    var socket = io(webSocketUri);
-    socket.on('hi', function(data){
-        console.log('hi');
-        console.log(data);
-    });
-    socket.on('welcome', function(data){
-        console.log('welcome');
-        console.log(data);
-    });
     </script>
 
 </head>
