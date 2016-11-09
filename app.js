@@ -448,8 +448,9 @@ app.post("/add-user-list", jsonParser, function (req, res) {
 
                 var new_user = entities[0].data;
                 var current_friend_array = current_friend_list.split(",");
+                var array_member = member_list.toString().split(',')
 
-                member_list.split(",").forEach(function (val, i) {
+                array_member.forEach(function (val, i) {
                     var query_list = datastore.createQuery('UserInfo')
                         .filter('email', '=', val.trim());
                     datastore.runQuery(query_list, function (check_err, check_entity) {
@@ -659,11 +660,10 @@ app.post("/send-a-message", jsonParser, function (req, res) {
         return res.json({"status": "success", "message": "conversation input", "update": 'update success'});
 
         //Update conversation list to sender
-
-        new_conversation_array.push(conversation_id);
-        utilities.runPGQuery("UPDATE UserInfo SET conversation_list = '"+new_conversation_array.toString()+"' WHERE email = '"+sender+"'",function (rows) {
-
-        });
+//        new_conversation_array.push(conversation_id);
+//        utilities.runPGQuery("UPDATE UserInfo SET conversation_list = '"+ new_conversation_array.toString()+"' WHERE email = '"+sender+"'",function (rows) {
+//
+//        });
 
         // Update conversation list to sender
 
@@ -765,13 +765,13 @@ app.post("/send-a-message", jsonParser, function (req, res) {
             res.json({
                 "status": "fail",
                 "message": "conversation input fail",
-                "error": 'save datastore conversation error'
+                "error": 'save data store conversation error'
             });
         }
     });
 
     res.json({
-        'status': "finish writeline chat"
+        'status': "finish write line chat"
     })
 });
 
@@ -783,11 +783,11 @@ app.post("/continue-conversation", jsonParser, function (req, res) {
     datastore.runQuery(query, function (con_err, con_entities) {
         if (con_entities.length > 0) {
             var query_message = datastore.createQuery('MessageInfo')
-                .filter('id', '=', conversation_id)
-                .order('-created_date');
+                .filter('id', '=', conversation_id);
+//                .order('-created_date');
             datastore.runQuery(query_message, function (msg_err, message) {
                 if (!msg_err) {
-                    return res.json({message_list: message, organizer: con_entities[0].organizer, member: con_entities[0].member, status: "ok"})
+                    return res.json({message_list: message.sort({created_date: -1}), organizer: con_entities[0].data.organizer, member: con_entities[0].data.member, status: "ok"})
                 } else {
                     return res.json({status: "fail"});
                 }

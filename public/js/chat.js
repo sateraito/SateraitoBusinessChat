@@ -227,7 +227,7 @@ $(function() {
                              }
 
                          });
-                         var chat_screen_friend = data.member.split(",");
+                         var chat_screen_friend = result.member.split(",");
                          chat_screen_friend.splice(chat_screen_friend.indexOf(user_email), 1);
 
                          //Show new chat screen
@@ -255,7 +255,7 @@ $(function() {
                          html_string += '<img src="image/setup-boxchat-active.png">';
                          html_string += '</a>';
                          html_string += '</div>';
-                         html_string += '<div class="chat_screen_body" data-conversation-id="' + conversation_id + '">';
+                         html_string += '<div class="chat_screen_body" data-conversation-id="' + data.conversation_id + '">';
                          if (message_string) {
                              html_string += message_string;
                          }
@@ -265,7 +265,7 @@ $(function() {
                          html_string += '<input type="hidden" class="sender_email" value="' + user_email + '">';
                          html_string += '<input type="hidden" class="receiver_email" value="' + receiver + '">';
 
-                         html_string += '<input type="hidden" class="conversation_id" value="' + conversation_id + '">';
+                         html_string += '<input type="hidden" class="conversation_id" value="' + data.conversation_id + '">';
                          html_string += '<div class="send_message_area">';
                          html_string += '<a href="javascript:void(0)" class="show_emotional_icon"><img src="image/amotion-icon-normail.png"></a>';
                          html_string += '<textarea class="message_text" name="message_text" placeholder="メッセージを送信"></textarea>';
