@@ -1,13 +1,12 @@
 
 $(function() {
 
+    //Start GAE socket definition
     var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
-    var webSocketUri =  webSocketHost + externalIp + ':65080';
-    console.log(webSocketUri);
-
+    var webSocketUri = webSocketHost + externalIp +':65080';
     var socket = io(webSocketUri);
 
-
+    //End GAE socket definition
 
     //Login process
     $("#login_btn").on("click",function () {
@@ -35,10 +34,17 @@ $(function() {
 
             },
             function (data) {
-                if (data.status == "invalid email" || data.status == "invalid password") {
+
+                if (data.status == "invalid account") {
                     $(".login_error_message").text("不正なアカウント情報です。");
                     return false;
-                }else if (data.status == "success"){
+
+                }else{
+
+                    socket.emit("user logged in",{
+                       "email": email
+                    });
+
                     $(location).attr("href","/main-space");
 
                 }
@@ -76,10 +82,16 @@ $(function() {
 
                 },
                 function (data) {
-                    if (data.status == "invalid email" || data.status == "invalid password") {
+
+                    if (data.status == "invalid account") {
                         $(".login_error_message").text("不正なアカウント情報です。");
                         return false;
-                    }else if (data.status == "success"){
+
+                    }else{
+                        socket.emit("user logged in",{
+                            "email": email
+                        });
+
                         $(location).attr("href","/main-space");
 
                     }
@@ -137,7 +149,7 @@ $(function() {
                     $(".signup_error_message").text("パスワードとパスワード再入力は一致しません。");
                     return false;
 
-                }else if (data.status == "success"){
+                }else{
 
                     $(location).attr("href","/main-space");
 
@@ -239,6 +251,11 @@ function fbAsyncInit() {
     });
 }
 function FacebookLogin() {
+    //Start GAE socket definition
+    var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
+    var webSocketUri = webSocketHost + externalIp +':65080';
+    var socket = io(webSocketUri);
+
     FB.login(
         function(response) {
             if (response.status== 'connected') {
@@ -252,11 +269,12 @@ function FacebookLogin() {
                         },
                         function (data) {
 
-                            if (data.status == "success") {
-                                $(location).attr("href","/main-space");
+                            if (data.status == "ok") {
+                                socket.emit("user logged in",{
+                                    "email": response.email
+                                });
 
-                            }else{
-                                console.log("error occured",data.error)
+                                $(location).attr("href","/main-space");
 
                             }
 
@@ -306,12 +324,12 @@ function GoogleLogin()
     gapi.auth.signIn(myParams);
 }
 
-function loginCallback(result)
-{
+function loginCallback(result) {
 
-    console.log("google result",result);
-    console.log("gapi.client", gapi.client);
-    console.log("gapi.client.plus", gapi.client.plus);
+    //Start GAE socket definition
+    var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
+    var webSocketUri = webSocketHost + externalIp +':65080';
+    var socket = io(webSocketUri);
 
     if(result['status']['signed_in'])
 
@@ -342,6 +360,10 @@ function loginCallback(result)
                 },
                 function (data) {
                     if (data.status == "ok") {
+                        socket.emit("user logged in",{
+                            "email": email
+                        });
+
                         $(location).attr("href","/main-space");
 
                     }

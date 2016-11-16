@@ -1,5 +1,5 @@
 a:hover {
-    text-decoration: none;
+    text-decoration: none!important;
 }
 
 body{
@@ -98,6 +98,7 @@ body{
     bottom: 50px;
     right: 0px;
     overflow : hidden;
+    z-index: 10;
 }
 
 
@@ -212,7 +213,7 @@ body{
     list-style: none;
     padding: 0;
     width: 150px;
-    border: 1px solid #d7d7d7;
+    border: 1px solid #d4d8e2;
     margin-top: -15px;
     display: none;
 }
@@ -221,10 +222,36 @@ body{
     float: left;
     width: 100%;
     padding: 10px;
+    border-bottom: 1px solid #d4d8e2
+}
+
+.user_option_list li:last-child {
+    border-bottom: none;
+}
+
+.user_option_list li:hover {
+    background: #edf0f7;
+}
+
+.user_option_list li:hover > a{
+    color: #39b54a;
+    font-weight: bold;
+}
+
+.user_option_list li:hover > .user_option_check_icon{
+    display: block!important;
 }
 
 .user_option_list li a {
-    color: black;
+    color: #3e3e3e;
+    font-size: 13px;
+}
+
+.user_option_check_icon {
+    color: #39b54a;
+    float: right;
+    font-size: 12px;
+    margin-top: 2px;
 }
 
 /*End header*/
@@ -276,7 +303,7 @@ body{
     margin-top: 6px;
 }
 
-.user_conversation_list li:hover, .user_friend_list li:hover {
+.user_conversation_list .user_conversation_li:hover, .user_friend_list .user_friend_li:hover {
     background: white;
 }
 
@@ -285,10 +312,11 @@ body{
     width: 40px;
     float: left;
     margin-top: 4px;
+    border-radius: 50%;
 }
 
 .user_friend_email p, .user_conversation_id p {
-    width: 220px;
+    width: 190px;
     padding-left: 10px;
     float: left;
     overflow: hidden;
@@ -296,9 +324,17 @@ body{
 
 }
 
+.user_friend_email .online_status_icon {
+    float: left;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 15px 0px 0px 10px;
+}
+
 .user_friend_action_button, .user_conversation_action_button {
     float: right;
-    margin-top: 15px;
+    margin-top: 25px;
     color: #405b9c;
 }
 
@@ -337,11 +373,20 @@ body{
 }
 
 .add_user_chat_screen img {
-    width: 22px;
+    float: left;
+    width: 18px;
+    margin-top: 2px;
 }
 
 .chat_screen_option img {
     width: 24px;
+}
+
+.chat_group_number {
+    color: #a7a7a7;
+    font-size: 12px;
+    float: left;
+    margin: 1px 0px 0px -3px;
 }
 
 
@@ -398,6 +443,7 @@ body{
 
 .sender_chat_message .chat_user_icon img{
     width: 30px;
+    border-radius: 50%;
 }
 
 .sender_chat_message p {
@@ -479,7 +525,7 @@ body{
 .chat_screen_header_text img {
     width: 17px;
     float: left;
-    margin: 8px 0px 0px 10px;
+    margin: 10px 0px 0px 10px;
 }
 
 .chat_screen_friend {
@@ -583,6 +629,735 @@ body{
     width: 25px;
 }
 /*End footer*/
+
+
+/*Start user_list_main_page*/
+#user_list_main_page {
+    display: none;
+}
+/*End user_list_main_page*/
+
+/*Start add_user_main_page*/
+#add_user_main_page {
+    display: none;
+}
+/*End add_user_main_page*/
+
+/*Start favorite_main_page*/
+#favorite_main_page {
+    display: none;
+}
+/*End favorite_main_page*/
+
+
+
+/*Start new chat */
+
+#start_chat_dialog {
+    position: absolute;
+    left: 320px;
+    top: 150px;
+    width: 650px;
+    border: 1px solid #e5e7ee;
+    box-shadow: 5px 5px 5px #d4d8e2;
+    z-index: 100;
+    display: none;
+}
+
+.new_chat_header {
+    float: left;
+    width: 100%;
+    height: 30px;
+}
+
+.new_chat_header_title {
+    float: left;
+    width: 90%;
+    background: #2f4375;
+    color: white;
+    text-align: center;
+    height: 30px;
+    padding-top: 5px;
+}
+
+.close_new_chat_dialog {
+    float: left;
+    width: 10%;
+    background: #fcb037;
+    text-align: center;
+    height: 30px;
+    color: white;
+}
+
+.close_new_chat_dialog img {
+    width: 20px;
+    margin-top: 6px;
+}
+
+.new_chat_body {
+    float: left;
+    width: 100%;
+    background: #fafafa;
+}
+
+.new_chat_row_1 {
+    float: left;
+    width: 94%;
+    margin: 20px 3% 20px 3%;
+    background: white;
+    border: 1px solid #e5e7ee;
+    border-radius: 3px;
+}
+
+.new_chat_title, .chat_search_friend {
+    float: left;
+    width: 90%;
+    outline: 0;
+    padding: 8px;
+    border: none;
+}
+
+.chat_title_character {
+    float: right;
+    padding-top: 8px;
+    padding-right: 5px;
+    color: #a7a7a7;
+}
+
+
+.new_chat_row_2 {
+    float: left;
+    width: 94%;
+    margin: 0px 3% 20px 3%;
+    background: white;
+    border: 1px solid #e5e7ee;
+    border-radius: 3px;
+}
+
+.chat_search_friend_icon {
+    float: left;
+    margin: 10px 5px 0px 10px;
+    color: grey;
+}
+
+.new_chat_row_3 {
+    float: left;
+    width: 100%;
+    background: white;
+    height: 300px;
+    border-bottom: 1px solid #e5e7ee;
+    border-top: 1px solid #e5e7ee;
+
+}
+
+.new_chat_row_3_left {
+    float: left;
+    width: 40%;
+    height: 300px;
+    border-right: 1px solid #e5e7ee;
+    overflow-y: scroll;
+}
+
+.new_chat_row_3_left_title {
+    float: left;
+    width: 100%;
+    text-align: center;
+    padding: 5px;
+    border-bottom: 1px solid #e5e7ee;
+    color: #0699cc;
+    margin: 0;
+}
+
+.new_chat_friend_list {
+    float: left;
+    width: 100%;
+    padding: 0;
+    list-style: none;
+    margin-top: 0px;
+}
+
+.new_chat_friend_list li {
+    float: left;
+    width: 100%;
+    border-bottom: 1px solid #e5e7ee;
+    height: 40px;
+}
+
+.new_chat_user_friend_email {
+    float: left;
+    width: 90%;
+    height: 40px;
+    margin-left: 5%;
+}
+
+.new_chat_user_friend_email img {
+    float: left;
+    width: 30px;
+    margin-top: 5px;
+    border-radius: 50%;
+}
+
+.new_chat_user_friend_email p {
+    float: left;
+    width: 65%;
+    margin-left: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.add_user_chat_email {
+    font-size: 12px;
+    color: #a7a7a7;
+    margin-top: -2px;
+    float: left;
+}
+
+.new_chat_user_friend_email .online_status_icon {
+    float: left;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin: 17px 0px 0px 10px;
+}
+
+.new_chat_row_3_right {
+    float: left;
+    width: 60%;
+    padding: 15px;
+    height: 300px;
+}
+
+.new_chat_row_4 {
+    float: left;
+    width: 100%;
+    height: 50px;
+    background: white;
+}
+
+.new_chat_footer {
+    background: red;
+    width: 400px;
+    margin: 0 auto;
+}
+
+.new_chat_cancel_button {
+    float: left;
+    background: #e6e6e6;
+    color: black;
+    padding: 5px 0px;
+    width: 150px;
+    text-align: center;
+    margin: 10px 0px 0px 20px;
+}
+
+.new_chat_start_button {
+    float: left;
+    background: #39b54a;
+    color: black;
+    padding: 5px 0px;
+    width: 150px;
+    text-align: center;
+    margin: 10px 0px 0px 50px;
+    color: white;
+}
+
+.new_chat_start_button:hover {
+    color: white;
+}
+
+.empty_list {
+    float: left;
+    width: 100%;
+    text-align: center;
+    margin-top: 50px;
+}
+
+.new_chat_user_detail {
+    float: left;
+    background: #f4f4f4;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    padding: 5px;
+    height: 30px;
+    border: 1px solid #ececec;
+}
+
+.new_chat_user_detail p {
+    float: left;
+    color: #8f95a9;
+
+}
+
+
+.new_chat_user_detail a {
+    float: left;
+    margin-left : 5px;
+    color: #8f95a9;
+}
+
+
+
+.conversation_option {
+    display: none;
+}
+
+.conversation_option {
+    background: white;
+    position: absolute;
+    left: 310px;
+    margin-top: 30px;
+    list-style: none;
+    padding: 0;
+    border: 1px solid #2f4375;
+    z-index: 100;
+}
+
+.conversation_option li {
+    border: 0;
+    border-bottom: 1px solid #d4d8e2;
+    height: 40px;
+}
+
+.conversation_option li:last-child {
+    border: none;
+}
+
+.conversation_option li:hover {
+    background:  #edf0f7;
+}
+
+.conversation_option li:hover > a {
+    color: #2f4375;
+    font-weight: bold;
+}
+.conversation_option li a{
+    color: #3e3e3e;
+    float: left;
+    width: 100%;
+    height: 40px;
+    padding: 10px;
+}
+
+
+
+/*End new chat*/
+
+/*Add user*/
+.add_user_wrapper {
+    float: left;
+    width: 100%;
+}
+
+.add_user_row {
+    float: left;
+    width: 100%;
+    padding: 10px 20px;
+    border-bottom: 1px solid #d4d8e2;
+}
+
+.add_user_row_left {
+    float: left;
+}
+
+.add_user_row_image {
+    float: left;
+}
+
+.add_user_row_image img {
+    width: 70px;
+    border-radius: 50%;
+}
+
+.add_user_info_container {
+    float: left;
+    height: 70px;
+    padding: 10px;
+}
+
+.add_user_name {
+    float: left;
+    width: 100%;
+    color: #3e3e3e;
+    font-weight: bold;
+}
+
+.add_user_company {
+    float: left;
+    width: 100%;
+    margin-top: -10px;
+    font-size: 12px;
+    color: #a7a7a7;
+}
+
+.add_user_row_right {
+    float: right;
+}
+
+.add_user_button {
+    float: right;
+    margin-top: 20px;
+    margin-right: 10px;
+}
+
+.add_user_button img {
+    width: 30px;
+}
+
+.add_user_requesting {
+    color: #a7a7a7;
+    font-size: 13px;
+    margin-top: 27px;
+}
+
+#add_user_dialog {
+    position: absolute;
+    background: #fafafa;
+    width: 40%;
+    left: 30%;
+    padding: 15px 20px;
+    margin-top: 30px;
+    border: 1px solid #e5e7ee;
+    box-shadow: 5px 5px 5px #d4d8e2;
+    display: none;
+}
+
+.add_user_dialog_header {
+    float: left;
+    width: 100%;
+}
+
+.add_user_dialog_title {
+    font-weight: bold;
+    font-size: 15px;
+    float: left;
+    width: 100%;
+}
+
+.add_user_dialog_header_info {
+    float: left;
+    width: 100%;
+    padding: 5px 20px;
+}
+
+.add_user_dialog_header_info img {
+    width: 60px;
+    float: left;
+    border-radius: 50%;
+}
+
+.add_user_dialog_header_info_wrapper {
+    float: left;
+    padding: 10px;
+}
+
+.add_user_dialog_body {
+    float: left;
+    width: 100%;
+    padding-top: 10px;
+}
+
+.add_user_dialog_body_des {
+    float: left;
+    width: 100%;
+    font-size: 13px;
+}
+
+.add_user_dialog_body textarea {
+    float: left;
+    width: 100%;
+    height: 70px;
+    resize: none;
+    outline: 0;
+    padding: 5px 10px;
+    border: 1px solid #e5e7ee;
+    font-size: 13px;
+}
+
+.add_user_button_row_wrapper {
+    float: left;
+    width: 100%;
+    padding-top: 20px;
+}
+
+.add_user_button_row {
+    width: 70%;
+    margin: 0 auto;
+}
+
+.cancel_add_user_button {
+    float: left;
+    padding: 10px;
+    background: #e6e6e6;
+    width: 40%;
+    margin-left: 10%;
+    text-align: center;
+    font-size: 13px;
+    color: black;
+}
+
+.cancel_add_user_button:hover {
+    color: black;
+}
+
+.do_add_user_button {
+    float: left;;
+    padding: 10px;
+    background: #39b54a;
+    width: 40%;
+    margin-left: 10%;
+    text-align: center;
+    font-size: 13px;
+    color: white;
+}
+
+.do_add_user_button:hover {
+    color: white;
+}
+
+
+#add_user_requesting_number {
+    background: red;
+    position: absolute;
+    color: white;
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+    padding-top: 2px;
+    border-radius: 50%;
+    margin-top: 15px;
+    margin-left: -10px;
+}
+
+#add_user_requesting_number:hover {
+    font-weight: bold;
+}
+
+#add_user_requesting_number p {
+    float: left;
+    width: 100%;
+    text-align: center;
+}
+
+.is_requested_user_wrapper {
+    background: #fafafa;
+    position: absolute;
+    top: 112px;
+    margin-left: -150px;
+    width: 400px;
+    box-shadow: 5px 5px 5px #d4d8e2;
+    padding-bottom: 20px;
+    display: none;
+}
+
+.is_requested_user_wrapper_arrow {
+    position: relative;
+    background: #fafafa;
+}
+.is_requested_user_wrapper_arrow:after {
+    bottom: 100%;
+    left: 50%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-color: rgba(250, 250, 250, 0);
+    border-bottom-color: #fafafa;
+    border-width: 8px;
+    margin-left: -8px;
+}
+
+.is_requested_user_title {
+    float: left;
+    width: 100%;
+    text-align: center;
+    padding: 5px;
+    font-size: 16px;
+}
+
+.is_requested_user_row {
+    float: left;
+    width: 100%;
+    background: white;
+    border-bottom: 1px solid #d4d8e2;
+    padding: 10px;
+}
+
+.is_requested_user_row_left img {
+    width: 40px;
+    border-radius: 50%;
+    float: left;
+}
+
+.is_requested_user_row_left p {
+    float: left;
+    margin: 10px 0px 0px 10px;
+}
+
+.is_requested_user_row_right {
+    float: right;
+    margin-top: 10px;
+}
+
+.deny_request_button {
+    background: #e6e6e6;
+    color: black;
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-right: 15px;
+}
+
+.approve_request_button {
+    background: #39b54a;
+    color: white;
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+.approve_request_button:hover {
+    color: white;
+}
+
+
+.add_user_group_chat_screen {
+    background: #edf0f7;
+    position: absolute;
+    width: 262px;
+    height: 340px;
+    margin-top: 40px;
+}
+
+.add_user_group_chat_auto {
+    background: white;
+    float: left;
+    width: 100%;
+    border-bottom: 1px solid #e5e7ee;
+    padding: 8px;
+    font-size: 12px;
+}
+
+.add_user_group_chat_auto_input {
+    background: white;
+    float: left;
+    border: none;
+    outline: 0;
+    width: 70%;
+}
+
+.add_user_group_chat_body {
+    float: left;
+    width: 100%;
+    background: white;
+    overflow-y: auto;
+}
+
+.add_user_group_chat_row {
+    float: left;
+    width: 100%;
+    padding: 5px;
+}
+
+.add_user_group_chat_select {
+    float: left;
+    margin: 15px 10px 0px  0px!important;
+}
+
+.add_user_group_chat_row img {
+    float: left;
+    width: 40px;
+    border-radius: 50%;
+    margin: 0px 0px 0px 0px;
+}
+
+.add_user_group_chat_row p {
+    float: left;
+    margin: 10px 0px 0px 10px;
+    color: #3e3e3e;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.add_user_group_chat_des {
+    padding: 5px;
+    font-size: 12px;
+    float: left;
+    border-top: 1px solid #e5e7ee;
+}
+
+.add_user_group_chat_footer {
+    float: left;
+    width: 100%;
+}
+
+.close_add_user_group_chat {
+    float: left;
+    margin-left: 5px;
+    border: 1px solid gray;
+    padding: 5px 10px;
+    width: 120px;
+    text-align: center;
+    font-size: 13px;
+    border-radius: 2px;
+    color: gray;
+}
+
+.do_add_user_group_chat {
+    float: right;
+    margin-right: 5px;
+    border: 1px solid #39b54a;
+    padding: 5px 10px;
+    width: 120px;
+    text-align: center;
+    color: white;
+    background: #39b54a;
+    border-radius: 2px;
+    font-size: 13px;
+
+}
+
+.do_add_user_group_chat:hover {
+    color: white;
+}
+
+.select_add_user_group_detail {
+    float: left;
+    border: 1px solid #e5e7ee;
+    height: 25px;
+    border-radius: 10px;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.select_add_user_group_detail p {
+    float: left;
+    padding: 4px 2px;
+}
+
+.select_add_user_group_detail a {
+    float: left;
+    margin: 4px 2px 0px 2px;
+}
+
+
+.remove_user_chat_group {
+    float: right;
+    color: gray;
+    margin: 10px 10px 0px 0px;
+    font-size: 16px;
+}
+
+
+
+
+
+
+
+
+
+/*End add user*/
 
 
 /*End new CSS*/

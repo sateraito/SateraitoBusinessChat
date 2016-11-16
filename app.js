@@ -1,11 +1,10 @@
 var utilities = require("./utilities");
 
 var express = require("express");
-var request = require('request');
 var path = require('path');
+var request = require('request');
 var app = express();
-var server = require("http").createServer(app);
-var fs = require("fs");
+var server = require("http").createServer(app);;
 var bcrypt = require('bcrypt');
 // Create a password salt
 var salt = bcrypt.genSaltSync(10);
@@ -27,13 +26,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + '/views'));
 
 server.listen(process.env.PORT || 8000);
-
-//Datastore config
 app.enable('trust proxy');
+
+// These environment variables are set automatically on Google App Engine
 var Datastore = require('@google-cloud/datastore');
+
 // Instantiate a datastore client
 var datastore = Datastore();
-
 
 
 //Config session
@@ -44,31 +43,63 @@ var session = require('express-session');
 app.use(cookieParser());
 app.use(session(
     {
-        secret: 'fhfasiHJBBFLFLDASBDAGDadadaasl12',
+        secret: 'fdhgfsddheuywsa176r6492dahdb885701046',
         resave: false,
         saveUninitialized: true
     }
 ));
 
 
+//Online list
+var online_user = [];
+
+
 app.get("/", function (req, res) {
 
-    getExternalIp(function (externalIp) {
-        if (req.session.user_id) {
-
-            res.redirect("/main-space", {externalIp: externalIp})
-        } else {
+    if(req.session.user_id){
+        res.redirect("/main-space")
+    }else{
+        getExternalIp(function (externalIp) {
             res.render('home', {externalIp: externalIp});
-        }
-    });
+        });
+    }
 
 });
 
-
 app.get("/logout", function (req, res) {
-    req.session.user_id = null;
-    req.session.user_email = null;
-    res.redirect("/");
+
+    var query = datastore.createQuery('UserInfo')
+        .filter('email', '=', req.session.user_email);
+
+    datastore.runQuery(query, function (err, entities) {
+        if (err) {
+            return res.json({"status": "fail", "message": "invalid account query error","email": email});
+        }
+        if (entities.length > 0) {
+            var user_info = entities[0].data;
+            user_info.is_online = false;
+
+            datastore.update({
+                key: entities[0].key,
+                data: user_info
+            }, function (update_err) {
+                if (update_err) {
+                    res.json({"status": "fail", "message": "update conversation list fail"});
+                    // Task updated successfully.
+                } else {
+                    req.session.user_id = null;
+                    req.session.user_email = null;
+                    req.session.user_name = null;
+                    req.session.user_image_url = null;
+                    req.session.user_type = null;
+
+                    res.redirect("/");
+                }
+            });
+
+        }
+    });
+
 
 });
 
@@ -90,37 +121,40 @@ app.post("/do-sign-up", jsonParser, function (req, res) {
         res.json({"status": "password error"})
     }
 
-    var hash_password = bcrypt.hashSync(password, salt)
-
     var query = datastore.createQuery('UserInfo')
         .filter('email', '=', email);
-
     datastore.runQuery(query, function (err, entities) {
         if (err) {
-            return res.json({"status": "db error", "message": "invalid account query error"});
+            return res.json({"status": "fail", "message": "invalid account query error", "email": entities[0].data.email});
         }
+
         if (entities.length > 0) {
-            return res.json({"status": "email existed", "message": "Account is exist", "email": email});
+            res.json({"status": "email existed"})
         } else {
             var arr = email.split("@").map(function (val) {
                 return val;
             });
+            var hash_password = bcrypt.hashSync(password, salt)
+            var new_user_id = utilities.generateUserId();
             var userinfo = {
                 // Store a hash of the use
-                id: generateUserId(),
+                user_id: new_user_id,
                 user_name: arr[0],
                 password: hash_password,
-                validation_code: generateRandomString(),
+                validation_code: utilities.generateRandomString(),
                 email: email,
+                is_validated:'',
                 first_name: arr[0],
                 last_name: '',
                 image_url: '',
-                friend_list: '',
-                conversation_list: '',
-                is_validated: '',
+                friend_list: [],
+                conversation_list: [],
                 birthday: '',
                 address: '',
                 company: '',
+                is_online: false,
+                is_requested_user_list: [],
+                do_requesting_user_list: [],
                 created_date: new Date(),
                 updated_datetime: new Date()
             };
@@ -132,10 +166,13 @@ app.post("/do-sign-up", jsonParser, function (req, res) {
                 if (err) {
                     return res.json({"status": "db error", "message": "invalid account", "error": 'save datastore error'});
                 } else {
-                    req.session.user_id = userinfo.id;
+                    req.session.user_id = new_user_id;
                     req.session.user_email = email;
+                    req.session.user_name = "";
+                    req.session.user_image_url = "";
                     req.session.user_type = "account";
-                    return res.json({"status": "success", "message": "Your account already!"});
+
+                    res.json({"status": "ok"})
                 }
             });
         }
@@ -144,6 +181,7 @@ app.post("/do-sign-up", jsonParser, function (req, res) {
 });
 
 app.post("/user-login", jsonParser, function (req, res) {
+
     var email = req.body.email;
     var password = req.body.password;
     var query = datastore.createQuery('UserInfo')
@@ -153,31 +191,51 @@ app.post("/user-login", jsonParser, function (req, res) {
         if (err) {
             return res.json({"status": "fail", "message": "invalid account query error","email": email});
         }
+//        return res.json({"status": "check entities value", "entities": entities, "number": entities.length, 'or': entities.rows});
         if (entities.length > 0) {
             //check if password is OK
-            bcrypt.compare(password, entities[0].data.password, function (err, matches) {
-                if (err) {
-                    console.log('Error while checking password');
-                } else if (matches) {
-                    req.session.user_id = entities[0].data.id;
-                    req.session.user_email = email;
-                    req.session.user_type = "account";
+//            if (bcrypt.hashSync(password, salt) == entities[0].data.password) {
+            bcrypt.compare(password, entities[0].data.password, function (com_err, matches) {
+                if (!com_err) {
+                    if (matches) {
+                        req.session.user_id = entities[0].data.user_id;
+                        req.session.user_email = email;
+                        req.session.user_name = entities[0].data.user_name;
+                        req.session.user_type = "account";
+                        if(entities[0].data.image_url){
+                            req.session.user_image_url = entities[0].data.image_url
+                        }else{
+                            req.session.user_image_url = "image/avt-default-1.png"
+                        }
 
-                    res.json({"status": "success"})
+                        var user_info = entities[0].data;
+                        user_info.is_online = true;
 
-                }else {
-                    res.json({"status": "invalid password"})
-                    console.log("password wrong");
+                        datastore.update({
+                            key: entities[0].key,
+                            data: user_info
+                        }, function (update_err) {
+                            if (update_err) {
+                                res.json({"status": "fail", "message": "update conversation list fail"});
+                                // Task updated successfully.
+                            } else {
+                                res.json({"status": "ok"});
 
+                            }
+                        });
+
+                    }else {
+                        return res.json({"status": "invalid account"});
+                    }
                 }
-            })
 
+            });
         } else {
-            return res.json({"status": "invalid email"});
+            //Email is not ok
+            res.json({"status": "invalid account"});
+            console.log("email wrong");
         }
     });
-
-
 });
 
 app.post("/user-login-facebook", jsonParser, function (req, res) {
@@ -190,28 +248,61 @@ app.post("/user-login-facebook", jsonParser, function (req, res) {
         if (err) {
             return res.json({"status": "db error", "error": "invalid account query error"});
         }
+
         if (entities.length > 0) {
-            return res.json({"status": "success"});
+            //If account is existed, retrieve it's info
+            req.session.user_id = entities[0].data.user_id;
+            req.session.user_name = entities[0].data.user_name;
+            req.session.user_email = email;
+            req.session.user_type = "facebook";
+            if(rows[0].image_url){
+                req.session.user_image_url = entities[0].data.image_url
+            }else{
+                req.session.user_image_url = "image/avt-default-1.png"
+            }
+
+            var user_info = entities[0].data;
+            user_info.is_online = true;
+
+            datastore.update({
+                key: entities[0].key,
+                data: user_info
+            }, function (update_err) {
+                if (update_err) {
+                    res.json({"status": "fail", "message": "update conversation list fail"});
+                    // Task updated successfully.
+                } else {
+                    res.json({"status": "ok"});
+
+                }
+            });
+
+
         } else {
             var arr = email.split("@").map(function (val) {
                 return val;
             });
+            var new_user_id = utilities.generateUserId();
+
             var userinfo = {
                 // Store a hash of the use
-                id: generateUserId(),
+                user_id: new_user_id,
                 user_name: arr[0],
                 password: '',
-                validation_code: generateRandomString(),
+                validation_code: utilities.generateRandomString(),
                 email: email,
+                is_validated:'',
                 first_name: arr[0],
                 last_name: '',
                 image_url: '',
-                friend_list: '',
-                conversation_list: '',
-                is_validated: '',
+                friend_list: [],
+                conversation_list: [],
                 birthday: '',
                 address: '',
                 company: '',
+                is_online: false,
+                is_requested_user_list: [],
+                do_requesting_user_list: [],
                 created_date: new Date(),
                 updated_datetime: new Date()
             };
@@ -221,12 +312,15 @@ app.post("/user-login-facebook", jsonParser, function (req, res) {
                 data: userinfo
             }, function (err) {
                 if (err) {
-                    return res.json({"status": "db error", "error": 'save datastore error'});
+                    return res.json({"status": "db error", "message": "invalid account", "error": 'save datastore error'});
                 } else {
-                    req.session.user_id = userinfo.id;
+                    req.session.user_id = new_user_id;
                     req.session.user_email = email;
-                    req.session.user_type = "facebook";
-                    return res.json({"status": "success"});
+                    req.session.user_name = arr[0];
+                    req.session.user_image_url = "image/avt-default-1.png";
+                    req.session.user_type = "account";
+
+                    res.json({"status": "ok"})
                 }
             });
         }
@@ -244,28 +338,60 @@ app.post("/user-login-google", jsonParser, function (req, res) {
         if (err) {
             return res.json({"status": "db error", "error": "invalid account query error"});
         }
+
         if (entities.length > 0) {
-            return res.json({"status": "success"});
+            //If account is existed, retrieve it's info
+            req.session.user_id = entities[0].data.user_id;
+            req.session.user_name = entities[0].data.user_name;
+            req.session.user_email = email;
+            req.session.user_type = "google";
+            if(rows[0].image_url){
+                req.session.user_image_url = entities[0].data.image_url
+            }else{
+                req.session.user_image_url = "image/avt-default-1.png"
+            }
+
+            var user_info = entities[0].data;
+            user_info.is_online = true;
+
+            datastore.update({
+                key: entities[0].key,
+                data: user_info
+            }, function (update_err) {
+                if (update_err) {
+                    res.json({"status": "fail", "message": "update conversation list fail"});
+                    // Task updated successfully.
+                } else {
+                    res.json({"status": "ok"});
+
+                }
+            });
+
         } else {
             var arr = email.split("@").map(function (val) {
                 return val;
             });
+            var new_user_id = utilities.generateUserId();
+
             var userinfo = {
                 // Store a hash of the use
-                id: generateUserId(),
+                user_id: new_user_id,
                 user_name: arr[0],
                 password: '',
-                validation_code: generateRandomString(),
+                validation_code: utilities.generateRandomString(),
                 email: email,
+                is_validated:'',
                 first_name: arr[0],
                 last_name: '',
-                image_url: '',
-                friend_list: '',
-                conversation_list: '',
-                is_validated: '',
+                image_url: 'image/avt-default-1.png',
+                friend_list: [],
+                conversation_list: [],
                 birthday: '',
                 address: '',
                 company: '',
+                is_online: false,
+                is_requested_user_list: [],
+                do_requesting_user_list: [],
                 created_date: new Date(),
                 updated_datetime: new Date()
             };
@@ -275,12 +401,15 @@ app.post("/user-login-google", jsonParser, function (req, res) {
                 data: userinfo
             }, function (err) {
                 if (err) {
-                    return res.json({"status": "db error", "error": 'save datastore error'});
+                    return res.json({"status": "db error", "message": "invalid account", "error": 'save datastore error'});
                 } else {
-                    req.session.user_id = userinfo.id;
+                    req.session.user_id = new_user_id;
                     req.session.user_email = email;
-                    req.session.user_type = "google";
-                    return res.json({"status": "success"});
+                    req.session.user_name = arr[0];
+                    req.session.user_image_url = "image/avt-default-1.png";
+                    req.session.user_type = "account";
+
+                    res.json({"status": "ok"})
                 }
             });
         }
@@ -294,30 +423,160 @@ app.post("/user-login-google", jsonParser, function (req, res) {
 app.get("/main-space", function (req, res) {
 
     if (req.session.user_id) {
-        // Query datastore user info with email
-        var query = datastore.createQuery('UserInfo')
-            .filter('email', '=', req.session.user_email);
-        datastore.runQuery(query, function (err, entities) {
-            if (entities.length > 0) {
-                var user_friend_list = entities[0].data.friend_list;
-                var user_conversation_list = entities[0].data.conversation_list;
-                for(var i = 1; i < entities.length; i++){
-                    user_friend_list += ',' + entities[i].data.friend_list;
-                    user_conversation_list = ',' + entities[i].data.conversation_list;
-                }
 
-                getExternalIp(function (externalIp) {
-                    res.render("main_space", {
-                        user_email: req.session.user_email,
-                        user_id: req.session.user_id,
-                        user_friend_list: user_friend_list,
-                        user_conversation_list: user_conversation_list,
-                        user_type : req.session.user_type,
-                        externalIp: externalIp
-                    });
+
+        var user_query = datastore.createQuery('UserInfo')
+            .filter('email', '=', req.session.user_email);
+
+        //Query logged in user info from UserInfo table
+        datastore.runQuery(user_query, function (err, user_entities) {
+            var user_conversation_list = user_entities[0].data.conversation_list;
+            var user_friend_list = user_entities[0].data.friend_list;
+            if (err) {
+                return res.json({"status": "db error", "error": "invalid account query error"});
+            }
+
+
+
+            if (user_conversation_list.length > 0) {
+
+                //Get conversation info on conversation_list
+                var conversation_query = datastore.createQuery('Conversation')
+
+                datastore.runQuery(conversation_query, function (err, conversation_entities) {
+                    if(conversation_entities.length > 0){
+
+                        var user_conversation_info = [];
+                        conversation_entities.forEach(function (val,i) {
+                            if(user_conversation_list.indexOf(val.data.conversation_id) != -1){
+                                var con_info = {};
+                                con_info.conversation_title = val.data.conversation_title;
+                                con_info.conversation_image_url = val.data.conversation_image_url;
+                                con_info.conversation_id = val.data.conversation_id;
+
+                                var message_query = datastore.createQuery('message_info')
+                                    .filter('message_conversation_id', '=' ,val.data.conversation_id)
+                                datastore.runQuery(message_query, function (err, message_entities) {
+                                    var message_array = [];
+
+                                    message_entities.forEach(function (val,i) {
+                                        message_array.push(val.data);
+                                    });
+
+                                    utilities.sortByKey(message_array,'created_date').reverse();
+
+                                    con_info.last_message = message_array[0].content;
+                                    con_info.last_message_id = message_array[0].message_id;
+                                    con_info.is_read_by_user_email = message_array[0].is_read_by;
+                                    con_info.sender_user_name = message_array[0].sender_name;
+                                    con_info.sender_image_url = message_array[0].sender_image_url;
+                                    con_info.last_message_created_date = message_array[0].created_date;
+
+                                    user_conversation_info.push(con_info);
+
+                                    if(user_conversation_info.length == user_conversation_list.length){
+                                        utilities.sortByKey(user_conversation_info,'last_message_created_date').reverse();
+
+                                        //Get user info on friend_list
+                                        var friend_user_query = datastore.createQuery('UserInfo');
+
+                                        datastore.runQuery(friend_user_query, function (err, friend_user_entities) {
+                                            var user_friend_info = [];
+                                            friend_user_entities.forEach(function (val) {
+                                                if(user_friend_list.indexOf(val.data.email) != -1){
+                                                    var user_info = {};
+                                                    user_info.user_name = val.data.user_name;
+                                                    user_info.user_email = val.data.email;
+                                                    user_info.is_online = val.data.is_online;
+                                                    if (val.data.image_url) {
+                                                        user_info.image_url = val.data.image_url;
+                                                    } else {
+                                                        user_info.image_url = "/image/avt-default-1.png"
+                                                    }
+                                                    user_friend_info.push(user_info)
+
+                                                }
+
+                                            });
+
+                                            //Render the page after queries is completed
+                                            getExternalIp(function (externalIp) {
+                                                res.render("main_space", {
+                                                    user_email: req.session.user_email,
+                                                    user_name: req.session.user_name,
+                                                    user_id: req.session.user_id,
+                                                    user_image_url: req.session.user_image_url,
+                                                    user_type: req.session.user_type,
+                                                    user_friend_list: user_friend_list,
+                                                    user_conversation_info: user_conversation_info,
+                                                    user_conversation_list: user_conversation_list,
+                                                    user_friend_info: user_friend_info,
+                                                    externalIp: externalIp
+                                                });
+                                            });
+
+                                        });
+
+                                    }
+
+
+
+                                });
+                            }
+
+                        });
+
+                    }else{
+
+                    }
+
                 });
 
+            }else{
+                //Get user info on friend_list
+                var friend_user_query = datastore.createQuery('UserInfo');
+
+                datastore.runQuery(friend_user_query, function (err, friend_user_entities) {
+                    var user_friend_info = [];
+                    friend_user_entities.forEach(function (val) {
+                        if(user_friend_list.indexOf(val.data.email) != -1){
+                            var user_info = {};
+                            user_info.user_name = val.data.user_name;
+                            user_info.user_email = val.data.email;
+                            user_info.is_online = val.data.is_online;
+                            if (val.data.image_url) {
+                                user_info.image_url = val.data.image_url;
+                            } else {
+                                user_info.image_url = "/image/avt-default-1.png"
+                            }
+                            user_friend_info.push(user_info)
+
+                        }
+
+                    });
+
+                    //Render the page after queries is completed
+                    getExternalIp(function (externalIp) {
+                        res.render("main_space", {
+                            user_email: req.session.user_email,
+                            user_name: req.session.user_name,
+                            user_id: req.session.user_id,
+                            user_image_url: req.session.user_image_url,
+                            user_type: req.session.user_type,
+                            user_friend_list: user_friend_list,
+                            user_conversation_info: [],
+                            user_conversation_list: user_conversation_list,
+                            user_friend_info: user_friend_info,
+                            externalIp: externalIp
+                        });
+                    });
+
+                });
+
+
             }
+
+
         });
 
 
@@ -328,99 +587,32 @@ app.get("/main-space", function (req, res) {
 
 });
 
-
-app.post("/add-user-list", jsonParser, function (req, res) {
-    var member_list = req.body.member_list;
-    var user_email = req.session.user_email;
-
-    //Update friend list of user
-    var query = datastore.createQuery('UserInfo')
-        .filter('email', '=', user_email);
-
-    datastore.runQuery(query, function (err, entities) {
-        if (entities.length > 0) {
-            var current_friend_list = entities[0].data.friend_list;
-            var new_user = entities[0].data;
-            var new_friend_list = null;
-            var is_update = true;
-            if (current_friend_list) {
-                var current_friend_array = current_friend_list.split(",");
-                member_list.split(",").forEach(function (val, i) {
-                    var query_list = datastore.createQuery('UserInfo')
-                        .filter('email', '=', val);
-                    datastore.runQuery(query_list, function (err, entity) {
-                        if (entity.length > 0) {
-                        } else {
-                            is_update = false;
-                        }
-
-                    });
-                    if (current_friend_array.indexOf(val) == -1) {
-                        current_friend_array.push(val);
-                    }
-                    new_friend_list = current_friend_array.toString();
-                });
-
-            } else {
-                new_friend_list = member_list;
-            }
-
-            new_user.friend_list = new_friend_list;
-            if (new_friend_list) {
-                if (is_update == true) {
-                    //Update user friend list
-                    datastore.update({
-//                    key: datastore.key('UserInfo'),
-//                    ds.key([kind, parseInt(id, 10)])
-                        key: datastore.key(['UserInfo', entities[0].key.id]),
-                        data: new_user
-                    }, function (err) {
-                        if (!err) {
-                            return res.json({"status": "success", "message": "update", 'update_value': entities[0], "is_update": is_update});
-                            // Task updated successfully.
-                        } else {
-                            return res.json({"status": "fail", "message": "update friend list fail", 'update_value': entities[0], "is_update": is_update});
-                        }
-
-                    });
-                } else {
-                    return res.json({"status": "fail", "message": "update friend list fail", 'update_value': entities[0], "is_update": is_update});
-                }
-            } else {
-                res.json({"status": "fail", "message": "nobody friend update"});
-            }
-//            res.json({"status": "ok"});
-
-
-        } else {
-            //Email is not ok
-            res.json({"status": "fail", "message": "invalid account"});
-
-        }
-    });
-});
-
 app.post("/send-a-message", jsonParser, function (req, res) {
-    var sender = req.body.sender;
+    var sender_email = req.body.sender_email;
+    var sender_name = req.body.sender_name;
+    var sender_image_url = req.body.sender_image_url;
     var receiver = req.body.receiver;
     var conversation_id = req.body.conversation_id;
+    var conversation_title = req.body.conversation_title;
     var message_text = req.body.message_text;
-    var user_conversation_list = req.body.user_conversation_list;
+    var user_conversation_list = req.body.user_conversation_list.split(",");
+    var message_id = req.body.message_id;
+
 
     //If this is a new conversation
-    if (user_conversation_list.split(",").indexOf(conversation_id) == -1) {
+    if(user_conversation_list.indexOf(conversation_id) == -1){
 
         var member_array = receiver.split(",");
-        member_array.push(sender);
-
-        //TODO catch error while operate query
+        member_array.push(sender_email);
 
         //Create new conversation into database
-        var coversation = {
+        var conversation = {
             // Store a hash of the use
-            id: conversation_id,
-            organizer: sender,
-            member: member_array.toString(),
+            conversation_id: conversation_id,
+            organizer: sender_email,
+            member: member_array,
+            conversation_image_url: '',
+            conversation_title: conversation_title,
             memo: '',
             todo: '',
             created_date: new Date()
@@ -428,121 +620,98 @@ app.post("/send-a-message", jsonParser, function (req, res) {
 
         datastore.save({
             key: datastore.key('Conversation'),
-            data: coversation
-        }, function (err) {
-            if (err) {
-                return res.json({
-                    "status": "fail",
-                    "message": "conversation input fail",
-                    "error": 'save datastore conversation error'
+            data: conversation
+        }, function (save_err) {
+
+        });
+
+        //Update conversation list to sender
+        var query = datastore.createQuery('UserInfo')
+            .filter('email', '=', sender_email);
+        datastore.runQuery(query, function (sender_err, sender_entities) {
+            var current_conversation_list = sender_entities[0].data.conversation_list;
+            if (current_conversation_list.indexOf(conversation_id) == -1) {
+                //Update sender conversation list
+                current_conversation_list.push(conversation_id);
+                var new_user = sender_entities[0].data;
+                new_user.conversation_list = current_conversation_list;
+
+                datastore.update({
+                    key: sender_entities[0].key,
+                    data: new_user
+                }, function (update_err) {
+                    if (update_err) {
+                        res.json({"status": "fail", "message": "update conversation list fail"});
+                        // Task updated successfully.
+                    } else {
+
+                    }
                 });
             }
+
         });
 
-        // Update conversation list of user info
-        var query = datastore.createQuery('UserInfo')
-            .filter('email', '=', sender);
-        datastore.runQuery(query, function (err, entities) {
-            if (entities.length > 0) {
-               var current_conversation_list = entities[0].data.conversation_list;
-               var current_conversation_array = current_conversation_list.split(",");
-                if (current_conversation_array.indexOf(conversation_id) == -1){
-                    //Update user friend list
-                    var new_conversation_array = current_conversation_array.push(conversation_id);
-                    var new_user = entities[0].data;
-                    new_user.conversation_list = new_conversation_array.toString();
-                    datastore.update({
-                        key: datastore.key(['UserInfo', entities[0].key.id]),
-                        data: new_user
-                    }, function (err) {
-                        if (err) {
-                            res.json({"status": "fail", "message": "update conversation list fail"});
-                            // Task updated successfully.
-                        } else {
-                            res.json({"status": "success", "message": "update", 'update_value': entities[0]});
-                        }
-                    });
-                }
+        // update conversation list to receiver
+        var receiver_array = receiver.split(",");
+        var receiver_query = datastore.createQuery('UserInfo')
+        datastore.runQuery(receiver_query, function (receiver_err, entities_receiver) {
+            entities_receiver.forEach(function (val,i) {
+                if(receiver_array.indexOf(val.data.email) != -1){
+                    var receiver_conversation_list = val.data.conversation_list;
+                    if(receiver_conversation_list.indexOf(conversation_id) == -1){
+                        receiver_conversation_list.push(conversation_id);
 
-
-
-            } else {
-                //Email is not ok
-                res.json({"status": "fail", "message": "invalid account"});
-
-            }
-        });
-
-        //update conversation list to receiver
-        receiver.split(",").forEach(function (val, i) {
-            var query = datastore.createQuery('UserInfo')
-                .filter('email', '=', val);
-            datastore.runQuery(query, function (err, entities) {
-                if (entities.length > 0) {
-                    var receiver_conversation_array = entities[0].conversation_list.split(",");
-                    receiver_conversation_array.push(conversation_id);
-
-                    var new_user = entities[0].data;
-                    new_user.conversation_list = receiver_conversation_array;
-                    if (receiver_conversation_array) {
+                        var new_user_receiver = val.data;
+                        new_user_receiver.conversation_list = receiver_conversation_list;
 
                         //Update user friend list
                         datastore.update({
-                            key: datastore.key(['UserInfo', entities[0].key.id]),
-                            data: new_user
-                        }, function (err) {
-                            if (err) {
-                                res.json({"status": "fail", "message": "update conversation list fail"});
-                                // Task updated successfully.
-                            } else {
-                                res.json({"status": "success", "message": "update", 'update_value': entities[0]});
-                            }
+                            key:val.key,
+                            data: new_user_receiver
+                        }, function (update_receiver_err) {
+
                         });
-                    } else {
-                        res.json({"status": "fail", "message": "No conversation list updated"});
+
                     }
-
-                } else {
-                    //Email is not ok
-                    res.json({"status": "fail", "message": "invalid account"});
-
                 }
-            });
 
-        });
+            })
+
+
+        })
 
     }
 
-    //Then add this message to database
-    //Create new conversation into database
-    var message_id = utilities.generateMessageId();
-
+    //Finally add this message to database
     var message_info = {
         // Store a hash of the use
-        id: message_id,
-        conversation_id: conversation_id,
+        message_id: message_id,
+        message_conversation_id: conversation_id,
         content: message_text,
-        sender: sender,
-        receiver: receiver,
-        is_read: false,
+        sender_email: sender_email,
+        sender_name: sender_name,
+        sender_image_url: sender_image_url,
+        receiver: receiver.split(","),
+        is_read_by: sender_email.split(","),
         created_date: new Date()
     };
 
     datastore.save({
-        key: datastore.key('MessageInfo'),
+        key: datastore.key('message_info'),
         data: message_info
-    }, function (err) {
-        if (err) {
-            return res.json({
+    }, function (msg_err) {
+        if (msg_err) {
+            res.json({
                 "status": "fail",
                 "message": "conversation input fail",
                 "error": 'save datastore conversation error'
             });
+        }else{
+            res.json({
+                'status': "message delivered"
+            })
         }
-
     });
-
-
 
 });
 
@@ -551,25 +720,467 @@ app.post("/continue-conversation", jsonParser, function (req, res) {
     var conversation_id = req.body.conversation_id;
 
     var query = datastore.createQuery('Conversation')
-        .filter('id', '=', conversation_id);
-    datastore.runQuery(query, function (err, entities) {
-        if (entities.length > 0) {
-            var query_message = datastore.createQuery('MessageInfo')
-                .filter('id', '=', conversation_id)
-                // .order('-created_date');
-            datastore.runQuery(query_message, function (err, message) {
-                res.json({message_list: message, organizer: entities[0].organizer, member: entities[0].member})
+        .filter('conversation_id', '=', conversation_id);
+    datastore.runQuery(query, function (con_err, con_entities) {
 
-            });
+        var conversation_title = con_entities[0].data.conversation_title;
+        var organizer = con_entities[0].data.organizer;
+        var member =  con_entities[0].data.member;
 
-        }
+        var query_message = datastore.createQuery('message_info')
+            .filter('message_conversation_id', '=', conversation_id);
+        datastore.runQuery(query_message, function (msg_err, message) {
+            var message_list = [];
+                message.forEach(function (val) {
+                    var message_info = {};
+                    message_info.content = val.data.content;
+                    message_info.message_id = val.data.message_id;
+                    message_info.sender = val.data.sender_email;
+                    message_info.sender_user_image_url = val.data.sender_image_url;
+                    message_info.created_date = val.data.created_date;
+                    message_list.push(message_info)
+                });
+
+                utilities.sortByKey(message_list,'created_date');
+
+                res.json({message_list: message_list , organizer: organizer , member: member, conversation_title: conversation_title, conversation_id: conversation_id})
+        });
+
     });
+
+});
+
+app.post("/mark-as-read", jsonParser, function (req, res) {
+    var message_id = req.body.message_id;
+    var is_read_user_email = req.body.is_read_user_email;
+
+    //Query sender user info from UserInfo table
+    var query_message = datastore.createQuery('message_info')
+        .filter('message_id', '=', message_id);
+    datastore.runQuery(query_message, function (message_err, message) {
+        if (message.length > 0){
+            var current_is_read_by = message[0].data.is_read_by;
+
+            if(current_is_read_by.indexOf(is_read_user_email) == -1){
+                current_is_read_by.push(is_read_user_email);
+
+                var new_message_info = message[0].data;
+                new_message_info.is_read_by = current_is_read_by;
+
+                datastore.update({
+                    key: message[0].key,
+                    data: new_message_info
+                }, function (update_err) {
+                    if (update_err) {
+                        res.json({"status": "fail", "message": "update conversation list fail"});
+                        // Task updated successfully.
+                    } else {
+                        res.json({"status": "success", "message": "update", 'update_value': message[0]});
+                    }
+                });
+
+            }
+        }
+
+
+    });
+
+
+});
+
+
+
+app.post("/get-add-user-list", jsonParser, function (req, res) {
+    var user_friend_list = req.body.user_friend_list.split(",");
+    var user_mail = req.body.user_mail;
+    var add_user_list = [];
+    //Not get it own email and emails on friend list
+    //Query sender user info from UserInfo table
+
+
+    var query_user = datastore.createQuery('UserInfo');
+
+    datastore.runQuery(query_user, function (user_err, user) {
+        user.forEach(function (val) {
+            //Retrieve only user IS NOT in user_friend_list and not his self
+            if(val.data.email != user_mail && user_friend_list.indexOf(val.data.email) == -1){
+                var add_user_info = {};
+                add_user_info.add_user_email = val.data.email;
+                if(val.data.user_name){
+                    add_user_info.add_user_name = val.data.user_name;
+                }else{
+                    add_user_info.add_user_name = val.data.email;
+                }
+
+                if(val.data.image_url){
+                    add_user_info.add_user_image_url = val.data.image_url;
+                }else{
+                    add_user_info.add_user_image_url = "image/avt-default-1.png"
+                }
+
+                if(val.data.company){
+                    add_user_info.add_user_company = val.data.company;
+                }else{
+                    add_user_info.add_user_company = "";
+                }
+
+                add_user_list.push(add_user_info)
+
+
+            }
+
+        });
+
+        res.json({
+            add_user_list: add_user_list
+
+        });
+
+    });
+
+});
+
+app.post("/add-friend-request", jsonParser, function (req, res) {
+    var did_request_user_email = req.body.did_request_user_email; //Example: test@gmail.com
+    var is_requested_user_email = req.body.is_requested_user_email; //Example: huutri1983@gmail.com
+
+    //Query is_requested_user_email user info from UserInfo table
+    var is_requested_user_query = datastore.createQuery('UserInfo')
+        .filter('email', '=', is_requested_user_email);
+    datastore.runQuery(is_requested_user_query, function (user_err, user) {
+        var is_requested_user_list_array = user[0].data.is_requested_user_list;
+        if(is_requested_user_list_array.indexOf(did_request_user_email) == -1){
+            is_requested_user_list_array.push(did_request_user_email);
+        }
+
+        var new_user = user[0].data;
+        new_user.is_requested_user_list = is_requested_user_list_array;
+
+        //Update is_requested_user_list of is_requested_user_email
+        datastore.update({
+            key: user[0].key,
+            data: new_user
+        }, function (update_err) {
+            if (update_err) {
+                res.json({"status": "fail", "message": "update conversation list fail"});
+                // Task updated successfully.
+            } else {
+                //Query did_request_user_email user info from UserInfo table
+                var did_request_user_query = datastore.createQuery('UserInfo')
+                    .filter('email', '=', did_request_user_email);
+                datastore.runQuery(did_request_user_query, function (user_err, user) {
+                    var do_requesting_user_list_array = user[0].data.do_requesting_user_list;
+                    if(do_requesting_user_list_array.indexOf(is_requested_user_email) == -1){
+                        do_requesting_user_list_array.push(is_requested_user_email);
+                    }
+                    var new_user = user[0].data;
+                    new_user.do_requesting_user_list = do_requesting_user_list_array;
+
+                    //Update is_requested_user_list of is_requested_user_email
+                    datastore.update({
+                        key: user[0].key,
+                        data: new_user
+                    }, function (update_err) {
+                        if (update_err) {
+                            res.json({"status": "fail", "message": "update conversation list fail"});
+                            // Task updated successfully.
+                        } else {
+                            res.json({
+                                status: "success"
+                            });
+                        }
+                    });
+
+                });
+            }
+        });
+
+    });
+
 
 
 
 
 });
 
+app.post("/get-friend-request", jsonParser, function (req, res) {
+    var user_email = req.body.user_email;
+
+
+    //Query did_request_user_email user info from UserInfo table
+    var user_query = datastore.createQuery('UserInfo')
+        .filter('email', '=', user_email);
+    datastore.runQuery(user_query, function (user_err, user) {
+        var is_requested_user_list = user[0].data.is_requested_user_list;
+        var do_requesting_user_list = user[0].data.do_requesting_user_list;
+
+        if (is_requested_user_list.length >0){
+            //Query did_request_user_email user info from UserInfo table
+            var user_query_2 = datastore.createQuery('UserInfo')
+            is_requested_user_list.forEach(function (val) {
+                if(val != ""){
+                    user_query_2.filter('email', '=', val);
+                }
+
+            });
+
+            datastore.runQuery(user_query_2, function (user_err, user) {
+                var is_requested_user_info = [];
+
+                user.forEach(function (val) {
+
+                    if(is_requested_user_list.indexOf(val.data.email) != -1){
+                        var requesting_user = {};
+                        if(val.data.user_name){
+                            requesting_user.request_user_name = val.data.user_name;
+                        }else{
+                            requesting_user.request_user_name = val.data.email;
+                        }
+
+                        requesting_user.request_user_email = val.data.email;
+
+                        if(val.data.image_url){
+                            requesting_user.request_user_image_url = val.data.image_url
+                        }else{
+                            requesting_user.request_user_image_url = "image/avt-default-1.png"
+                        }
+
+                        is_requested_user_info.push(requesting_user)
+                    }
+
+
+                });
+
+                res.json({
+                    is_requested_user_info : is_requested_user_info,
+                    do_requesting_user_list: do_requesting_user_list,
+                    is_requested_user_list: is_requested_user_list,
+                    query_user_info: user
+                });
+
+
+            });
+
+        }else {
+            res.json({
+                is_requested_user_info : [],
+                do_requesting_user_list: do_requesting_user_list,
+                is_requested_user_list: is_requested_user_list
+            });
+        }
+
+
+
+    });
+
+
+
+});
+
+app.post("/deny-add-user", jsonParser, function (req, res) {
+    var request_user_email = req.body.request_user_email;
+    var login_user_email = req.body.login_user_email;
+
+    //Remove request_user_email from is_requested_user_list
+    var user_query = datastore.createQuery('UserInfo')
+        .filter('email', '=', login_user_email);
+    datastore.runQuery(user_query, function (user_err, user) {
+        var current_is_requested_user_list = user[0].data.is_requested_user_list
+        var new_is_requested_user_list = []
+        current_is_requested_user_list.forEach(function (val,i) {
+            if(val != request_user_email){
+                new_is_requested_user_list.push(val);
+            }
+        });
+
+        var new_user_info = user[0].data;
+        new_user_info.is_requested_user_list = new_is_requested_user_list;
+
+
+        datastore.update({
+            key: user[0].key,
+            data: new_user_info
+        }, function (update_err) {
+            if (update_err) {
+                res.json({"status": "fail", "message": "update conversation list fail"});
+                // Task updated successfully.
+            } else {
+                //Remove login_user_email from do_requesting_user_list
+                var request_user_query = datastore.createQuery('UserInfo')
+                    .filter('email', '=', request_user_email);
+                datastore.runQuery(request_user_query, function (user_err, user) {
+                    var current_do_requesting_user_list= user[0].data.do_requesting_user_list
+                    var new_do_requesting_user_list = []
+                    current_do_requesting_user_list.forEach(function (val,i) {
+                        if(val != login_user_email){
+                            new_do_requesting_user_list.push(val);
+                        }
+                    });
+
+                    var new_user_info = user[0].data;
+                    new_user_info.do_requesting_user_list = new_do_requesting_user_list;
+
+
+                    datastore.update({
+                        key: user[0].key,
+                        data: new_user_info
+                    }, function (update_err) {
+                        if (update_err) {
+                            res.json({"status": "fail", "message": "update conversation list fail"});
+                            // Task updated successfully.
+                        } else {
+                            res.json({
+                                status: "success"
+                            })
+                        }
+                    });
+
+
+
+
+                });
+            }
+        });
+    });
+
+
+
+
+
+
+});
+
+app.post("/approve-add-user", jsonParser, function (req, res) {
+    var request_user_email = req.body.request_user_email;
+    var login_user_email = req.body.login_user_email;
+    var current_friend_list_array = [];
+
+    //Remove request_user_email from is_requested_user_list and add request_user_email to friend_list
+    var user_query = datastore.createQuery('UserInfo')
+        .filter('email', '=', login_user_email);
+    datastore.runQuery(user_query, function (user_err, user) {
+        var current_is_requested_user_list = user[0].data.is_requested_user_list
+        var new_is_requested_user_list = []
+        current_is_requested_user_list.forEach(function (val,i) {
+            if(val != request_user_email){
+                new_is_requested_user_list.push(val);
+            }
+        });
+
+        var current_friend_list_array = user[0].data.friend_list;
+
+        if (current_friend_list_array.indexOf(request_user_email) == -1){
+            current_friend_list_array.push(request_user_email)
+        }
+
+        var new_user_info = user[0].data;
+        new_user_info.is_requested_user_list = new_is_requested_user_list;
+        new_user_info.friend_list = current_friend_list_array;
+
+
+        datastore.update({
+            key: user[0].key,
+            data: new_user_info
+        }, function (update_err) {
+            if (update_err) {
+                res.json({"status": "fail", "message": "update conversation list fail"});
+                // Task updated successfully.
+            } else {
+                //Remove login_user_email from do_requesting_user_list
+                var request_user_query = datastore.createQuery('UserInfo')
+                    .filter('email', '=', request_user_email);
+                datastore.runQuery(request_user_query, function (user_err, user) {
+                    var current_do_requesting_user_list= user[0].data.do_requesting_user_list
+                    var new_do_requesting_user_list = []
+                    current_do_requesting_user_list.forEach(function (val,i) {
+                        if(val != login_user_email){
+                            new_do_requesting_user_list.push(val);
+                        }
+                    });
+
+                    var current_friend_list_array = user[0].data.friend_list;
+                    if (current_friend_list_array.indexOf(login_user_email) == -1){
+                        current_friend_list_array.push(login_user_email)
+                    }
+
+                    var new_user_info = user[0].data;
+                    new_user_info.do_requesting_user_list = new_do_requesting_user_list;
+                    new_user_info.friend_list = current_friend_list_array;
+
+
+                    datastore.update({
+                        key: user[0].key,
+                        data: new_user_info
+                    }, function (update_err) {
+                        if (update_err) {
+                            res.json({"status": "fail", "message": "update conversation list fail"});
+                            // Task updated successfully.
+                        } else {
+                            res.json({
+                                status: "success"
+                            });
+                        }
+                    });
+
+
+                });
+
+            }
+        });
+
+
+    });
+
+
+});
+
+app.post("/update-conversation-member", jsonParser, function (req, res) {
+    var new_receiver_email = req.body.new_receiver_email;
+    var do_update_user_email = req.body.do_update_user_email;
+    var conversation_id = req.body.conversation_id;
+
+    var new_member_array = new_receiver_email.split(",");
+    new_member_array.push(do_update_user_email);
+
+    //Remove login_user_email from do_requesting_user_list
+    var conversation_query = datastore.createQuery('Conversation')
+        .filter('conversation_id', '=', conversation_id);
+    datastore.runQuery(conversation_query, function (conversation_err, conversation) {
+        if(conversation.length > 0){
+            var new_conversation_info = conversation[0].data;
+            new_conversation_info.member = new_member_array;
+
+
+            datastore.update({
+                key: conversation[0].key,
+                data: new_conversation_info
+            }, function (update_err) {
+                if (update_err) {
+                    res.json({"status": "fail", "message": "update conversation list fail"});
+                    // Task updated successfully.
+                } else {
+                    res.json({
+                        status: "success"
+                    });
+                }
+            });
+
+        }else{
+            res.json({
+                status: "success"
+            });
+
+        }
+
+
+
+    });
+});
+
+
+
+
+//Socket.io zone
 
 var METADATA_NETWORK_INTERFACE_URL = 'http://metadata/computeMetadata/v1/' +
     '/instance/network-interfaces/0/access-configs/0/external-ip';
@@ -587,12 +1198,9 @@ function getExternalIp (cb) {
             console.log('Error while talking to metadata server, assuming localhost');
             return cb('localhost');
         }
-        console.log(cb);
         return cb(body);
     });
 }
-
-
 
 // setup new webserver for socket.io listening on 65080
 var app_chat = require('express')();
@@ -601,16 +1209,7 @@ var io = require('socket.io')(server1);
 server1.listen(65080);
 
 
-
-
 io.on('connection', function (socket) {
-
-    socket.emit('news', { hello: 'world' });
-
-    socket.on("just enter",function (data) {
-        console.log("There is a person entered. His name is ", data.name);
-        io.sockets.emit("welcome",{name: data.name})
-    });
 
     //TODO send the message to only conversation's member
 
@@ -619,9 +1218,14 @@ io.on('connection', function (socket) {
         // socket.join(room);
         io.sockets.emit("notify a new message", {
             sender: data.sender,
+            sender_user_name: data.sender_user_name,
+            sender_user_image_url: data.sender_user_image_url,
             receiver: data.receiver,
             message_text: data.message_text,
+            message_id: data.message_id,
             conversation_id: data.conversation_id,
+            conversation_title: data.conversation_title
+
 
         })
 
@@ -646,28 +1250,40 @@ io.on('connection', function (socket) {
 
     });
 
+    socket.on("user logged in",function (data) {
+        io.sockets.emit("logged in notify",{
+            email: data.email
+        });
+
+    })
+
+    socket.on("user logged out",function (data) {
+        io.sockets.emit("logged out notify",{
+            email: data.email
+        });
+
+    })
+
+    socket.on("new add friend request",function (data) {
+        io.sockets.emit("new add friend request notify",{
+            did_request_user_email: data.did_request_user_email,
+            did_request_user_user_name: data.did_request_user_user_name,
+            did_request_user_user_image_url: data.did_request_user_user_image_url,
+            is_requested_user_email: data.is_requested_user_email
+        });
+
+    })
+
+    socket.on("new add user approval",function (data) {
+        io.sockets.emit("new add user approval notify",{
+            new_user_friend_info: data.new_user_friend_info
+        });
+
+
+    });
+
 });
 
-
-function generateRandomString() {
-    Date.prototype.yyyymmdd = function() {
-        var mm = this.getMonth() + 1; // getMonth() is zero-based
-        var dd = this.getDate();
-
-        return [this.getFullYear(), !mm[1] && '', mm, !dd[1] && '0', dd].join(''); // padding
-    };
-
-    var date = new Date();
+//End socket.io zone
 
 
-    var user_id = date.yyyymmdd();
-
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for( var i=0; i < 20; i++ )
-        user_id += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return user_id;
-
-
-};

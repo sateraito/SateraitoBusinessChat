@@ -9,68 +9,115 @@
     <script src="https://connect.facebook.net/en_US/all.js"></script>
     <script src="https://apis.google.com/js/client:platform.js" async defer></script>
 
-    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+    <script src="js/user.js"></script>
     <script src="js/chat.js"></script>
     <script src="js/main.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-
-
 
     <script>
         user_email = "<%= user_email %>";
-        user_friend_list = "<%= user_friend_list %>";
-        user_conversation_list = "<%= user_conversation_list %>";
-        externalIp = "<%= externalIp %>"
+        user_image_url = "<%= user_image_url %>";
+        user_name = "<%= user_name %>";
+        user_friend_list = <%- JSON.stringify(user_friend_list) %>;
+        user_friend_info = <%- JSON.stringify(user_friend_info) %>;
+        user_conversation_info = <%- JSON.stringify(user_conversation_info) %>;
+        user_conversation_list = <%- JSON.stringify(user_conversation_list) %>;
+        is_requested_user_info = [];
+        do_requesting_user_list = [];
+
+        externalIp = "<%= externalIp %>";
 
     </script>
 
-</head>
-<style>
 
-</style>
+</head>
 
 <body onload="mainSpaceLoad()">
-<div id="add_user_modal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+<div id="start_chat_dialog" title="新しいチャットを開始する">
+    <div class="new_chat_header">
+        <p class="new_chat_header_title">新しいチャットを開始する</p>
+        <a href="javascript:void(0)" class="close_new_chat_dialog" onclick="hideNewChatScreen()"><img src="image/close-icon.png"></a>
+    </div>
+    <div class="new_chat_body">
+        <div class="new_chat_row_1">
+            <input class="new_chat_title" type="text" placeholder="チャットのタイトル">
+            <div class="chat_title_character">
+                (<span class="typed_number">0</span>/<span class="remain_number">30</span>)
 
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">友達リストにユーザーを追加する</h4>
             </div>
-            <div class="modal-body">
-                <input type="text" id="chat_user_list" placeholder="ユーザーのメールアドレスを入れてください。複数の場合、コマで分ける">
+        </div>
+
+        <div class="new_chat_row_2">
+            <div class="chat_search_friend_icon glyphicon glyphicon-search"></div>
+            <input class="chat_search_friend" type="text" placeholder="友達のメールアドレス">
+
+        </div>
+
+        <div class="new_chat_row_3">
+            <div class="new_chat_row_3_left">
+                <p class="new_chat_row_3_left_title">友達一覧</p>
+                <ul class="new_chat_friend_list">
+
+                </ul>
+
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" id="add_user_list">ユーザーを追加する</button>
+            <div class="new_chat_row_3_right">
+
+
             </div>
+
+        </div>
+        <div class="new_chat_row_4">
+            <div class="new_chat_footer">
+                <a href="javascript:void(0)" class="new_chat_cancel_button" onclick="hideNewChatScreen()">キャンセル</a>
+                <a href="javascript:void(0)" class="new_chat_start_button" onclick="startNewChat()">チャットを開始する</a>
+
+            </div>
+
         </div>
 
     </div>
 </div>
+
 <div class="page_container">
     <div class="page_header">
         <p class="page_title">サテライトビジネシチャット</p>
         <div class="page_list">
             <ul class="page_main_list">
-                <li><a href="javascript:void(0)" id="con_list_icon" class="page_main_list_icon"><img src="image/conversation-icon-active.png"></a></li>
-                <li><a href="javascript:void(0)" id="user_list_icon" class="page_main_list_icon"><img src="image/contact-icon.png"></a></li>
+                <li><a href="javascript:void(0)" id="con_list_icon" class="page_main_list_icon active_tab"><img src="image/conversation-icon-active.png"></a></li>
+                <li><a href="javascript:void(0)" id="user_list_icon" class="page_main_list_icon"><img src="image/contact-icon.png"></a>
+                    <a id="add_user_requesting_number" style="display: none" href="javascript:void(0)" onclick="show_add_user_request()">
+                        <p></p>
+                    </a>
+                    <div class="is_requested_user_wrapper">
+                        <div class="is_requested_user_wrapper_arrow"></div>
+                        <p class="is_requested_user_title">友達追加の申請一覧</p>
+                        <div class="is_requested_user_body">
+
+                        </div>
+
+                    </div>
+
+                </li>
                 <li><a href="javascript:void(0)" id="add_user_icon" class="page_main_list_icon"><img src="image/addfriend-icon-normal.png"></a></li>
                 <li><a href="javascript:void(0)" id="favorite_icon" class="page_main_list_icon"><img src="image/favorite-normal.png"></a></li>
             </ul>
             
-            <a class="page_main_info_icon" href="javascript:void(0)" onclick="show_user_option_list()"><img src="image/option-normal.png"></a>
+            <a class="page_main_info_icon" id="user_option_icon" href="javascript:void(0)" onclick="show_user_option_list()"><img src="image/option-normal.png"></a>
             <ul class="user_option_list">
-                <li><a href="javascript:void(0)">プロフィール</a></li>
-                <li><a href="javascript:void(0)" onclick="do_logout('<%= user_type %>')">ログアウト</a></li>
+                <li><a href="javascript:void(0)">プロフィール</a><div class="glyphicon glyphicon-ok user_option_check_icon" style="display: none"></div></li>
+                <li><a href="javascript:void(0)" id="logout_button" data-user-type="<%= user_type %>">ログアウト</a><div class="glyphicon glyphicon-ok user_option_check_icon" style="display: none"></div></li>
             </ul>
         </div>
     </div>
     <div class="page_header_2">
         <div class="page_header_2_left">
-            <a href="javascript:void(0)" id="create_new_chat_icon" class="page_main_left_header_icon"><img src="image/add-group-chat-icon.png">&nbsp;&nbsp;グループチャットを作成する</a>
+            <a href="javascript:void(0)" id="create_new_chat_icon" class="page_main_left_header_icon" onclick="showNewChatScreen()"><img src="image/add-group-chat-icon.png">&nbsp;&nbsp;チャットを開始する</a>
 
         </div>
         <div class="page_header_2_right">
@@ -80,7 +127,7 @@
         </div>
 
     </div>
-    <div class="page_main_wrapper">
+    <div class="page_main_wrapper" id="conversation_main_page">
         <div class="page_main_left_wrapper">
             <div class="page_main_left_body">
                 <ul class="user_friend_list page_main_left_body_list">
@@ -92,11 +139,12 @@
 
                 </ul>
 
+
             </div>
 
             <div class="page_main_left_footer">
                 <div class="page_main_left_footer_inner">
-                    <a href="javascript:void(0)" id="show_user_list" class="page_main_left_footer_icon"><img src="image/search-contact-normal.png"></a>
+                    <a href="javascript:void(0)" id="show_user_list" class="page_main_left_footer_icon" onclick="show_user_list()"><img src="image/search-contact-normal.png"></a>
                     <a href="javascript:void(0)" id="show_conversation_list" class="page_main_left_footer_icon footer_icon_active"><img src="image/conversation-list-active.png"></a>
 
                 </div>
@@ -117,6 +165,21 @@
         </div>
 
 
+    </div>
+
+    <div class="page_main_wrapper" id="user_list_main_page">
+        <h2 style="float: left;width: 100%;text-align: center;margin-top: 40px">ユーザーの友達一覧画面です！</h2>
+    </div>
+    <div class="page_main_wrapper" id="add_user_main_page">
+        <div class="add_user_wrapper">
+
+        </div>
+        <div id="add_user_dialog">
+
+        </div>
+    </div>
+    <div class="page_main_wrapper" id="favorite_main_page">
+        <h2 style="float: left;width: 100%;text-align: center;margin-top: 40px">お気に入りの画面です！</h2>
     </div>
     <div class="page_footer">
         <ul class="page_footer_main">
