@@ -18,8 +18,6 @@ $(function () {
 
             },
             function (result) {
-
-
                 $(".page_main_wrapper").removeClass("active_tab");
                 $("#add_user_icon").addClass("active_tab");
                 $("#add_user_icon").find("img").attr("src","image/addfriend-icon-active.png")
@@ -73,15 +71,8 @@ $(function () {
                 $("#add_user_main_page .add_user_wrapper").append(html_string);
 
                 $("#add_user_main_page").show();
-
-
-
             }
         );
-
-
-
-
     });
 
     socket.on("new add friend request notify",function (data) {
@@ -90,10 +81,10 @@ $(function () {
                 request_user_email: data.did_request_user_email,
                 request_user_image_url: data.did_request_user_user_image_url,
                 request_user_name: data.did_request_user_user_name
-            }
+            };
 
             //Update is_requested_user_info
-            is_requested_user_info.splice(0,0,new_requested_user_info)
+            is_requested_user_info.splice(0,0,new_requested_user_info);
 
             //Update current_requesting_number
             var current_requesting_number = 0;
@@ -139,13 +130,10 @@ function add_user_to_list(user_email, user_name, user_company, user_image_url) {
     html_string +=       '<a href="javascript:void(0)" class="do_add_user_button" onclick="do_add_user_dialog(\''+user_email+'\')">送信</a>';
     html_string +=     "</div>";
     html_string +=   "</div>";
-    html_string += "</div>"
+    html_string += "</div>";
 
     $("#add_user_dialog").append(html_string);
     $("#add_user_dialog").show();
-
-
-
 }
 
 function close_add_user_dialog() {
@@ -165,7 +153,7 @@ function do_add_user_dialog(friend_email) {
     $.post("/add-friend-request",
         {
             did_request_user_email: user_email,
-            is_requested_user_email: friend_email,
+            is_requested_user_email: friend_email
         },
         function (data) {
             if(data.status == "success"){
@@ -200,12 +188,12 @@ function show_add_user_request() {
             html_string += "<div class='is_requested_user_row' id='request-"+escapeEmailString(val.request_user_email)+"'>";
             html_string += "<div class='is_requested_user_row_left'>";
             html_string += "<img src='"+val.request_user_image_url+"'>";
-            html_string += "<p>"+val.request_user_name+"</p>"
+            html_string += "<p>"+val.request_user_name+"</p>";
             html_string += "</div>";
             html_string += "<div class='is_requested_user_row_right'>";
             html_string += '<a href="javascript:void(0)" class="deny_request_button" onclick="deny_add_user_request(\''+val.request_user_email+'\',\''+user_email+'\')">却下する</a>';
             html_string += '<a href="javascript:void(0)" class="approve_request_button" onclick="approve_add_user_request(\''+val.request_user_email+'\',\''+user_email+'\',\''+val.request_user_name+'\',\''+val.request_user_image_url+'\')">承認する</a>';
-            html_string += "</div>"
+            html_string += "</div>";
 
 
             html_string += "</div>";

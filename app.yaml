@@ -27,6 +27,11 @@ env_variables:
 manual_scaling:
   instances: 1
 
+resources:
+  cpu: .5
+  memory_gb: 0.18
+  disk_size_gb: 10
+
 #automatic_scaling:
 #  min_num_instances: 1
 #  max_num_instances: 1

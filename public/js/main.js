@@ -16,7 +16,7 @@ $(function() {
         $(".login_error_message").text("");
 
         if(!isValidateEmail(email)){
-            $(".login_error_message").text("不正なメールアドレスです！")
+            $(".login_error_message").text("不正なメールアドレスです！");
             return false;
 
         }else if (!$.trim(password)) {
@@ -30,8 +30,6 @@ $(function() {
             {
                 email: email,
                 password: password
-
-
             },
             function (data) {
 
@@ -40,9 +38,9 @@ $(function() {
                     return false;
 
                 }else{
-
                     socket.emit("user logged in",{
-                       "email": email
+                       "email": email,
+                        "user_socket": socket.id
                     });
 
                     $(location).attr("href","/main-space");
@@ -273,7 +271,6 @@ function FacebookLogin() {
                                 socket.emit("user logged in",{
                                     "email": response.email
                                 });
-
                                 $(location).attr("href","/main-space");
 
                             }
