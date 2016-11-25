@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@google-cloud/datastore": "^0.1.1",
+    "@google-cloud/storage": "^0.1.1",
+    "multer": "^1.2.0",
     "bcrypt": "*",
     "body-parser": "latest",
     "cookie-parser": "*",
@@ -20,10 +22,7 @@
     "express": "*",
     "express-session": "latest",
     "gstore-node": "^0.6.4",
-    "nodemailer": "latest",
-    "pg": "4.x",
     "request": "^2.69.0",
-    "socket.io": "*",
-    "socketio-file-upload": "^0.4.4"
+    "socket.io": "*"
   }
 }

@@ -11,8 +11,12 @@
 
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="http://malsup.github.com/jquery.form.js"></script>
 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="css/jquery.loadmask.css" media="all" rel="stylesheet" type="text/css"/>
+    <script src="js/jquery.loadmask.min.js" type="text/javascript"></script>
 
 
     <script src="js/user.js"></script>
@@ -110,7 +114,7 @@
             
             <a class="page_main_info_icon" id="user_option_icon" href="javascript:void(0)" onclick="show_user_option_list()"><img src="image/option-normal.png"></a>
             <ul class="user_option_list">
-                <li><a href="javascript:void(0)">プロフィール</a><div class="glyphicon glyphicon-ok user_option_check_icon" style="display: none"></div></li>
+                <li><a href="javascript:void(0)" onclick="show_user_profile()">プロフィール</a><div class="glyphicon glyphicon-ok user_option_check_icon" style="display: none"></div></li>
                 <li><a href="javascript:void(0)" id="logout_button" data-user-type="<%= user_type %>">ログアウト</a><div class="glyphicon glyphicon-ok user_option_check_icon" style="display: none"></div></li>
             </ul>
         </div>
@@ -181,6 +185,153 @@
     <div class="page_main_wrapper" id="favorite_main_page">
         <h2 style="float: left;width: 100%;text-align: center;margin-top: 40px">お気に入りの画面です！</h2>
     </div>
+
+    <div class="page_main_wrapper" id="profile_main_page">
+        <div class="user_profile_wrapper">
+            <div class="user_profile_header">
+                <p class="user_profile_header_title">プロフィール</p>
+                <p class="user_profile_header_des">プロフィールを完了させてください！</p>
+            </div>
+            <div class="user_profile_body">
+                <div class="user_profile_image_zone">
+                    <img src="<%= user_image_url %>">
+                    <form method="POST" action="/upload-user-image" enctype="multipart/form-data" class="user_image_upload_form" id="user_image_upload_form">
+                        <label class="change_user_image">編集
+                            <input type="file" name="user_image_file" id="user_image_upload_btn" class="user_image_upload_btn">
+                        </label>
+                    </form>
+                </div>
+                <div class="user_profile_basic_zone">
+                    <p style="color: #2f4375; font-weight: bold;" class="user_profile_basic_text"><%= user_name %></p>
+                    <p class="user_profile_basic_text"><%= user_company %></p>
+                    <p class="user_profile_basic_text"><%= user_address %></p>
+                    <a href="javascript:void(0)" class="edit_profile_btn" onclick="edit_user_profile()">プロフィールを編集</a>
+                    <a href="javascript:void(0)" class="edit_password_btn" onclick="edit_password()">パスワードを編集</a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+    </div>
+    <div class="page_main_wrapper" id="profile_detail_page">
+        <div class="user_profile_wrapper">
+            <div class="user_profile_header">
+                <p class="user_profile_header_title">プロフィール</p>
+                <p class="user_profile_header_des">プロフィールを完了させてください！</p>
+            </div>
+            <div class="user_profile_body">
+                <div class="user_profile_image_zone">
+                    <img src="<%= user_image_url %>">
+                    <form method="POST" action="/upload-user-image" enctype="multipart/form-data" class="user_image_upload_form" id="user_image_upload_form_1">
+                        <label class="change_user_image">編集
+                            <input type="file" name="user_image_file" id="user_image_upload_btn_1" class="user_image_upload_btn">
+                        </label>
+                    </form>
+                </div>
+                <div class="user_profile_basic_zone">
+                    <div class="profile_detail_block">
+                        <p class="profile_detail_block_title">個人情報</p>
+                        <div class="profile_detail_block_body">
+                            <div class="profile_detail_block_row">
+                                <p class="profile_detail_block_row_text">メールアドレス</p>
+                                <input disabled type="text" class="profile_detail_email" value="<%= user_email %>">
+                            </div>
+                            <div class="profile_detail_block_row">
+                                <p class="profile_detail_block_row_text">名</p>
+                                <input type="text" class="profile_detail_first_name" value="<%= user_first_name %>">
+                            </div>
+                            <div class="profile_detail_block_row">
+                                <p class="profile_detail_block_row_text">氏</p>
+                                <input type="text" class="profile_detail_last_name" value="<%= user_first_name %>">
+                            </div>
+                            <div class="profile_detail_block_row">
+                                <p class="profile_detail_block_row_text">住所</p>
+                                <input type="text" class="profile_detail_address" value="<%= user_address %>">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="profile_detail_block">
+                        <p class="profile_detail_block_title">企業情報</p>
+                        <div class="profile_detail_block_body">
+                            <div class="profile_detail_block_row">
+                                <p class="profile_detail_block_row_text">会社名</p>
+                                <input type="text" class="profile_detail_company_name" value="<%= user_company %>">
+                            </div>
+                            <div class="profile_detail_block_row">
+                                <p class="profile_detail_block_row_text"></p>
+                                <a href="javascript:void(0)" onclick="do_edit_user_profile()" class="do_edit_user_profile">保存する</a>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+    </div>
+    <div class="page_main_wrapper" id="profile_password_page">
+        <div class="user_profile_wrapper">
+            <div class="user_profile_header">
+                <p class="user_profile_header_title">プロフィール</p>
+                <p class="user_profile_header_des">プロフィールを完了させてください！</p>
+            </div>
+            <div class="user_profile_body">
+                <div class="user_profile_image_zone">
+                    <img src="<%= user_image_url %>">
+                    <form method="POST" action="/upload-user-image" enctype="multipart/form-data" class="user_image_upload_form" id="user_image_upload_form_2">
+                        <label class="change_user_image">編集
+                            <input type="file" name="user_image_file" class="user_image_upload_btn" id="user_image_upload_btn_2">
+                        </label>
+                    </form>
+                </div>
+                <div class="user_profile_basic_zone">
+                    <div class="profile_detail_block">
+                        <p class="change_password_error"></p>
+                        <p class="profile_detail_block_title">パスワード変更</p>
+                        <div class="profile_detail_block_body">
+                            <div class="profile_detail_block_row">
+                                <p class="profile_detail_block_row_text">既存のパスワード</p>
+                                <input type="password" class="profile_current_password">
+                            </div>
+                            <div class="profile_detail_block_row">
+                                <p class="profile_detail_block_row_text">新しいパスワード</p>
+                                <input type="password" class="profile_new_password">
+                            </div>
+                            <div class="profile_detail_block_row">
+                                <p class="profile_detail_block_row_text">新しいパスワード再入力</p>
+                                <input type="password" class="profile_new_password_again">
+                            </div>
+                            <div class="profile_detail_block_row">
+                                <p class="profile_detail_block_row_text"></p>
+                                <a href="javascript:void(0)" onclick="do_edit_user_password()" class="do_edit_user_profile">パスワードを変更する</a>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+
     <div class="page_footer">
         <ul class="page_footer_main">
             <li style="text-align: right;padding-right: 15px;padding-top: 15px;border-right: 1px solid #405b9c;"><img src="image/conversation-icon-active.png" class="page_footer_chat_icon">&nbsp;サテライトビジネスチャット</li>

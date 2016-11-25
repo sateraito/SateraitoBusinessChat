@@ -110,6 +110,34 @@ $(function () {
 
     });
 
+    $('.user_image_upload_form').ajaxForm({
+        success: function(data, statusText, xhr) {
+            if(data.status == "uploaded success"){
+                $(".user_profile_body").unmask();
+                $(".user_profile_image_zone img").each(function (i) {
+                    $(this).attr("src",data.image_url);
+                });
+            }
+
+
+        }
+    });
+
+    $("#user_image_upload_btn").change(function () {
+        $(".user_profile_body").mask('アップロード中。。。');
+        $("#user_image_upload_form").submit();
+    });
+
+    $("#user_image_upload_btn_1").change(function () {
+        $(".user_profile_body").mask('アップロード中。。。');
+        $("#user_image_upload_form_1").submit();
+    });
+
+    $("#user_image_upload_btn_2").change(function () {
+        $(".user_profile_body").mask('アップロード中。。。');
+        $("#user_image_upload_form_2").submit();
+    });
+
 
 });
 
@@ -220,5 +248,90 @@ function show_add_user_request() {
     }
 
 
+
+}
+
+//User profile function
+function show_user_profile() {
+    $(".page_main_wrapper").hide();
+    $(".user_option_list").hide();
+    $("#profile_main_page").show();
+
+}
+
+function edit_user_profile(){
+    $(".page_main_wrapper").hide();
+    $("#profile_detail_page").show();
+
+}
+
+function edit_password(){
+    $(".page_main_wrapper").hide();
+    $("#profile_password_page").show();
+
+}
+
+function do_edit_user_profile() {
+
+    var user_first_name = $(".profile_detail_first_name").val();
+    var user_last_name = $(".profile_detail_last_name").val();
+    var user_address = $(".profile_detail_address").val();
+    var user_company = $(".profile_detail_company_name").val();
+
+    $.post("/do-edit-user-profile",
+        {
+            user_email: user_email,
+            user_first_name: user_first_name,
+            user_last_name: user_last_name,
+            user_address: user_address,
+            user_company: user_company
+        },
+        function (data) {
+
+            alert("プロフィールは成功に変更されました。");
+
+
+        }
+    );
+
+
+}
+
+function do_edit_user_password() {
+    $(".change_password_error").text("");
+    var current_password = $(".profile_current_password").val();
+    var new_password = $(".profile_new_password").val();
+    var new_password_again = $(".profile_new_password_again").val();
+
+    $.post("/do-change-user-password",
+        {
+            user_email: user_email,
+            current_password: current_password,
+            new_password: new_password,
+            new_password_again: new_password_again
+        },
+        function (data) {
+            if(data.status == "new_password not match"){
+                $(".change_password_error").text("新しいパスワードと新しいパスワード再入力は一致しません。")
+                return false;
+            }
+
+            if(data.status == "invalid current password"){
+                $(".change_password_error").text("不正な既存のパスワード")
+                return false;
+            }
+
+            //Clear password fields
+            alert("パスワードは成功に変更されました。");
+
+            $(".profile_current_password").val("");
+            $(".profile_new_password").val("");
+            $(".profile_new_password_again").val("");
+
+
+
+
+        }
+    );
 
 }

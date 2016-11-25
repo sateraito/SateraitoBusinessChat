@@ -1,12 +1,13 @@
 
-$(function() {
 
+
+function mainSpaceLoad() {
+
+    //Check online user
     //Start GAE socket definition
     var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
     var webSocketUri = webSocketHost + externalIp +':65080';
     var socket = io(webSocketUri);
-
-    //End GAE socket definition
 
 
     //Tab hover and click event
@@ -105,11 +106,11 @@ $(function() {
 
 
     $("#user_option_icon").hover(function(){
-        $(this).find("img").attr("src","image/option-active.png")
-    },function (){
-        $(this).find("img").attr("src","image/option-normal.png")
+            $(this).find("img").attr("src","image/option-active.png")
+        },function (){
+            $(this).find("img").attr("src","image/option-normal.png")
 
-    }
+        }
 
     );
 
@@ -143,6 +144,22 @@ $(function() {
 
         if(user_email == data.sender  || receiver_array.indexOf(user_email) != -1){
             var current_conversation = false;
+            //Check message content is text or image url
+            //In case of image url
+            var render_message_content = "";
+            if(checkImageMessage(data.message_text)){
+                render_message_content = "<a href='/render-image?image_url="+data.message_text+"' target='_blank' style='width: 100%'><img src='"+data.message_text+"' style='width: 100%'></a>"
+            }else{
+                render_message_content = data.message_text
+            }
+
+            var render_latest_message_content = ""
+            if(checkImageMessage(data.message_text)){
+                render_latest_message_content = "写真を送信済み"
+            }else{
+                render_latest_message_content = data.message_text
+            }
+
             //Update conversation list
             if(user_conversation_list.indexOf(data.conversation_id) == -1){
                 user_conversation_list.push(data.conversation_id);
@@ -153,7 +170,11 @@ $(function() {
                 conversation_string += "<img src='image/avt-default-1.png'>";
                 conversation_string += "<p>"
                 conversation_string += "<span style='color: #3e3e3e' class='conversation_title'>"+data.conversation_title+"</span><br>"
-                conversation_string +=  "<span style='color: #a7a7a7; font-size: 12px' class='conversation_lastest_message'><span class='lastest_message_sender'>"+data.sender_user_name+":  </span>"+data.message_text+"</span>";
+                conversation_string +=  "<span style='color: #a7a7a7; font-size: 12px' class='conversation_lastest_message'><span class='lastest_message_sender'>"+data.sender_user_name+":  </span>"
+
+                conversation_string += render_latest_message_content
+                conversation_string += "</span>"
+
                 conversation_string += "</p>"
                 conversation_string += "</a>"
                 conversation_string += '<a href="javascript:void(0)" class="glyphicon glyphicon-option-vertical user_conversation_action_button" onclick="show_conversation_option(\''+data.conversation_id+'\')"></a>'
@@ -177,14 +198,16 @@ $(function() {
                     var message_string = "";
                     var chat_block_id = generateRandomString();
                     if(data.sender == user_email){
-                        message_string += "<div class='receiver_chat_message_wrapper'>"
+                        message_string += "<div class='receiver_chat_message_wrapper' id='"+data.message_id+"'>"
                         message_string += "<div class='chat_message_option' id='"+chat_block_id+"'>"
                         message_string += "<a href='javascript:void(0)' class='message_favorite_button' onclick='add_remove_message_favorite(\""+chat_block_id+"\")'><img src='image/heart-normal.png' data-status=''></a>&nbsp;&nbsp;"
                         message_string += "<a href='javascript:void(0)' class='edit_message_button' onclick='edit_message(\""+chat_block_id+"\")'>編集</a>"
                         message_string += "</div>"
                         message_string += "<div class='receiver_chat_message'>"
                         message_string += "<div class='receiver_chat_message_arrow'><img src='image/marker-chat-white.png'></div>"
-                        message_string += "<p class='chat_message_content'  onclick='show_chat_option(\""+chat_block_id+"\")'>"+data.message_text+"</p>"
+
+
+                        message_string += "<p class='chat_message_content'  onclick='show_chat_option(\""+chat_block_id+"\")'>"+render_message_content+"</p>"
                         message_string += "</div>"
                         message_string += "</div>"
                     }else{
@@ -195,7 +218,7 @@ $(function() {
                         message_string += "<div class='sender_chat_message'>"
                         message_string += "<a href='javascript:void(0)' class='chat_user_icon'><img src='"+data.sender_user_image_url+"'></a>"
                         message_string += "<div class='sender_chat_message_arrow'><img src='image/marker-chat.png'></div>"
-                        message_string += "<p class='chat_message_content'  onclick='show_chat_option(\""+chat_block_id+"\")'>"+data.message_text+"</p>"
+                        message_string += "<p class='chat_message_content'  onclick='show_chat_option(\""+chat_block_id+"\")'>"+render_message_content+"</p>"
                         message_string += "</div>"
                         message_string += "</div>"
 
@@ -208,7 +231,7 @@ $(function() {
 
                     //In case of message_text input is unfocused, the message is marked as unread
                     $("#"+data.conversation_id).parent().css({"background":"white"});
-                    $("#"+data.conversation_id).find(".conversation_lastest_message").empty().append("<span style='color: #a7a7a7; font-size: 12px' class='conversation_lastest_message'><span class='lastest_message_sender'>"+data.sender_user_name+":  </span>"+data.message_text+"</span>");
+                    $("#"+data.conversation_id).find(".conversation_lastest_message").empty().append("<span style='color: #a7a7a7; font-size: 12px' class='conversation_lastest_message'><span class='lastest_message_sender'>"+data.sender_user_name+":  </span>"+render_latest_message_content+"</span>");
                     $("#"+data.conversation_id).find(".conversation_lastest_message").css({"font-weight":"bold"});
                     var current_message_text = $(this).find(".message_text");
                     if(current_message_text.is(":focus")){
@@ -267,6 +290,16 @@ $(function() {
 
                         var message_string = "";
                         message_list.forEach(function (val,i) {
+                            //Check message content is text or image url
+                            //In case of image url
+                            var current_render_message_content = "";
+                            if(checkImageMessage(val.content)){
+                                current_render_message_content = "<a href='/render-image?image_url="+val.content+"' target='_blank' style='width: 100%'><img src='"+val.content+"' style='width: 100%'></a>"
+                            }else{
+                                current_render_message_content = val.content
+                            }
+
+
                             var chat_block_id = generateRandomString();
                             if(val.sender == user_email){
                                 message_string += "<div class='receiver_chat_message_wrapper' id='"+val.message_id+"'>"
@@ -276,7 +309,7 @@ $(function() {
                                 message_string +=   "</div>"
                                 message_string +=   "<div class='receiver_chat_message'>"
                                 message_string +=       "<div class='receiver_chat_message_arrow'><img src='image/marker-chat-white.png'></div>"
-                                message_string +=       "<p class='chat_message_content'  onclick='show_chat_option(\""+chat_block_id+"\")'>"+val.content+"</p>"
+                                message_string +=       "<p class='chat_message_content'  onclick='show_chat_option(\""+chat_block_id+"\")'>"+current_render_message_content+"</p>"
                                 message_string +=   "</div>"
                                 message_string += "</div>"
                             }else{
@@ -287,7 +320,7 @@ $(function() {
                                 message_string +=   "<div class='sender_chat_message'>";
                                 message_string +=       "<a href='javascript:void(0)' class='chat_user_icon'><img src='"+val.sender_user_image_url+"'></a>"
                                 message_string +=       "<div class='sender_chat_message_arrow'><img src='image/marker-chat.png'></div>"
-                                message_string +=       "<p class='chat_message_content'  onclick='show_chat_option(\""+chat_block_id+"\")'>"+val.content+"</p>"
+                                message_string +=       "<p class='chat_message_content'  onclick='show_chat_option(\""+chat_block_id+"\")'>"+current_render_message_content+"</p>"
                                 message_string +=   "</div>";
                                 message_string += "</div>";
 
@@ -295,13 +328,8 @@ $(function() {
 
                         });
 
-
-
                         var chat_screen_friend = result.member;
                         chat_screen_friend.splice(chat_screen_friend.indexOf(user_email),1);
-
-
-
 
                         //Show new chat screen
                         var screen_id = generateRandomString();
@@ -359,7 +387,12 @@ $(function() {
                         html_string +=     '<div class="send_message_area">'
                         html_string +=     '<a href="javascript:void(0)" class="show_emotional_icon"><img src="image/amotion-icon-normail.png"></a>'
                         html_string +=     '<textarea class="message_text" name="message_text" placeholder="メッセージを送信"></textarea>';
-                        html_string +=     '<a href="javascript:void(0)" class="chat_upload_image"><img src="image/send-image-icon-normal.png"></a>'
+                        html_string +=     '<label class="chat_upload_image" style="cursor: pointer">'
+                        html_string +=       "<form method='POST' action='/upload-chat-image' enctype='multipart/form-data' class='upload_chat_image' id='upload_chat_image_3'>"
+                        html_string +=         '<input type="file" style="display: none" name="chat_image" class="upload_chat_image_btn" id="upload_chat_image_btn_3" onchange="UploadChatImage(\'upload_chat_image_3\',\''+data.conversation_id+'\',\''+receiver+'\',\''+data.conversation_title+'\')">'
+                        html_string +=       "</form>"
+                        html_string +=       '<img src="image/send-image-icon-normal.png">'
+                        html_string +=     '</label>'
                         html_string +=     '</div>'
                         html_string +=   '</div>';
                         html_string += '</div>';
@@ -372,7 +405,7 @@ $(function() {
 
                         //In case of message_text input is unfocused, the message is marked as unread
                         $("#"+data.conversation_id).parent().css({"background":"white"});
-                        $("#"+data.conversation_id).find(".conversation_lastest_message").empty().append("<span style='color: #a7a7a7; font-size: 12px' class='conversation_lastest_message'><span class='lastest_message_sender'>"+data.sender_user_name+":  </span>"+data.message_text+"</span>");
+                        $("#"+data.conversation_id).find(".conversation_lastest_message").empty().append("<span style='color: #a7a7a7; font-size: 12px' class='conversation_lastest_message'><span class='lastest_message_sender'>"+data.sender_user_name+":  </span>"+render_latest_message_content+"</span>");
                         $("#"+data.conversation_id).find(".conversation_lastest_message").css({"font-weight":"bold"});
                         var current_message_text = selected_chat_screen.find(".message_text");
                         if(current_message_text.is(":focus")){
@@ -499,17 +532,17 @@ $(function() {
 
         var receiver_array = data.receiver.split(",");
         if(receiver_array.indexOf(user_email) != -1){
-             $(".chat_screen_detail .chat_screen_body").each(function (i) {
-                 if($(this).attr("data-conversation-id") == data.conversation_id){
-                     if($(this).find(".chat_typing_icon").length == 0){
-                         $(this).append("<img class='chat_typing_icon' src='image/typing.png' width='30' height='30'/>");
-                         $(this).scrollTop($(".chat_screen_body")[0].scrollHeight);
-                     }else{
-                         return false;
-                     }
+            $(".chat_screen_detail .chat_screen_body").each(function (i) {
+                if($(this).attr("data-conversation-id") == data.conversation_id){
+                    if($(this).find(".chat_typing_icon").length == 0){
+                        $(this).append("<img class='chat_typing_icon' src='image/typing.png' width='30' height='30'/>");
+                        $(this).scrollTop($(".chat_screen_body")[0].scrollHeight);
+                    }else{
+                        return false;
+                    }
 
-                 }
-             });
+                }
+            });
 
 
         }
@@ -558,23 +591,15 @@ $(function() {
     });
 
 
-});
-
-
-
-
-function mainSpaceLoad() {
-
-    //Check online user
-    //Start GAE socket definition
-    var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
-    var webSocketUri = webSocketHost + externalIp +':65080';
-    var socket = io(webSocketUri);
 
     //End GAE socket definition
 
-    socket.emit("check online user",{
-        email : user_email
+    // socket.emit("check online user",{
+    //     email : user_email
+    // });
+
+    socket.emit("check user", {
+        email: user_email
     });
 
     //Get add friend requesting
@@ -628,6 +653,13 @@ function mainSpaceLoad() {
     var conversation_string = "";
 
     user_conversation_info.forEach(function (val,i) {
+        var render_last_message = ""
+        if(checkImageMessage(val.last_message)){
+            render_last_message = "写真送信済み"
+        }else{
+            render_last_message = val.last_message
+
+        }
             if(val){
                 var conversation_image_string = "";
                 if (val.conversation_image_url){
@@ -649,9 +681,9 @@ function mainSpaceLoad() {
                 conversation_string +=   "<p>"
                 conversation_string +=     "<span style='color: #3e3e3e' class='conversation_title'>"+val.conversation_title+"</span><br>"
                 if(is_read_by_array.indexOf(user_email) == -1){
-                    conversation_string +=     "<span style='color: #a7a7a7; font-size: 12px; font-weight: bold;' class='conversation_lastest_message'><span class='lastest_message_sender'>"+val.sender_user_name+":  </span>"+val.last_message+"</span>";
+                    conversation_string +=     "<span style='color: #a7a7a7; font-size: 12px; font-weight: bold;' class='conversation_lastest_message'><span class='lastest_message_sender'>"+val.sender_user_name+":  </span>"+render_last_message+"</span>";
                 }else{
-                    conversation_string +=     "<span style='color: #a7a7a7; font-size: 12px' class='conversation_lastest_message'><span class='lastest_message_sender'>"+val.sender_user_name+":  </span>"+val.last_message+"</span>";
+                    conversation_string +=     "<span style='color: #a7a7a7; font-size: 12px' class='conversation_lastest_message'><span class='lastest_message_sender'>"+val.sender_user_name+":  </span>"+render_last_message+"</span>";
                 }
 
 
@@ -714,6 +746,15 @@ function mainSpaceLoad() {
 
                 var message_string = "";
                 message_list.forEach(function (val,i) {
+                    //Check message content is text or image url
+                    //In case of image url
+                    var current_render_message_content = "";
+                    if(checkImageMessage(val.content)){
+                        current_render_message_content = "<a href='/render-image?image_url="+val.content+"' target='_blank' style='width: 100%'><img src='"+val.content+"' style='width: 100%'></a>"
+                    }else{
+                        current_render_message_content = val.content
+                    }
+
                     var chat_block_id = generateRandomString();
                     if(val.sender == user_email){
                         message_string += "<div class='receiver_chat_message_wrapper' id='"+val.message_id+"'>"
@@ -723,7 +764,7 @@ function mainSpaceLoad() {
                         message_string +=   "</div>";
                         message_string +=   "<div class='receiver_chat_message'>"
                         message_string +=       "<div class='receiver_chat_message_arrow'><img src='image/marker-chat-white.png'></div>"
-                        message_string +=       "<p class='chat_message_content' onclick='show_chat_option(\""+chat_block_id+"\")'>"+val.content+"</p>"
+                        message_string +=       "<p class='chat_message_content' onclick='show_chat_option(\""+chat_block_id+"\")'>"+current_render_message_content+"</p>"
                         message_string +=   "</div>"
                         message_string += "</div>"
                     }else{
@@ -734,7 +775,7 @@ function mainSpaceLoad() {
                         message_string +=   "<div class='sender_chat_message'>"
                         message_string +=       "<a href='javascript:void(0)' class='chat_user_icon'><img src='"+val.sender_user_image_url+"'></a>"
                         message_string +=       "<div class='sender_chat_message_arrow'><img src='image/marker-chat.png'></div>"
-                        message_string +=       "<p class='chat_message_content'  onclick='show_chat_option(\""+chat_block_id+"\")'>"+val.content+"</p>"
+                        message_string +=       "<p class='chat_message_content'  onclick='show_chat_option(\""+chat_block_id+"\")'>"+current_render_message_content+"</p>"
                         message_string +=   "</div>"
                         message_string += "</div>"
 
@@ -793,7 +834,12 @@ function mainSpaceLoad() {
                 html_string +=     '<div class="send_message_area">'
                 html_string +=     '<a href="javascript:void(0)" class="show_emotional_icon"><img src="image/amotion-icon-normail.png"></a>'
                 html_string +=     '<textarea class="message_text" name="message_text" placeholder="メッセージを送信"></textarea>';
-                html_string +=     '<a href="javascript:void(0)" class="chat_upload_image"><img src="image/send-image-icon-normal.png"></a>'
+                html_string +=     '<label class="chat_upload_image" style="cursor: pointer">'
+                html_string +=       "<form method='POST' action='/upload-chat-image' enctype='multipart/form-data' class='upload_chat_image' id='upload_chat_image_4'>"
+                html_string +=         '<input type="file" style="display: none" name="chat_image" class="upload_chat_image_btn" id="upload_chat_image_btn_4" onchange="UploadChatImage(\'upload_chat_image_4\',\''+conversation_id+'\',\''+receiver+'\',\''+data.conversation_title+'\')">'
+                html_string +=       "</form>"
+                html_string +=       '<img src="image/send-image-icon-normal.png">'
+                html_string +=     '</label>'
                 html_string +=     '</div>'
                 html_string +=   '</div>';
                 html_string += '</div>';
@@ -816,7 +862,6 @@ function mainSpaceLoad() {
                             is_read_user_email: user_email
                         },
                         function (result) {
-
 
                         }
                     );
@@ -1247,17 +1292,25 @@ function startNewChat() {
     html_string +=     '<input type="hidden" class="sender_email" value="'+user_email+'">';
     html_string +=     '<input type="hidden" class="receiver_email" value="'+chat_member.toString()+'">';
     html_string +=     '<input type="hidden" class="conversation_id" value="'+new_conversation_id+'">';
+    var conversation_title = "";
     if(chat_title){
-        html_string +=     '<input type="hidden" class="conversation_title" value="'+chat_title+'">';
+        conversation_title = chat_title;
     }else{
-        html_string +=     '<input type="hidden" class="conversation_title" value="チャットタイトル無し">';
+        conversation_title = "チャットタイトル無し";
     }
+
+    html_string +=     '<input type="hidden" class="conversation_title" value="'+conversation_title+'">';
 
 
     html_string +=     '<div class="send_message_area">'
     html_string +=       '<a href="javascript:void(0)" class="show_emotional_icon"><img src="image/amotion-icon-normail.png"></a>'
     html_string +=       '<textarea class="message_text" name="message_text" placeholder="メッセージを送信"></textarea>';
-    html_string +=       '<a href="javascript:void(0)" class="chat_upload_image"><img src="image/send-image-icon-normal.png"></a>'
+    html_string +=     '<label class="chat_upload_image" style="cursor: pointer">'
+    html_string +=       "<form method='POST' action='/upload-chat-image' enctype='multipart/form-data' class='upload_chat_image' id='upload_chat_image_1'>"
+    html_string +=         '<input type="file" style="display: none" name="chat_image" class="upload_chat_image_btn" id="upload_chat_image_btn_1" onchange="UploadChatImage(\'upload_chat_image_1\',\''+new_conversation_id+'\',\''+chat_member.toString()+'\',\''+conversation_title+'\')">'
+    html_string +=       "</form>"
+    html_string +=       '<img src="image/send-image-icon-normal.png">'
+    html_string +=     '<label>'
     html_string +=     '</div>'
     html_string +=   '</div>';
     html_string += '</div>';
@@ -1528,7 +1581,12 @@ function show_user_list() {
         html_string +=     '<div class="send_message_area">'
         html_string +=     '<a href="javascript:void(0)" class="show_emotional_icon"><img src="image/amotion-icon-normail.png"></a>'
         html_string +=     '<textarea class="message_text" name="message_text" placeholder="メッセージを送信"></textarea>';
-        html_string +=     '<a href="javascript:void(0)" class="chat_upload_image"><img src="image/send-image-icon-normal.png"></a>'
+        html_string +=     '<label class="chat_upload_image" style="cursor: pointer">'
+        html_string +=       "<form method='POST' action='/upload-chat-image' enctype='multipart/form-data' class='upload_chat_image' id='upload_chat_image_2'>"
+        html_string +=         '<input type="file" style="display: none" name="chat_image" class="upload_chat_image_btn" id="upload_chat_image_btn_2" onchange="UploadChatImage(\'upload_chat_image_2\',\''+new_conversation_id+'\',\''+$(this).attr("data-user-email")+'\',\''+チャットタイトル無し+'\')">'
+        html_string +=       "</form>"
+        html_string +=       '<img src="image/send-image-icon-normal.png">'
+        html_string +=     '</label>'
         html_string +=     '</div>'
         html_string +=   '</div>';
         html_string += '</div>';
@@ -1858,9 +1916,6 @@ function do_add_user_group_chat(screen_id, sender_email, receiver_email, convers
     );
 
 
-
-
-
 }
 
 
@@ -1908,6 +1963,113 @@ function deleteConversation(conversation_id) {
             }
         })
 }
+
+function UploadChatImage(upload_div_id,image_conversation_id,receiver,conversation_title) {
+    $('.upload_chat_image').ajaxForm({
+        success: function(data, statusText, xhr) {
+            if(data.status == "uploaded success"){
+                $(".chat_screen_body").unmask();
+                $(".chat_screen_body").each(function (i) {
+                    if($(this).attr("data-conversation-id") == image_conversation_id){
+                        var message_id = generateMessageId();
+                        var message_string = "";
+                        message_string += "<div class='receiver_chat_message_wrapper' id='"+message_id+"'>"
+                        message_string += "<div class='receiver_chat_message'>"
+                        message_string += "<div class='receiver_chat_message_arrow'><img src='image/marker-chat-white.png'></div>"
+                        message_string += "<p class='chat_message_content'>"
+                        message_string += "<a href='/render-image?image_url="+data.chat_image_url+"' target='_blank'>"
+                        message_string += "<img src='"+data.chat_image_url+"' class='chat_image_content'>"
+                        message_string += "</a>"
+                        message_string += '<a href="javascript:void(0)" class="close_chat_image" onclick="close_chat_image(\''+message_id+'\',\''+data.chat_image_file_name+'\')">X</a>'
+                        message_string += '<a href="javascript:void(0)" class="send_chat_image" onclick="send_chat_image(\''+image_conversation_id+'\',\''+data.chat_image_url+'\',\''+receiver+'\',\''+message_id+'\',\''+conversation_title+'\')">送信</a>'
+                        message_string += "</p>"
+                        message_string += "</div>"
+                        message_string += "</div>"
+
+                        $(this).append(message_string);
+
+                    }
+                });
+
+
+            }
+
+        }
+    });
+
+
+    $(".chat_screen_body").mask('アップロード中。。。');
+    $("#"+upload_div_id).submit();
+
+}
+
+function close_chat_image(message_id,chat_image_file_name) {
+    //Delete uploaded image from DB
+    $.post("/delete-uploaded-chat-image",
+        {
+            chat_image_file_name: chat_image_file_name,
+        },
+        function (data) {
+            if(data.status == "success"){
+                $("#"+message_id).remove();
+            }
+
+
+        }
+    );
+}
+
+
+
+function send_chat_image(conversation_id,message_image,receiver,message_id,conversation_title) {
+    //Start GAE socket definition
+    var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
+    var webSocketUri = webSocketHost + externalIp +':65080';
+    var socket = io(webSocketUri);
+
+    //remove current image first
+    $("#"+message_id).remove();
+
+    //post send-a-message AJAX
+    $.post("/send-a-message",
+        {
+            sender_email: user_email,
+            sender_name: user_name,
+            sender_image_url: user_image_url,
+            receiver: receiver,
+            conversation_id : conversation_id,
+            conversation_title: conversation_title,
+            message_text : message_image,
+            message_id : message_id,
+            user_conversation_list : user_conversation_list.toString()
+        },
+        function (data) {
+            //Emit a new message
+            socket.emit("send a message",{
+                sender: user_email,
+                sender_user_name: user_name,
+                sender_user_image_url: user_image_url,
+                receiver : receiver,
+                conversation_id : conversation_id,
+                conversation_title: conversation_title,
+                message_id: message_id,
+                message_text: message_image
+            });
+
+        }
+    );
+
+}
+
+function checkImageMessage(message_text){
+    var is_image_message = false;
+    if (message_text.indexOf("http://storage.googleapis.com/") == 0){
+        is_image_message = true;
+    }
+
+    return is_image_message;
+}
+
 
 
 

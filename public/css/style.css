@@ -310,6 +310,7 @@ body{
 
 .user_friend_email img, .user_conversation_id img {
     width: 40px;
+    height: 40px;
     float: left;
     margin-top: 4px;
     border-radius: 50%;
@@ -443,6 +444,7 @@ body{
 
 .sender_chat_message .chat_user_icon img{
     width: 30px;
+    height: 30px;
     border-radius: 50%;
 }
 
@@ -793,6 +795,7 @@ body{
 .new_chat_user_friend_email img {
     float: left;
     width: 30px;
+    height: 30px;
     margin-top: 5px;
     border-radius: 50%;
 }
@@ -965,6 +968,7 @@ body{
 
 .add_user_row_image img {
     width: 70px;
+    height: 70px;
     border-radius: 50%;
 }
 
@@ -1041,6 +1045,7 @@ body{
 
 .add_user_dialog_header_info img {
     width: 60px;
+    height: 60px;
     float: left;
     border-radius: 50%;
 }
@@ -1186,6 +1191,7 @@ body{
 
 .is_requested_user_row_left img {
     width: 40px;
+    height: 40px;
     border-radius: 50%;
     float: left;
 }
@@ -1266,6 +1272,7 @@ body{
 .add_user_group_chat_row img {
     float: left;
     width: 40px;
+    height: 40px;
     border-radius: 50%;
     margin: 0px 0px 0px 0px;
 }
@@ -1348,16 +1355,187 @@ body{
     margin: 10px 10px 0px 0px;
     font-size: 16px;
 }
-
-
-
-
-
-
-
-
-
 /*End add user*/
+
+
+
+/*Start user profile*/
+#profile_main_page {
+    display: none;
+}
+
+
+.user_profile_wrapper {
+    width: 600px;
+    margin: 0 auto;
+}
+
+.user_profile_header {
+    float: left;
+    width: 100%;
+    padding: 20px 0px 10px 0px;
+}
+
+.user_profile_header_title {
+    text-align: center;
+    color: #2f4375;
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.user_profile_header_des {
+    text-align: center;
+    font-size: 13px;
+}
+
+.user_profile_body {
+    float: left;
+    width: 100%;
+    padding: 10px;
+}
+
+.user_profile_image_zone {
+    float: left;
+    width: 150px;
+    height: 130px;
+}
+
+.user_profile_image_zone img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+}
+
+
+.user_profile_basic_zone {
+    float: left;
+    width: 400px;
+    padding-left: 20px;
+    border-left: 1px solid #d4d8e2;
+}
+
+.user_profile_basic_text {
+    line-height: 20px;
+}
+
+.edit_profile_btn {
+    float: left;
+    color: #fcb037;
+    font-size: 13px;
+    margin: 10px 0px 0px 0px;
+}
+
+.edit_profile_btn:hover {
+    color: #fcb037;
+}
+
+.edit_password_btn {
+    float: left;
+    color: #2f4375;
+    font-size: 13px;
+    margin: 10px 0px 0px 30px;
+
+}
+
+#profile_detail_page {
+    display: none;
+}
+
+.profile_detail_block {
+    float: left;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.profile_detail_block_title {
+    color: #2f4375;
+}
+
+.profile_detail_block_body {
+    float: left;
+    width: 100%;
+}
+
+.profile_detail_block_row {
+    float: left;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.profile_detail_block_row_text {
+    float: left;
+    width: 20%;
+    margin-top: 7px;
+}
+
+.profile_detail_block_row input{
+    float: left;
+    width: 80%;
+    padding: 5px;
+    outline: 0;
+}
+
+.do_edit_user_profile {
+    float: left;
+    background: #fcb037;
+    color: white;
+    padding: 7px 10px;
+    margin-top: 5px;
+
+}
+
+#profile_password_page {
+    display: none;
+}
+
+.change_password_error {
+    color: red;
+    font-size: 12px;
+}
+
+.change_user_image {
+    background: #39b54a;
+    color: white;
+    font-size: 13px;
+    padding: 5px 20px;
+    text-align: center;
+    position: absolute;
+    margin: -50px 0px 0px 25px;
+}
+
+.user_image_upload_btn {
+    display: none!important;
+}
+
+.user_image_upload_btn {
+    display: none;
+}
+
+/*End user profile*/
+
+.chat_image_content {
+    float: left;
+    width: 90%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.close_chat_image {
+    float: right;
+    color: black;
+    margin-right: 3px;
+    font-size: 15px;
+}
+
+.send_chat_image {
+    background: #39b54a;
+    color: white;
+    padding: 5px 10px;
+    float: left;
+    width: 25%;
+    margin-left: 35%;
+}
+
 
 
 /*End new CSS*/

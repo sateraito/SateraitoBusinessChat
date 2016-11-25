@@ -49,9 +49,27 @@ app.use(session(
     }
 ));
 
+//Google Storage config
+// These environment variables are set automatically on Google App Engine
+var Storage = require('@google-cloud/storage');
 
-//Online list
-var online_user = [];
+// Instantiate a storage client
+var storage = Storage();
+// Multer is required to process file uploads and make them available via
+// req.files.
+var multer = require('multer')({
+    inMemory: true,
+    fileSize: 5 * 1024 * 1024 // no larger than 5mb, you can change as needed.
+});
+
+// A bucket is a container for objects (files).
+var bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET);
+var format = require('util').format;
+
+// [END config]
+
+
+
 
 
 app.get("/", function (req, res) {
@@ -146,7 +164,7 @@ app.post("/do-sign-up", jsonParser, function (req, res) {
                 is_validated:'',
                 first_name: arr[0],
                 last_name: '',
-                image_url: '',
+                image_url: 'image/avt-default-1.png',
                 friend_list: [],
                 conversation_list: [],
                 birthday: '',
@@ -507,6 +525,10 @@ app.get("/main-space", function (req, res) {
                                                     user_id: req.session.user_id,
                                                     user_image_url: req.session.user_image_url,
                                                     user_type: req.session.user_type,
+                                                    user_first_name: user_entities[0].data.first_name,
+                                                    user_last_name: user_entities[0].data.last_name,
+                                                    user_address: user_entities[0].data.address,
+                                                    user_company: user_entities[0].data.company,
                                                     user_friend_list: user_friend_list,
                                                     user_conversation_info: user_conversation_info,
                                                     user_conversation_list: user_conversation_list,
@@ -563,6 +585,10 @@ app.get("/main-space", function (req, res) {
                             user_id: req.session.user_id,
                             user_image_url: req.session.user_image_url,
                             user_type: req.session.user_type,
+                            user_first_name: user_entities[0].data.first_name,
+                            user_last_name: user_entities[0].data.last_name,
+                            user_address: user_entities[0].data.address,
+                            user_company: user_entities[0].data.company,
                             user_friend_list: user_friend_list,
                             user_conversation_info: [],
                             user_conversation_list: user_conversation_list,
@@ -1178,6 +1204,219 @@ app.post("/update-conversation-member", jsonParser, function (req, res) {
 });
 
 
+app.post("/do-edit-user-profile", jsonParser, function (req, res) {
+    var user_email = req.body.user_email;
+    var user_first_name = req.body.user_first_name;
+    var user_last_name = req.body.user_last_name;
+    var user_address = req.body.user_address;
+    var user_company = req.body.user_company;
+
+    //Query user Info from datastore
+    var user_query = datastore.createQuery('UserInfo')
+        .filter('email', '=', user_email);
+    datastore.runQuery(user_query, function (user_err, user) {
+
+        //Update user profile
+        var new_user_info = user[0].data;
+        new_user_info.first_name = user_first_name;
+        new_user_info.last_name = user_last_name;
+        new_user_info.address = user_address;
+        new_user_info.company = user_company;
+
+
+        datastore.update({
+            key: user[0].key,
+            data: new_user_info
+        }, function (update_err) {
+            if (update_err) {
+                res.json({"status": "fail", "message": "update conversation list fail"});
+                // Task updated successfully.
+            } else {
+                res.json({
+                    status: "success"
+                })
+
+            }
+        });
+    });
+
+});
+
+app.post("/do-change-user-password", jsonParser, function (req, res) {
+    var user_email = req.body.user_email;
+    var current_password = req.body.current_password;
+    var new_password = req.body.new_password;
+    var new_password_again = req.body.new_password_again;
+
+    if (new_password != new_password_again){
+        res.json({
+            status: "new_password not match"
+        })
+
+    }else{
+        //Query user Info from datastore
+        var user_query = datastore.createQuery('UserInfo')
+            .filter('email', '=', user_email);
+        datastore.runQuery(user_query, function (user_err, user) {
+
+            bcrypt.compare(current_password, user[0].data.password, function (com_err, matches) {
+                if (!com_err) {
+                    if (matches) {
+
+                        var hash_password = bcrypt.hashSync(new_password, salt);
+                        //Update new password
+                        var new_user_info = user[0].data;
+                        new_user_info.password = hash_password;
+
+                        datastore.update({
+                            key: user[0].key,
+                            data: new_user_info
+                        }, function (update_err) {
+                            if (update_err) {
+                                res.json({"status": "fail", "message": "update conversation list fail"});
+                                // Task updated successfully.
+                            } else {
+                                res.json({
+                                    status: "success"
+                                })
+
+                            }
+                        });
+
+                    }else {
+                        res.json({"status": "invalid current password"});
+                    }
+                }
+
+            });
+
+        });
+    }
+
+
+
+});
+
+app.post('/upload-user-image', multer.single('user_image_file'), function (req, res, next) {
+    if (!req.file) {
+        res.json({
+            "status": "not ok",
+            "message": "アップロードファイルはありません！"
+        })
+    }
+
+    // Create a new blob in the bucket and upload the file data.
+    var blob = bucket.file(req.file.originalname);
+    var blobStream = blob.createWriteStream();
+
+    blobStream.on('error', function (err) {
+        return next(err);
+    });
+
+    blobStream.on('finish', function () {
+
+        // The public URL can be used to directly access the file via HTTP.
+        var publicUrl = format(
+            'http://storage.googleapis.com/%s/%s',
+            bucket.name, blob.name);
+        //Query user Info from datastore
+        var user_query = datastore.createQuery('UserInfo')
+            .filter('email', '=', req.session.user_email);
+        datastore.runQuery(user_query, function (user_err, user) {
+            var file_location = user[0].data.image_file_name
+
+            //Delete current image_url on cloud storage
+            bucket.deleteFiles({ prefix: file_location }, function(err) {})
+
+            //Update user profile
+            var new_user_info = user[0].data;
+            new_user_info.image_url = publicUrl;
+            new_user_info.image_file_name = blob.name
+
+            datastore.update({
+                key: user[0].key,
+                data: new_user_info
+            }, function (update_err) {
+                if (update_err) {
+
+                    // Task updated successfully.
+                } else {
+                    req.session.user_image_url = publicUrl
+                    res.json({
+                        image_url: publicUrl,
+                        status : "uploaded success"
+                    })
+
+                }
+            });
+        });
+
+
+    });
+
+    blobStream.end(req.file.buffer);
+});
+
+
+app.post('/upload-chat-image', multer.single('chat_image'), function (req, res, next) {
+    if (!req.file) {
+        res.json({
+            "status": "not ok",
+            "message": "アップロードファイルはありません！"
+        })
+    }
+
+    // Create a new blob in the bucket and upload the file data.
+    var blob = bucket.file(req.file.originalname);
+    var blobStream = blob.createWriteStream();
+
+    blobStream.on('error', function (err) {
+        return next(err);
+    });
+
+    blobStream.on('finish', function () {
+
+        // The public URL can be used to directly access the file via HTTP.
+        var publicUrl = format(
+            'http://storage.googleapis.com/%s/%s',
+            bucket.name, blob.name);
+        res.json({
+            chat_image_url: publicUrl,
+            chat_image_file_name: blob.name,
+            status : "uploaded success"
+        })
+
+    });
+
+    blobStream.end(req.file.buffer);
+});
+
+app.post('/delete-uploaded-chat-image', jsonParser, function (req, res, next) {
+
+    var chat_image_file_name = req.body.chat_image_file_name
+
+
+    //Delete current image_url on cloud storage
+    bucket.deleteFiles({ prefix: chat_image_file_name }, function(err) {
+       if(!err){
+           res.json({
+               status: "success"
+           })
+       }
+    });
+
+});
+
+app.get("/render-image", function (req, res) {
+
+    var chat_image_url = req.query.image_url;
+
+    res.render('render_image',{
+        image_url: chat_image_url
+    });
+
+});
+
 
 
 //Socket.io zone
@@ -1208,27 +1447,54 @@ var server1 = require('http').Server(app_chat);
 var io = require('socket.io')(server1);
 server1.listen(65080);
 
+var users = {};
+
 
 io.on('connection', function (socket) {
 
     //TODO send the message to only conversation's member
 
+    // socket.on("send a message", function (data) {
+    //     // var room = "room numner 1";
+    //     // socket.join(room);
+    //     io.sockets.emit("notify a new message", {
+    //         sender: data.sender,
+    //         sender_user_name: data.sender_user_name,
+    //         sender_user_image_url: data.sender_user_image_url,
+    //         receiver: data.receiver,
+    //         message_text: data.message_text,
+    //         message_id: data.message_id,
+    //         conversation_id: data.conversation_id,
+    //         conversation_title: data.conversation_title
+    //
+    //     })
+    //
+    // });
+
     socket.on("send a message", function (data) {
         // var room = "room numner 1";
         // socket.join(room);
-        io.sockets.emit("notify a new message", {
-            sender: data.sender,
-            sender_user_name: data.sender_user_name,
-            sender_user_image_url: data.sender_user_image_url,
-            receiver: data.receiver,
-            message_text: data.message_text,
-            message_id: data.message_id,
-            conversation_id: data.conversation_id,
-            conversation_title: data.conversation_title
+        var all_user_receive = data.receiver.split(',');
+        all_user_receive.push(data.sender);
+        var value = [];
+        for (var key in users) {
+            value.push(key);
+        }
 
-
-        })
-
+        all_user_receive.forEach(function (val) {
+            if (value.indexOf(val) !== -1) {
+                io.sockets.connected[users[val]].emit("notify a new message", {
+                    sender: data.sender,
+                    sender_user_name: data.sender_user_name,
+                    sender_user_image_url: data.sender_user_image_url,
+                    receiver: data.receiver,
+                    message_text: data.message_text,
+                    message_id: data.message_id,
+                    conversation_id: data.conversation_id,
+                    conversation_title: data.conversation_title
+                });
+            }
+        });
     });
 
     socket.on("typing",function (data) {
@@ -1280,6 +1546,16 @@ io.on('connection', function (socket) {
         });
 
 
+    });
+
+    socket.on("check user", function (data) {
+        socket.nick_name = data.email;
+        users[data.email] = socket.id;
+    });
+
+    socket.on('disconnect', function(){
+        if (!socket.nick_name) return;
+        delete users[socket.nick_name];
     });
 
 });
