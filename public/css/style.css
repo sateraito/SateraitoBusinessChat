@@ -504,7 +504,7 @@ body{
 .chat_screen_detail {
     float: right;
     width: 262px;
-    height:380px;
+    height: 400px;
     background: white;
     margin-right: 10px;
     border: 1px solid #d4d8e2;
@@ -1536,7 +1536,80 @@ body{
     margin-left: 35%;
 }
 
-
-
 /*End new CSS*/
+
+/* Emoji chat icon*/
+.page_main_emoji {
+    height: 110px;
+    float: left;
+    margin: 0 auto;
+    width: 260px;
+}
+
+.page_main_emoji_tab {
+    background: #d8dde8;
+    height: 50px;
+    margin: 0 auto;
+    width: 260px;
+}
+
+.content_main_emoji {
+    height: 60px;
+    overflow-x: auto;
+}
+
+.page_main_emoji_icon_tab {
+    float: left;
+    height: 50px;
+}
+
+.page_main_emoji_icon_tab img{
+    width: 50%;
+    margin-left: 20%;
+    margin-top: 8px;
+}
+
+.page_main_emoji_icon {
+    float: left;
+    height: 50px;
+    width: 25%;
+}
+
+.page_main_emoji_icon img {
+    width: 50%;
+    margin-left: 20%;
+    margin-top: 8px;
+}
+
+.input_chat {
+    -moz-appearance: textfield;
+    -webkit-appearance: textfield;
+    background-color: white;
+    background-color: -moz-field;
+    font: -moz-field;
+    font: -webkit-small-control;
+    font-size: 14px;
+    height: 25px;
+    padding: 2px 3px;
+    width: 180px;
+    word-wrap: break-word;
+    overflow: auto;
+}
+
+.input_chat img{
+    width: 20px;
+    height: 20px;
+}
+
+[contentEditable=true]:empty:not(:focus):before{
+    content:attr(data-text)
+}
+
+.conversation_lastest_message img{
+    width: 20px;
+    height: 20px;
+}
+
+
+/* End Emoji chat*/
 

@@ -4,7 +4,7 @@ var express = require("express");
 var path = require('path');
 var request = require('request');
 var app = express();
-var server = require("http").createServer(app);;
+var server = require("http").createServer(app);
 var bcrypt = require('bcrypt');
 // Create a password salt
 var salt = bcrypt.genSaltSync(10);
@@ -68,9 +68,12 @@ var format = require('util').format;
 
 // [END config]
 
-
-
-
+var images_smiles = ["image/emoji/smile_1.png", "image/emoji/smile_2.png", "image/emoji/smile_3.png", "image/emoji/smile_4.png",
+                    "image/emoji/smile_5.png", "image/emoji/smile_6.png", "image/emoji/smile_7.png", "image/emoji/smile_8.png",
+                    "image/emoji/smile_9.png", "image/emoji/smile_10.png"];
+var images_animals = ["image/emoji/animal_1.png", "image/emoji/animal_2.png", "image/emoji/animal_3.png", "image/emoji/animal_4.png",
+                    "image/emoji/animal_5.png", "image/emoji/animal_6.png", "image/emoji/animal_7.png", "image/emoji/animal_8.png",
+                    "image/emoji/animal_9.png", "image/emoji/animal_10.png"];
 
 app.get("/", function (req, res) {
 
@@ -152,7 +155,7 @@ app.post("/do-sign-up", jsonParser, function (req, res) {
             var arr = email.split("@").map(function (val) {
                 return val;
             });
-            var hash_password = bcrypt.hashSync(password, salt)
+            var hash_password = bcrypt.hashSync(password, salt);
             var new_user_id = utilities.generateUserId();
             var userinfo = {
                 // Store a hash of the use
@@ -454,12 +457,10 @@ app.get("/main-space", function (req, res) {
                 return res.json({"status": "db error", "error": "invalid account query error"});
             }
 
-
-
             if (user_conversation_list.length > 0) {
 
                 //Get conversation info on conversation_list
-                var conversation_query = datastore.createQuery('Conversation')
+                var conversation_query = datastore.createQuery('Conversation');
 
                 datastore.runQuery(conversation_query, function (err, conversation_entities) {
                     if(conversation_entities.length > 0){
@@ -473,7 +474,7 @@ app.get("/main-space", function (req, res) {
                                 con_info.conversation_id = val.data.conversation_id;
 
                                 var message_query = datastore.createQuery('message_info')
-                                    .filter('message_conversation_id', '=' ,val.data.conversation_id)
+                                    .filter('message_conversation_id', '=' ,val.data.conversation_id);
                                 datastore.runQuery(message_query, function (err, message_entities) {
                                     var message_array = [];
 
@@ -533,28 +534,21 @@ app.get("/main-space", function (req, res) {
                                                     user_conversation_info: user_conversation_info,
                                                     user_conversation_list: user_conversation_list,
                                                     user_friend_info: user_friend_info,
-                                                    externalIp: externalIp
+                                                    externalIp: externalIp,
+                                                    emoji_smiles: images_smiles,
+                                                    emoji_animals: images_animals
                                                 });
                                             });
 
                                         });
 
                                     }
-
-
-
                                 });
                             }
-
                         });
-
-                    }else{
-
                     }
-
                 });
-
-            }else{
+            } else {
                 //Get user info on friend_list
                 var friend_user_query = datastore.createQuery('UserInfo');
 
@@ -593,7 +587,9 @@ app.get("/main-space", function (req, res) {
                             user_conversation_info: [],
                             user_conversation_list: user_conversation_list,
                             user_friend_info: user_friend_info,
-                            externalIp: externalIp
+                            externalIp: externalIp,
+                            emoji_smiles: images_smiles,
+                            emoji_animals: images_animals
                         });
                     });
 
@@ -630,61 +626,107 @@ app.post("/send-a-message", jsonParser, function (req, res) {
 
         var member_array = receiver.split(",");
         member_array.push(sender_email);
+        if (member_array.length == 2){
+            var query_user = datastore.createQuery('UserInfo')
+            .filter('email', '=', member_array[0].trim());
+            datastore.runQuery(query_user, function (receiver_image_err, receiver_image_entities) {
+                var current_receiver = receiver_image_entities[0].data.image_url;
+                //Create new conversation into database
+                var conversation = {
+                    // Store a hash of the use
+                    conversation_id: conversation_id,
+                    organizer: sender_email,
+                    member: member_array,
+                    conversation_image_url: current_receiver,
+                    conversation_title: conversation_title,
+                    memo: '',
+                    todo: '',
+                    created_date: new Date()
+                };
 
-        //Create new conversation into database
-        var conversation = {
-            // Store a hash of the use
-            conversation_id: conversation_id,
-            organizer: sender_email,
-            member: member_array,
-            conversation_image_url: '',
-            conversation_title: conversation_title,
-            memo: '',
-            todo: '',
-            created_date: new Date()
-        };
+                datastore.save({
+                    key: datastore.key('Conversation'),
+                    data: conversation
+                }, function (save_err) {
 
-        datastore.save({
-            key: datastore.key('Conversation'),
-            data: conversation
-        }, function (save_err) {
+                });
+            });
+        } else {
 
-        });
+            //Create new conversation into database
+            var conversation = {
+                // Store a hash of the use
+                conversation_id: conversation_id,
+                organizer: sender_email,
+                member: member_array,
+                conversation_image_url: '',
+                conversation_title: conversation_title,
+                memo: '',
+                todo: '',
+                created_date: new Date()
+            };
+
+            datastore.save({
+                key: datastore.key('Conversation'),
+                data: conversation
+            }, function (save_err) {
+
+            });
+        }
 
         //Update conversation list to sender
-        var query = datastore.createQuery('UserInfo')
-            .filter('email', '=', sender_email);
-        datastore.runQuery(query, function (sender_err, sender_entities) {
-            var current_conversation_list = sender_entities[0].data.conversation_list;
-            if (current_conversation_list.indexOf(conversation_id) == -1) {
-                //Update sender conversation list
-                current_conversation_list.push(conversation_id);
-                var new_user = sender_entities[0].data;
-                new_user.conversation_list = current_conversation_list;
-
-                datastore.update({
-                    key: sender_entities[0].key,
-                    data: new_user
-                }, function (update_err) {
-                    if (update_err) {
-                        res.json({"status": "fail", "message": "update conversation list fail"});
-                        // Task updated successfully.
-                    } else {
-
-                    }
-                });
-            }
-
-        });
+//        var query = datastore.createQuery('UserInfo')
+//            .filter('email', '=', sender_email);
+//        datastore.runQuery(query, function (sender_err, sender_entities) {
+//            var current_conversation_list = sender_entities[0].data.conversation_list;
+//            if (current_conversation_list.indexOf(conversation_id) == -1) {
+//                //Update sender conversation list
+//                current_conversation_list.push(conversation_id);
+//                var new_user = sender_entities[0].data;
+//                new_user.conversation_list = current_conversation_list;
+//
+//                datastore.update({
+//                    key: sender_entities[0].key,
+//                    data: new_user
+//                }, function (update_err) {
+//                    if (update_err) {
+//                        res.json({"status": "fail", "message": "update conversation list fail"});
+//                        // Task updated successfully.
+//                    } else {
+//
+//                    }
+//                });
+//            }
+//        });
 
         // update conversation list to receiver
         var receiver_array = receiver.split(",");
-        var receiver_query = datastore.createQuery('UserInfo')
+        var receiver_query = datastore.createQuery('UserInfo');
         datastore.runQuery(receiver_query, function (receiver_err, entities_receiver) {
-            entities_receiver.forEach(function (val,i) {
-                if(receiver_array.indexOf(val.data.email) != -1){
+            entities_receiver.forEach(function (val, i) {
+                if (sender_email.indexOf(val.data.email) != -1) {
+                    var current_conversation_list = val.data.conversation_list;
+                    if (current_conversation_list.indexOf(conversation_id) == -1) {
+                        //Update sender conversation list
+                        current_conversation_list.push(conversation_id);
+                        var new_user = val.data;
+                        new_user.conversation_list = current_conversation_list;
+
+                        datastore.update({
+                            key: val.key,
+                            data: new_user
+                        }, function (update_err) {
+                            if (update_err) {
+                                res.json({status: "fail", message: "update conversation list fail"});
+                                // Task updated successfully.
+                            }
+                        });
+                    }
+                }
+
+                if (receiver_array.indexOf(val.data.email) != -1) {
                     var receiver_conversation_list = val.data.conversation_list;
-                    if(receiver_conversation_list.indexOf(conversation_id) == -1){
+                    if (receiver_conversation_list.indexOf(conversation_id) == -1) {
                         receiver_conversation_list.push(conversation_id);
 
                         var new_user_receiver = val.data;
@@ -692,7 +734,7 @@ app.post("/send-a-message", jsonParser, function (req, res) {
 
                         //Update user friend list
                         datastore.update({
-                            key:val.key,
+                            key: val.key,
                             data: new_user_receiver
                         }, function (update_receiver_err) {
 
@@ -702,8 +744,6 @@ app.post("/send-a-message", jsonParser, function (req, res) {
                 }
 
             })
-
-
         })
 
     }
@@ -728,17 +768,16 @@ app.post("/send-a-message", jsonParser, function (req, res) {
     }, function (msg_err) {
         if (msg_err) {
             res.json({
-                "status": "fail",
-                "message": "conversation input fail",
-                "error": 'save datastore conversation error'
+                status: "fail",
+                message: "conversation input fail",
+                error: "save datastore conversation error"
             });
-        }else{
+        } else {
             res.json({
-                'status': "message delivered"
-            })
+                status: "message delivered"
+            });
         }
     });
-
 });
 
 
@@ -769,7 +808,7 @@ app.post("/continue-conversation", jsonParser, function (req, res) {
 
                 utilities.sortByKey(message_list,'created_date');
 
-                res.json({message_list: message_list , organizer: organizer , member: member, conversation_title: conversation_title, conversation_id: conversation_id})
+                res.json({message_list: message_list , organizer: organizer , member: member, conversation_title: conversation_title, conversation_id: conversation_id});
         });
 
     });
@@ -784,34 +823,38 @@ app.post("/mark-as-read", jsonParser, function (req, res) {
     var query_message = datastore.createQuery('message_info')
         .filter('message_id', '=', message_id);
     datastore.runQuery(query_message, function (message_err, message) {
-        if (message.length > 0){
-            var current_is_read_by = message[0].data.is_read_by;
+        if (!message_err) {
+            if (message.length > 0) {
+                var current_is_read_by = message[0].data.is_read_by;
 
-            if(current_is_read_by.indexOf(is_read_user_email) == -1){
-                current_is_read_by.push(is_read_user_email);
+                if (current_is_read_by.indexOf(is_read_user_email) == -1) {
+                    current_is_read_by.push(is_read_user_email);
 
-                var new_message_info = message[0].data;
-                new_message_info.is_read_by = current_is_read_by;
+                    var new_message_info = message[0].data;
+                    new_message_info.is_read_by = current_is_read_by;
 
-                datastore.update({
-                    key: message[0].key,
-                    data: new_message_info
-                }, function (update_err) {
-                    if (update_err) {
-                        res.json({"status": "fail", "message": "update conversation list fail"});
-                        // Task updated successfully.
-                    } else {
-                        res.json({"status": "success", "message": "update", 'update_value': message[0]});
-                    }
-                });
+                    datastore.update({
+                        key: message[0].key,
+                        data: new_message_info
+                    }, function (update_err) {
+                        if (update_err) {
+                            res.json({status: "fail", message: "update conversation list fail"});
+                            // Task updated successfully.
+                        } else {
+                            res.json({status: "success", message: "update", update_value: message[0]});
+                        }
+                    });
 
+                }
+            } else {
+                res.json({status: "fail", message: "message fail length"});
             }
+        } else {
+            res.json({status: "fail", message: "message fail"});
         }
-
-
     });
 
-
+    res.json({status: "ok"});
 });
 
 
@@ -908,7 +951,7 @@ app.post("/add-friend-request", jsonParser, function (req, res) {
                         data: new_user
                     }, function (update_err) {
                         if (update_err) {
-                            res.json({"status": "fail", "message": "update conversation list fail"});
+                            res.json({status: "fail", message: "update conversation list fail"});
                             // Task updated successfully.
                         } else {
                             res.json({
@@ -922,11 +965,6 @@ app.post("/add-friend-request", jsonParser, function (req, res) {
         });
 
     });
-
-
-
-
-
 });
 
 app.post("/get-friend-request", jsonParser, function (req, res) {
@@ -942,7 +980,7 @@ app.post("/get-friend-request", jsonParser, function (req, res) {
 
         if (is_requested_user_list.length >0){
             //Query did_request_user_email user info from UserInfo table
-            var user_query_2 = datastore.createQuery('UserInfo')
+            var user_query_2 = datastore.createQuery('UserInfo');
             is_requested_user_list.forEach(function (val) {
                 if(val != ""){
                     user_query_2.filter('email', '=', val);
@@ -994,13 +1032,7 @@ app.post("/get-friend-request", jsonParser, function (req, res) {
                 is_requested_user_list: is_requested_user_list
             });
         }
-
-
-
     });
-
-
-
 });
 
 app.post("/deny-add-user", jsonParser, function (req, res) {
@@ -1011,8 +1043,8 @@ app.post("/deny-add-user", jsonParser, function (req, res) {
     var user_query = datastore.createQuery('UserInfo')
         .filter('email', '=', login_user_email);
     datastore.runQuery(user_query, function (user_err, user) {
-        var current_is_requested_user_list = user[0].data.is_requested_user_list
-        var new_is_requested_user_list = []
+        var current_is_requested_user_list = user[0].data.is_requested_user_list;
+        var new_is_requested_user_list = [];
         current_is_requested_user_list.forEach(function (val,i) {
             if(val != request_user_email){
                 new_is_requested_user_list.push(val);
@@ -1036,7 +1068,7 @@ app.post("/deny-add-user", jsonParser, function (req, res) {
                     .filter('email', '=', request_user_email);
                 datastore.runQuery(request_user_query, function (user_err, user) {
                     var current_do_requesting_user_list= user[0].data.do_requesting_user_list
-                    var new_do_requesting_user_list = []
+                    var new_do_requesting_user_list = [];
                     current_do_requesting_user_list.forEach(function (val,i) {
                         if(val != login_user_email){
                             new_do_requesting_user_list.push(val);
@@ -1045,7 +1077,6 @@ app.post("/deny-add-user", jsonParser, function (req, res) {
 
                     var new_user_info = user[0].data;
                     new_user_info.do_requesting_user_list = new_do_requesting_user_list;
-
 
                     datastore.update({
                         key: user[0].key,
@@ -1060,20 +1091,10 @@ app.post("/deny-add-user", jsonParser, function (req, res) {
                             })
                         }
                     });
-
-
-
-
                 });
             }
         });
     });
-
-
-
-
-
-
 });
 
 app.post("/approve-add-user", jsonParser, function (req, res) {
@@ -1147,17 +1168,10 @@ app.post("/approve-add-user", jsonParser, function (req, res) {
                             });
                         }
                     });
-
-
                 });
-
             }
         });
-
-
     });
-
-
 });
 
 app.post("/update-conversation-member", jsonParser, function (req, res) {
@@ -1195,11 +1209,7 @@ app.post("/update-conversation-member", jsonParser, function (req, res) {
             res.json({
                 status: "success"
             });
-
         }
-
-
-
     });
 });
 
@@ -1450,27 +1460,9 @@ server1.listen(65080);
 var users = {};
 
 
-io.on('connection', function (socket) {
+io.sockets.on('connection', function (socket) {
 
     //TODO send the message to only conversation's member
-
-    // socket.on("send a message", function (data) {
-    //     // var room = "room numner 1";
-    //     // socket.join(room);
-    //     io.sockets.emit("notify a new message", {
-    //         sender: data.sender,
-    //         sender_user_name: data.sender_user_name,
-    //         sender_user_image_url: data.sender_user_image_url,
-    //         receiver: data.receiver,
-    //         message_text: data.message_text,
-    //         message_id: data.message_id,
-    //         conversation_id: data.conversation_id,
-    //         conversation_title: data.conversation_title
-    //
-    //     })
-    //
-    // });
-
     socket.on("send a message", function (data) {
         // var room = "room numner 1";
         // socket.join(room);
@@ -1521,14 +1513,14 @@ io.on('connection', function (socket) {
             email: data.email
         });
 
-    })
+    });
 
     socket.on("user logged out",function (data) {
         io.sockets.emit("logged out notify",{
             email: data.email
         });
 
-    })
+    });
 
     socket.on("new add friend request",function (data) {
         io.sockets.emit("new add friend request notify",{
@@ -1538,7 +1530,7 @@ io.on('connection', function (socket) {
             is_requested_user_email: data.is_requested_user_email
         });
 
-    })
+    });
 
     socket.on("new add user approval",function (data) {
         io.sockets.emit("new add user approval notify",{

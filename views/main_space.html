@@ -20,7 +20,6 @@
 
 
     <script src="js/user.js"></script>
-    <script src="js/chat.js"></script>
     <script src="js/main.js"></script>
 
     <script>
@@ -33,10 +32,21 @@
         user_conversation_list = <%- JSON.stringify(user_conversation_list) %>;
         is_requested_user_info = [];
         do_requesting_user_list = [];
+        image_smiles = <%- JSON.stringify(emoji_smiles) %>;
+        image_animals = <%- JSON.stringify(emoji_animals) %>;
+
 
         externalIp = "<%= externalIp %>";
+        var webSocketHost = location.protocol === 'https:' ? 'wss://' : 'ws://';
+        var webSocketUri = webSocketHost + externalIp + ':65080';
+        var socket = io(webSocketUri);
+
+        socket.emit("check user", {
+            email: user_email
+        });
 
     </script>
+    <script src="js/chat.js"></script>
 
 
 </head>
