@@ -2,19 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="79a48e6c-899d-4152-bd77-5a6854dbc609" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/scopes/scope_settings.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/business-chat.iml" afterPath="$PROJECT_DIR$/.idea/business-chat.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app.js" afterPath="$PROJECT_DIR$/app.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/js/chat.js" afterPath="$PROJECT_DIR$/public/js/chat.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/views/main_space.html" afterPath="$PROJECT_DIR$/views/main_space.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/css/style.css" afterPath="$PROJECT_DIR$/public/css/style.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="business-chat.iws" />
@@ -41,74 +30,40 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="chat.js" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="chat.js" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/public/js/chat.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.0" vertical-offset="0" max-vertical-offset="31654">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.816825" vertical-offset="35143" max-vertical-offset="35895">
+              <caret line="2417" column="0" selection-start-line="2417" selection-start-column="0" selection-end-line="2417" selection-end-column="0" />
               <folding>
-                <element signature="e#702#1199#0" expanded="false" />
-                <element signature="e#1247#1390#0" expanded="false" />
-                <element signature="e#34924#35179#0" expanded="false" />
-                <element signature="e#35263#35519#0" expanded="false" />
-                <element signature="e#35585#35693#0" expanded="false" />
-                <element signature="e#35991#36037#0" expanded="false" />
-                <element signature="e#37405#40462#0" expanded="false" />
-                <element signature="e#40509#40588#0" expanded="false" />
-                <element signature="e#41158#41222#0" expanded="false" />
-                <element signature="e#56709#57299#0" expanded="false" />
-                <element signature="e#57433#57691#0" expanded="false" />
-                <element signature="e#57865#58081#0" expanded="false" />
-                <element signature="n#!!block;n#escapeEmailString#0" expanded="false" />
-                <element signature="n#!!block;n#recoverDoubleQuote#0" expanded="false" />
-                <element signature="n#!!block;n#generateRandomString#0" expanded="false" />
-                <element signature="n#!!block;n#minimize_chat_screen#0" expanded="false" />
-                <element signature="n#!!block;n#close_chat_screen#0" expanded="false" />
-                <element signature="n#!!block;n#show_chat_option#0" expanded="false" />
-                <element signature="n#!!block;n#add_remove_message_favorite#0" expanded="false" />
-                <element signature="n#!!block;n#edit_message#0" expanded="false" />
-                <element signature="n#!!block;n#show_user_option_list#0" expanded="false" />
-                <element signature="n#!!block;n#fbAsyncInit#0" expanded="false" />
-                <element signature="n#!!block;n#FacebookLogout#0" expanded="false" />
-                <element signature="n#!!block;n#GoogleLogout#0" expanded="false" />
-                <element signature="n#!!block;n#show_conversation_option#0" expanded="false" />
-                <element signature="n#!!block;n#add_user_to_new_chat#0" expanded="false" />
-                <element signature="n#!!block;n#close_chat_user_detail#0" expanded="false" />
-                <element signature="n#!!block;n#show_add_chat_member#0" expanded="false" />
-                <element signature="n#!!block;n#show_add_chat_member_2#0" expanded="false" />
-                <element signature="n#!!block;n#close_add_user_group_chat#0" expanded="false" />
-                <element signature="n#!!block;n#select_add_user_group#0" expanded="false" />
-                <element signature="n#!!block;n#remove_select_add_user#0" expanded="false" />
-                <element signature="n#!!block;n#do_add_user_group_chat#0" expanded="false" />
-                <element signature="n#!!block;n#remove_user_chat_group#0" expanded="false" />
-                <element signature="n#!!block;n#deleteConversation#0" expanded="false" />
-                <element signature="n#!!block;n#close_chat_image#0" expanded="false" />
-                <marker date="1480498045000" expanded="false" signature="5996:6010" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="6137:6168" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="10956:10987" placeholder="..." />
-                <marker date="1480498045000" expanded="true" signature="20662:20676" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="23221:23236" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="26938:26969" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="38242:38260" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="38693:38707" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="38895:38946" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="39171:39202" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="50213:50228" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="62755:62785" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="62955:62986" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="63145:63164" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="63276:63295" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="70247:70262" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="80269:80283" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="80357:80388" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="80525:80540" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="80755:80774" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="80877:80896" placeholder="..." />
-                <marker date="1480498045000" expanded="false" signature="85793:85808" placeholder="..." />
-                <marker date="1480498045000" expanded="true" signature="92532:92545" placeholder="..." />
-                <marker date="1480498045000" expanded="true" signature="94734:94746" placeholder="..." />
-                <marker date="1480498045000" expanded="true" signature="95688:95704" placeholder="..." />
-                <marker date="1480498045000" expanded="true" signature="96822:96835" placeholder="..." />
+                <element signature="n#!!block;n#pasteHtmlAtCaret#0" expanded="false" />
+                <marker date="1480921556000" expanded="false" signature="5996:6010" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="6137:6168" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="10956:10987" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="24132:24147" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="27647:27678" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="39184:39202" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="39635:39649" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="39837:39888" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="40113:40144" placeholder="..." />
+                <marker date="1480921556000" expanded="true" signature="51370:53232" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="52472:52487" placeholder="..." />
+                <marker date="1480921556000" expanded="true" signature="53237:55215" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="65453:65483" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="65653:65684" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="65843:65862" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="65974:65993" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="73755:73770" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="84005:84019" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="84093:84124" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="84261:84276" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="84491:84510" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="84613:84632" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="90359:90374" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="97133:97146" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="99335:99347" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="100289:100305" placeholder="..." />
+                <marker date="1480921556000" expanded="false" signature="101423:101436" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -117,16 +72,9 @@
       <file leaf-file-name="app.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-155.76923" vertical-offset="14055" max-vertical-offset="19200">
+            <state vertical-scroll-proportion="0.0" vertical-offset="22350" max-vertical-offset="23445">
               <caret line="1490" column="0" selection-start-line="1490" selection-start-column="0" selection-end-line="1490" selection-end-column="0" />
-              <folding>
-                <element signature="e#2624#2827#0" expanded="false" />
-                <element signature="e#2870#3987#0" expanded="false" />
-                <element signature="e#4031#4143#0" expanded="false" />
-                <element signature="e#6668#9001#0" expanded="false" />
-                <element signature="e#9070#12085#0" expanded="false" />
-                <element signature="e#12152#15188#0" expanded="false" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -134,17 +82,17 @@
       <file leaf-file-name="style.css" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/css/style.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-20.76923" vertical-offset="23565" max-vertical-offset="24315">
-              <caret line="1607" column="29" selection-start-line="1607" selection-start-column="1" selection-end-line="1607" selection-end-column="29" />
+            <state vertical-scroll-proportion="-10.769231" vertical-offset="23075" max-vertical-offset="25410">
+              <caret line="1557" column="13" selection-start-line="1557" selection-start-column="13" selection-end-line="1557" selection-end-column="13" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="main_space.html" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="main_space.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/views/main_space.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.8344641" vertical-offset="105" max-vertical-offset="5505">
+            <state vertical-scroll-proportion="0.0" vertical-offset="105" max-vertical-offset="5505">
               <caret line="48" column="38" selection-start-line="48" selection-start-column="38" selection-end-line="48" selection-end-column="38" />
               <folding />
             </state>
@@ -178,9 +126,9 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/public/css/style.css" />
         <option value="$PROJECT_DIR$/views/main_space.html" />
         <option value="$PROJECT_DIR$/app.js" />
+        <option value="$PROJECT_DIR$/public/css/style.css" />
         <option value="$PROJECT_DIR$/public/js/chat.js" />
       </list>
     </option>
@@ -414,9 +362,6 @@
       <option name="PARAMETERS" value="" />
       <method />
     </configuration>
-    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
-      <method />
-    </configuration>
     <configuration default="true" type="tests" factoryName="Unittests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -438,6 +383,9 @@
       <option name="PUREUNITTEST" value="true" />
       <option name="PARAMS" value="" />
       <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
       <method />
     </configuration>
     <configuration default="true" type="tests" factoryName="Doctests">
@@ -536,27 +484,27 @@
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.27985075" sideWeight="0.49427754" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.329602" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39925373" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.27985075" sideWeight="0.50572246" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.329602" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.329602" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2832618" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39925373" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.27985075" sideWeight="0.50572246" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.329602" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" x="100" y="123" width="1113" height="584" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.329602" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="DB Browser" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="DB Execution Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -608,7 +556,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="375" max-vertical-offset="690">
           <caret line="25" column="72" selection-start-line="25" selection-start-column="72" selection-end-line="25" selection-end-column="72" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -641,68 +588,34 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="2085" max-vertical-offset="31290">
           <caret line="139" column="41" selection-start-line="139" selection-start-column="37" selection-end-line="139" selection-end-column="41" />
           <folding>
-            <element signature="e#702#1199#0" expanded="false" />
-            <element signature="e#1247#1390#0" expanded="false" />
-            <element signature="e#34924#35179#0" expanded="false" />
-            <element signature="e#35263#35519#0" expanded="false" />
-            <element signature="e#35585#35693#0" expanded="false" />
-            <element signature="e#35991#36037#0" expanded="false" />
-            <element signature="e#37405#40462#0" expanded="false" />
-            <element signature="e#40509#40588#0" expanded="false" />
-            <element signature="e#41158#41222#0" expanded="false" />
-            <element signature="e#56709#57299#0" expanded="false" />
-            <element signature="e#57433#57691#0" expanded="false" />
-            <element signature="e#57865#58081#0" expanded="false" />
-            <element signature="n#!!block;n#escapeEmailString#0" expanded="false" />
-            <element signature="n#!!block;n#recoverDoubleQuote#0" expanded="false" />
-            <element signature="n#!!block;n#generateRandomString#0" expanded="false" />
-            <element signature="n#!!block;n#minimize_chat_screen#0" expanded="false" />
-            <element signature="n#!!block;n#close_chat_screen#0" expanded="false" />
-            <element signature="n#!!block;n#show_chat_option#0" expanded="false" />
-            <element signature="n#!!block;n#add_remove_message_favorite#0" expanded="false" />
-            <element signature="n#!!block;n#edit_message#0" expanded="false" />
-            <element signature="n#!!block;n#show_user_option_list#0" expanded="false" />
-            <element signature="n#!!block;n#fbAsyncInit#0" expanded="false" />
-            <element signature="n#!!block;n#FacebookLogout#0" expanded="false" />
-            <element signature="n#!!block;n#GoogleLogout#0" expanded="false" />
-            <element signature="n#!!block;n#show_conversation_option#0" expanded="false" />
-            <element signature="n#!!block;n#add_user_to_new_chat#0" expanded="false" />
-            <element signature="n#!!block;n#close_chat_user_detail#0" expanded="false" />
-            <element signature="n#!!block;n#show_add_chat_member#0" expanded="false" />
-            <element signature="n#!!block;n#show_add_chat_member_2#0" expanded="false" />
-            <element signature="n#!!block;n#close_add_user_group_chat#0" expanded="false" />
-            <element signature="n#!!block;n#select_add_user_group#0" expanded="false" />
-            <element signature="n#!!block;n#remove_select_add_user#0" expanded="false" />
-            <element signature="n#!!block;n#do_add_user_group_chat#0" expanded="false" />
-            <element signature="n#!!block;n#remove_user_chat_group#0" expanded="false" />
-            <element signature="n#!!block;n#deleteConversation#0" expanded="false" />
-            <element signature="n#!!block;n#close_chat_image#0" expanded="false" />
-            <marker date="1480498045000" expanded="false" signature="5996:6010" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="6137:6168" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="10956:10987" placeholder="..." />
-            <marker date="1480498045000" expanded="true" signature="20662:20676" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="23221:23236" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="26938:26969" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="38242:38260" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="38693:38707" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="38895:38946" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="39171:39202" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="50213:50228" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="62755:62785" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="62955:62986" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="63145:63164" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="63276:63295" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="70247:70262" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="80269:80283" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="80357:80388" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="80525:80540" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="80755:80774" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="80877:80896" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="85793:85808" placeholder="..." />
-            <marker date="1480498045000" expanded="true" signature="92532:92545" placeholder="..." />
-            <marker date="1480498045000" expanded="true" signature="94734:94746" placeholder="..." />
-            <marker date="1480498045000" expanded="true" signature="95688:95704" placeholder="..." />
-            <marker date="1480498045000" expanded="true" signature="96822:96835" placeholder="..." />
+            <element signature="n#!!block;n#pasteHtmlAtCaret#0" expanded="false" />
+            <marker date="1480921556000" expanded="false" signature="5996:6010" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="6137:6168" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="10956:10987" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="24132:24147" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="27647:27678" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="39184:39202" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="39635:39649" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="39837:39888" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="40113:40144" placeholder="..." />
+            <marker date="1480921556000" expanded="true" signature="51370:53232" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="52472:52487" placeholder="..." />
+            <marker date="1480921556000" expanded="true" signature="53237:55215" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="65453:65483" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="65653:65684" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="65843:65862" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="65974:65993" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="73755:73770" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="84005:84019" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="84093:84124" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="84261:84276" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="84491:84510" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="84613:84632" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="90359:90374" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="97133:97146" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="99335:99347" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="100289:100305" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="101423:101436" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -904,7 +817,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.42831215" vertical-offset="139" max-vertical-offset="690">
           <caret line="25" column="72" selection-start-line="25" selection-start-column="72" selection-end-line="25" selection-end-column="72" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -945,105 +857,64 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/public/css/style.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-20.76923" vertical-offset="23565" max-vertical-offset="24315">
-          <caret line="1607" column="29" selection-start-line="1607" selection-start-column="1" selection-end-line="1607" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-155.76923" vertical-offset="14055" max-vertical-offset="19200">
+        <state vertical-scroll-proportion="0.0" vertical-offset="22350" max-vertical-offset="23445">
           <caret line="1490" column="0" selection-start-line="1490" selection-start-column="0" selection-end-line="1490" selection-end-column="0" />
-          <folding>
-            <element signature="e#2624#2827#0" expanded="false" />
-            <element signature="e#2870#3987#0" expanded="false" />
-            <element signature="e#4031#4143#0" expanded="false" />
-            <element signature="e#6668#9001#0" expanded="false" />
-            <element signature="e#9070#12085#0" expanded="false" />
-            <element signature="e#12152#15188#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/js/chat.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="31654">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#702#1199#0" expanded="false" />
-            <element signature="e#1247#1390#0" expanded="false" />
-            <element signature="e#34924#35179#0" expanded="false" />
-            <element signature="e#35263#35519#0" expanded="false" />
-            <element signature="e#35585#35693#0" expanded="false" />
-            <element signature="e#35991#36037#0" expanded="false" />
-            <element signature="e#37405#40462#0" expanded="false" />
-            <element signature="e#40509#40588#0" expanded="false" />
-            <element signature="e#41158#41222#0" expanded="false" />
-            <element signature="e#56709#57299#0" expanded="false" />
-            <element signature="e#57433#57691#0" expanded="false" />
-            <element signature="e#57865#58081#0" expanded="false" />
-            <element signature="n#!!block;n#escapeEmailString#0" expanded="false" />
-            <element signature="n#!!block;n#recoverDoubleQuote#0" expanded="false" />
-            <element signature="n#!!block;n#generateRandomString#0" expanded="false" />
-            <element signature="n#!!block;n#minimize_chat_screen#0" expanded="false" />
-            <element signature="n#!!block;n#close_chat_screen#0" expanded="false" />
-            <element signature="n#!!block;n#show_chat_option#0" expanded="false" />
-            <element signature="n#!!block;n#add_remove_message_favorite#0" expanded="false" />
-            <element signature="n#!!block;n#edit_message#0" expanded="false" />
-            <element signature="n#!!block;n#show_user_option_list#0" expanded="false" />
-            <element signature="n#!!block;n#fbAsyncInit#0" expanded="false" />
-            <element signature="n#!!block;n#FacebookLogout#0" expanded="false" />
-            <element signature="n#!!block;n#GoogleLogout#0" expanded="false" />
-            <element signature="n#!!block;n#show_conversation_option#0" expanded="false" />
-            <element signature="n#!!block;n#add_user_to_new_chat#0" expanded="false" />
-            <element signature="n#!!block;n#close_chat_user_detail#0" expanded="false" />
-            <element signature="n#!!block;n#show_add_chat_member#0" expanded="false" />
-            <element signature="n#!!block;n#show_add_chat_member_2#0" expanded="false" />
-            <element signature="n#!!block;n#close_add_user_group_chat#0" expanded="false" />
-            <element signature="n#!!block;n#select_add_user_group#0" expanded="false" />
-            <element signature="n#!!block;n#remove_select_add_user#0" expanded="false" />
-            <element signature="n#!!block;n#do_add_user_group_chat#0" expanded="false" />
-            <element signature="n#!!block;n#remove_user_chat_group#0" expanded="false" />
-            <element signature="n#!!block;n#deleteConversation#0" expanded="false" />
-            <element signature="n#!!block;n#close_chat_image#0" expanded="false" />
-            <marker date="1480498045000" expanded="false" signature="5996:6010" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="6137:6168" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="10956:10987" placeholder="..." />
-            <marker date="1480498045000" expanded="true" signature="20662:20676" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="23221:23236" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="26938:26969" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="38242:38260" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="38693:38707" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="38895:38946" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="39171:39202" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="50213:50228" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="62755:62785" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="62955:62986" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="63145:63164" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="63276:63295" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="70247:70262" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="80269:80283" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="80357:80388" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="80525:80540" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="80755:80774" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="80877:80896" placeholder="..." />
-            <marker date="1480498045000" expanded="false" signature="85793:85808" placeholder="..." />
-            <marker date="1480498045000" expanded="true" signature="92532:92545" placeholder="..." />
-            <marker date="1480498045000" expanded="true" signature="94734:94746" placeholder="..." />
-            <marker date="1480498045000" expanded="true" signature="95688:95704" placeholder="..." />
-            <marker date="1480498045000" expanded="true" signature="96822:96835" placeholder="..." />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/views/main_space.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.8344641" vertical-offset="105" max-vertical-offset="5505">
+        <state vertical-scroll-proportion="0.0" vertical-offset="105" max-vertical-offset="5505">
           <caret line="48" column="38" selection-start-line="48" selection-start-column="38" selection-end-line="48" selection-end-column="38" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/css/style.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-10.769231" vertical-offset="23075" max-vertical-offset="25410">
+          <caret line="1557" column="13" selection-start-line="1557" selection-start-column="13" selection-end-line="1557" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/js/chat.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.816825" vertical-offset="35143" max-vertical-offset="35895">
+          <caret line="2417" column="0" selection-start-line="2417" selection-start-column="0" selection-end-line="2417" selection-end-column="0" />
+          <folding>
+            <element signature="n#!!block;n#pasteHtmlAtCaret#0" expanded="false" />
+            <marker date="1480921556000" expanded="false" signature="5996:6010" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="6137:6168" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="10956:10987" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="24132:24147" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="27647:27678" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="39184:39202" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="39635:39649" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="39837:39888" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="40113:40144" placeholder="..." />
+            <marker date="1480921556000" expanded="true" signature="51370:53232" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="52472:52487" placeholder="..." />
+            <marker date="1480921556000" expanded="true" signature="53237:55215" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="65453:65483" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="65653:65684" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="65843:65862" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="65974:65993" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="73755:73770" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="84005:84019" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="84093:84124" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="84261:84276" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="84491:84510" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="84613:84632" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="90359:90374" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="97133:97146" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="99335:99347" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="100289:100305" placeholder="..." />
+            <marker date="1480921556000" expanded="false" signature="101423:101436" placeholder="..." />
+          </folding>
         </state>
       </provider>
     </entry>

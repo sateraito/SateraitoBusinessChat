@@ -1547,36 +1547,46 @@ body{
 }
 
 .page_main_emoji_tab {
-    background: #d8dde8;
-    height: 50px;
+    background: #ffffff;
+    height: 30px;
     margin: 0 auto;
     width: 260px;
 }
 
+.page_main_emoji_tab a{
+    border-right: 1px solid #d8dde8;
+    width: 49px;
+}
+
 .content_main_emoji {
+    background: #d8dde8;
     height: 60px;
     overflow-x: auto;
 }
 
 .page_main_emoji_icon_tab {
     float: left;
-    height: 50px;
+    height: 30px;
 }
 
-.page_main_emoji_icon_tab img{
+.page_main_emoji_icon_tab img {
+    margin: 3px;
     width: 50%;
-    margin-left: 20%;
-    margin-top: 8px;
 }
 
 .page_main_emoji_icon {
     float: left;
     height: 50px;
-    width: 25%;
+    width: 20%;
+}
+
+.page_main_emoji_icon img:hover{
+    border: 1px solid #ffffff;
+    border-radius: 7px;
 }
 
 .page_main_emoji_icon img {
-    width: 50%;
+    width: 80%;
     margin-left: 20%;
     margin-top: 8px;
 }
@@ -1610,6 +1620,69 @@ body{
     height: 20px;
 }
 
+.emoji_icon_active{
+    background: #d8dde8;
+}
+
+.page_main_emoji_tab {
+    left: 0px;
+    top: 0px;
+    min-width: 260px;
+}
+
+.page_main_emoji_tab a {
+    display: table-cell;
+    position: relative;
+    text-align: center;
+    cursor: grab;
+    cursor: -webkit-grab;
+    color: #efefef;
+    vertical-align: middle;
+}
+
+.wrapper {
+    position: relative;
+    margin: 0 auto;
+    overflow: hidden;
+    padding: 5px;
+    height: 50px;
+}
+
+.list {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    margin-left: 12px;
+    margin-top: 0px;
+}
+
+.list li {
+    display: table-cell;
+    position: relative;
+    text-align: center;
+    cursor: grab;
+    cursor: -webkit-grab;
+    color: #efefef;
+    vertical-align: middle;
+}
+
+.scroller {
+    text-align: center;
+    cursor: pointer;
+    display: none;
+    padding-top: 5px;
+    white-space: no-wrap;
+    vertical-align: middle;
+    background-color: #fff;
+}
+
+.scroller-right {
+    float: right;
+}
+
+.scroller-left {
+    float: left;
+}
 
 /* End Emoji chat*/
 
