@@ -74,6 +74,15 @@ var images_smiles = ["image/emoji/smile_1.png", "image/emoji/smile_2.png", "imag
 var images_animals = ["image/emoji/animal_1.png", "image/emoji/animal_2.png", "image/emoji/animal_3.png", "image/emoji/animal_4.png",
                     "image/emoji/animal_5.png", "image/emoji/animal_6.png", "image/emoji/animal_7.png", "image/emoji/animal_8.png",
                     "image/emoji/animal_9.png", "image/emoji/animal_10.png"];
+var images_customs = ["image/emoji/custom_1.gif", "image/emoji/custom_2.gif", "image/emoji/custom_3.gif", "image/emoji/custom_4.gif",
+                    "image/emoji/custom_5.gif", "image/emoji/custom_6.gif", "image/emoji/custom_7.gif", "image/emoji/custom_8.gif",
+                    "image/emoji/custom_9.gif", "image/emoji/custom_10.gif", "image/emoji/custom_11.gif", "image/emoji/custom_12.gif",
+                    "image/emoji/custom_13.gif", "image/emoji/custom_14.gif", "image/emoji/custom_15.gif", "image/emoji/custom_16.gif",
+                    "image/emoji/custom_17.gif", "image/emoji/custom_18.gif", "image/emoji/custom_19.gif", "image/emoji/custom_20.gif",
+                    "image/emoji/custom_21.gif", "image/emoji/custom_22.gif", "image/emoji/custom_23.gif", "image/emoji/custom_24.gif",
+                    "image/emoji/custom_25.gif", "image/emoji/custom_26.gif", "image/emoji/custom_27.gif", "image/emoji/custom_28.gif",
+                    "image/emoji/custom_29.gif", "image/emoji/custom_30.gif"];
+
 
 app.get("/", function (req, res) {
 
@@ -536,7 +545,8 @@ app.get("/main-space", function (req, res) {
                                                     user_friend_info: user_friend_info,
                                                     externalIp: externalIp,
                                                     emoji_smiles: images_smiles,
-                                                    emoji_animals: images_animals
+                                                    emoji_animals: images_animals,
+                                                    emoji_customs: images_customs
                                                 });
                                             });
 
@@ -589,7 +599,8 @@ app.get("/main-space", function (req, res) {
                             user_friend_info: user_friend_info,
                             externalIp: externalIp,
                             emoji_smiles: images_smiles,
-                            emoji_animals: images_animals
+                            emoji_animals: images_animals,
+                            emoji_customs: images_customs
                         });
                     });
 

@@ -503,7 +503,7 @@ body{
 /*Start chat screen*/
 .chat_screen_detail {
     float: right;
-    width: 262px;
+    width: 272px;
     height: 400px;
     background: white;
     margin-right: 10px;
@@ -1543,19 +1543,19 @@ body{
     height: 110px;
     float: left;
     margin: 0 auto;
-    width: 260px;
+    width: 270px;
 }
 
 .page_main_emoji_tab {
     background: #ffffff;
     height: 30px;
     margin: 0 auto;
-    width: 260px;
+    width: 270px;
 }
 
 .page_main_emoji_tab a{
     border-right: 1px solid #d8dde8;
-    width: 49px;
+    width: 48px;
 }
 
 .content_main_emoji {
@@ -1627,7 +1627,7 @@ body{
 .page_main_emoji_tab {
     left: 0px;
     top: 0px;
-    min-width: 260px;
+    min-width: 270px;
 }
 
 .page_main_emoji_tab a {
@@ -1682,6 +1682,13 @@ body{
 
 .scroller-left {
     float: left;
+}
+
+.page_main_emoji_icon img.image_gif {
+    height: 100%;
+    margin-left: 20%;
+    margin-top: 8px;
+    width: 90%;
 }
 
 /* End Emoji chat*/

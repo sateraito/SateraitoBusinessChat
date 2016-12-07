@@ -373,16 +373,28 @@ function mainSpaceLoad() {
 
                         // Emoji chat html
                         html_string += '<div id="emoji-' + screen_id + '" class="page_main_emoji" style="display: none;">';
+                        html_string += '<div class="page_main_emoji_tab" id="tab_' + screen_id + '">';
 
-                        html_string += '<div class="page_main_emoji_tab">';
-                        html_string += '<a href="javascript:void(0)" id="emoji_smile_' + screen_id + '" class="page_main_emoji_icon_tab emoji_icon_active"><img src="image/emoji/smile_4.png"></a>';
-                        html_string += '<a href="javascript:void(0)" id="emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+                        html_string += '<div class="scroller scroller-left" id="scroller-left_' + screen_id + '"><i class="glyphicon glyphicon-chevron-left"></i></div>';
+                        html_string += '<div class="scroller scroller-right" id="scroller-right_' + screen_id + '"><i class="glyphicon glyphicon-chevron-right"></i></div>';
 
-                        html_string += '<a href="javascript:void(0)" id="1emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-                        html_string += '<a href="javascript:void(0)" id="2emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-                        html_string += '<a href="javascript:void(0)" id="3emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-                        html_string += '<a href="javascript:void(0)" id="4emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-                        html_string += '<a href="javascript:void(0)" id="5emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+                        html_string += '<a data-idx="0" href="javascript:void(0)" id="emoji_smile_' + screen_id + '" class="page_main_emoji_icon_tab emoji_icon_active"><img src="image/emoji/smile_4.png"></a>';
+                        html_string += '<a data-idx="1" href="javascript:void(0)" id="emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+                        html_string += '<a data-idx="2" href="javascript:void(0)" id="emoji_custom_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/custom_1.gif" style="width: 49px;margin: 0; height: 29px;"></a>';
+
+                        html_string += '<a data-idx="3" href="javascript:void(0)" id="1emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+                        html_string += '<a data-idx="4" href="javascript:void(0)" id="2emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_2.png"></a>';
+                        html_string += '<a data-idx="5" href="javascript:void(0)" id="3emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_3.png"></a>';
+                        html_string += '<a data-idx="6" href="javascript:void(0)" id="4emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_4.png"></a>';
+                        html_string += '<a data-idx="7" href="javascript:void(0)" id="5emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_5.png"></a>';
+                        html_string += '<a data-idx="8" href="javascript:void(0)" id="6emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_6.png"></a>';
+                        html_string += '<a data-idx="9" href="javascript:void(0)" id="7emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_7.png"></a>';
+                        html_string += '<a data-idx="10" href="javascript:void(0)" id="8emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_8.png"></a>';
+                        html_string += '<a data-idx="11" href="javascript:void(0)" id="9emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_9.png"></a>';
+                        html_string += '<a data-idx="12" href="javascript:void(0)" id="10emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_10.png"></a>';
+                        html_string += '<a data-idx="13" href="javascript:void(0)" id="11emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+                        html_string += '<a data-idx="14" href="javascript:void(0)" id="12emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_2.png"></a>';
+
                         html_string += '</div>';
 
                         html_string += '<div class="content_main_emoji" id="smile_' + screen_id + '"  style="display: block;">';
@@ -397,7 +409,15 @@ function mainSpaceLoad() {
                            html_string += '<a href="javascript:void(0)" class="page_main_emoji_icon"><img src="' + val + '"></a>';
                         });
                         html_string += '</div>';
+
+
+                        html_string += '<div class="content_main_emoji" id="custom_' + screen_id + '" style="display: none;">';
+                        image_customs.forEach(function(val) {
+                           html_string += '<a href="javascript:void(0)" class="page_main_emoji_icon"><img class="image_gif" src="' + val + '"></a>';
+                        });
                         html_string += '</div>';
+                        html_string += '</div>';
+
 
 
                         html_string += '<div class="chat_screen_footer">';
@@ -422,39 +442,10 @@ function mainSpaceLoad() {
 
                         $('.chat_screen_area').append(html_string);
 
-                        $('#show_emotional_' + screen_id).on('click', function() {
-                            if ($('#emoji-' + screen_id)[0].style.display == 'block') {
-                                $('#emoji-' + screen_id)[0].style.display = 'none';
-                                $('#chat_' + screen_id)[0].style.height = '233px';
-                            } else {
-                                $('#emoji-' + screen_id)[0].style.display = 'block';
-                                $('#chat_' + screen_id)[0].style.height = '120px';
-                            }
-                        });
+                        // Render event Emoji emonicons
+                        initEventEmoji(screen_id);
 
-                        $('#emoji_smile_' + screen_id).on('click', function() {
-                            $(this).addClass('emoji_icon_active');
-                            $('#smile_' + screen_id)[0].style.display = "block";
-                            $('#animal_' + screen_id)[0].style.display = "none";
-                            $('#emoji_animal_' + screen_id).removeClass('emoji_icon_active');
-                        });
-
-                        $('#emoji_animal_' + screen_id).on('click', function() {
-                            $(this).addClass('emoji_icon_active');
-                            $('#animal_' + screen_id)[0].style.display = "block";
-                            $('#smile_' + screen_id)[0].style.display = "none";
-                            $('#emoji_smile_' + screen_id).removeClass('emoji_icon_active');
-                        });
-
-                        $('#animal_' + screen_id + ' .page_main_emoji_icon').on('click', function() {
-                            $("#input_chat_" + screen_id).focus();
-                            pasteHtmlAtCaret("input_chat_" + screen_id, $(this)[0].children[0].src);
-                        });
-
-                        $('#smile_' + screen_id + ' .page_main_emoji_icon').on('click', function() {
-                            $("#input_chat_" + screen_id).focus();
-                            pasteHtmlAtCaret("input_chat_" + screen_id, $(this)[0].children[0].src);
-                        });
+                        scroller(screen_id);
 
                         //Process unread chat marker
                         var selected_chat_screen = $("#screen-" + screen_id);
@@ -492,10 +483,10 @@ function mainSpaceLoad() {
 
                         $(".chat_screen_body").scrollTop($(".chat_screen_body")[0].scrollHeight);
 
-                        $('#input_chat_' + screen_id).on('click', function() {
-                            $('#emoji-' + screen_id)[0].style.display = 'none';
-                            $('#chat_' + screen_id)[0].style.height = '233px';
-                        });
+//                        $('#input_chat_' + screen_id).on('click', function() {
+//                            $('#emoji-' + screen_id)[0].style.display = 'none';
+//                            $('#chat_' + screen_id)[0].style.height = '233px';
+//                        });
 
                         var timer = null;
                         //Send message
@@ -870,12 +861,21 @@ function mainSpaceLoad() {
 
                 html_string += '<a data-idx="0" href="javascript:void(0)" id="emoji_smile_' + screen_id + '" class="page_main_emoji_icon_tab emoji_icon_active"><img src="image/emoji/smile_4.png"></a>';
                 html_string += '<a data-idx="1" href="javascript:void(0)" id="emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+                html_string += '<a data-idx="2" href="javascript:void(0)" id="emoji_custom_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/custom_1.gif" style="width: 49px;margin: 0; height: 29px;"></a>';
 
-                html_string += '<a data-idx="2" href="javascript:void(0)" id="1emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-                html_string += '<a data-idx="3" href="javascript:void(0)" id="2emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-                html_string += '<a data-idx="4" href="javascript:void(0)" id="3emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-                html_string += '<a data-idx="5" href="javascript:void(0)" id="4emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-                html_string += '<a data-idx="6" href="javascript:void(0)" id="5emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+                html_string += '<a data-idx="3" href="javascript:void(0)" id="1emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+                html_string += '<a data-idx="4" href="javascript:void(0)" id="2emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_2.png"></a>';
+                html_string += '<a data-idx="5" href="javascript:void(0)" id="3emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_3.png"></a>';
+                html_string += '<a data-idx="6" href="javascript:void(0)" id="4emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_4.png"></a>';
+                html_string += '<a data-idx="7" href="javascript:void(0)" id="5emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_5.png"></a>';
+                html_string += '<a data-idx="8" href="javascript:void(0)" id="6emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_6.png"></a>';
+                html_string += '<a data-idx="9" href="javascript:void(0)" id="7emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_7.png"></a>';
+                html_string += '<a data-idx="10" href="javascript:void(0)" id="8emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_8.png"></a>';
+                html_string += '<a data-idx="11" href="javascript:void(0)" id="9emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_9.png"></a>';
+                html_string += '<a data-idx="12" href="javascript:void(0)" id="10emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_10.png"></a>';
+                html_string += '<a data-idx="13" href="javascript:void(0)" id="11emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+                html_string += '<a data-idx="14" href="javascript:void(0)" id="12emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_2.png"></a>';
+
                 html_string += '</div>';
 
                 html_string += '<div class="content_main_emoji" id="smile_' + screen_id + '"  style="display: block;">';
@@ -890,7 +890,15 @@ function mainSpaceLoad() {
                    html_string += '<a href="javascript:void(0)" class="page_main_emoji_icon"><img src="' + val + '"></a>';
                 });
                 html_string += '</div>';
+
+
+                html_string += '<div class="content_main_emoji" id="custom_' + screen_id + '" style="display: none;">';
+                image_customs.forEach(function(val) {
+                   html_string += '<a href="javascript:void(0)" class="page_main_emoji_icon"><img class="image_gif" src="' + val + '"></a>';
+                });
                 html_string += '</div>';
+                html_string += '</div>';
+
 
 
                 html_string += '<div class="chat_screen_footer">';
@@ -917,39 +925,8 @@ function mainSpaceLoad() {
 
                 $(".chat_screen_body").scrollTop($(".chat_screen_body")[0].scrollHeight);
 
-                $('#show_emotional_' + screen_id).on('click', function() {
-                    if ($('#emoji-' + screen_id)[0].style.display == 'block') {
-                        $('#emoji-' + screen_id)[0].style.display = 'none';
-                        $('#chat_' + screen_id)[0].style.height = '233px';
-                    } else {
-                        $('#emoji-' + screen_id)[0].style.display = 'block';
-                        $('#chat_' + screen_id)[0].style.height = '120px';
-                    }
-                });
-
-                $('#emoji_smile_' + screen_id).on('click', function() {
-                    $(this).addClass('emoji_icon_active');
-                    $('#smile_' + screen_id)[0].style.display = "block";
-                    $('#animal_' + screen_id)[0].style.display = "none";
-                    $('#emoji_animal_' + screen_id).removeClass('emoji_icon_active');
-                });
-
-                $('#emoji_animal_' + screen_id).on('click', function() {
-                    $(this).addClass('emoji_icon_active');
-                    $('#animal_' + screen_id)[0].style.display = "block";
-                    $('#smile_' + screen_id)[0].style.display = "none";
-                    $('#emoji_smile_' + screen_id).removeClass('emoji_icon_active');
-                });
-
-                $('#smile_' + screen_id + ' .page_main_emoji_icon').on('click', function() {
-                    $("#input_chat_" + screen_id).focus();
-                    pasteHtmlAtCaret("input_chat_" + screen_id, $(this)[0].children[0].src);
-                });
-
-                $('#animal_' + screen_id + ' .page_main_emoji_icon').on('click', function() {
-                    $("#input_chat_" + screen_id).focus();
-                    pasteHtmlAtCaret("input_chat_" + screen_id, $(this)[0].children[0].src);
-                });
+                // Render event Emoji emonicons
+                initEventEmoji(screen_id);
 
                 scroller(screen_id);
 
@@ -970,11 +947,6 @@ function mainSpaceLoad() {
                         }
                     );
 
-                });
-
-                $('#input_chat_' + screen_id).on('click', function() {
-                    $('#emoji-' + screen_id)[0].style.display = 'none';
-                    $('#chat_' + screen_id)[0].style.height = '233px';
                 });
 
                 var timer = null;
@@ -1370,15 +1342,28 @@ function startNewChat() {
 
     // Emoji chat html
     html_string += '<div id="emoji-' + screen_id + '" class="page_main_emoji" style="display: none;">';
-    html_string += '<div class="page_main_emoji_tab">';
-    html_string += '<a href="javascript:void(0)" id="emoji_smile_' + screen_id + '" class="page_main_emoji_icon_tab emoji_icon_active"><img src="image/emoji/smile_4.png"></a>';
-    html_string += '<a href="javascript:void(0)" id="emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+    html_string += '<div class="page_main_emoji_tab" id="tab_' + screen_id + '">';
 
-    html_string += '<a href="javascript:void(0)" id="1emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-    html_string += '<a href="javascript:void(0)" id="2emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-    html_string += '<a href="javascript:void(0)" id="3emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-    html_string += '<a href="javascript:void(0)" id="4emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-    html_string += '<a href="javascript:void(0)" id="5emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+    html_string += '<div class="scroller scroller-left" id="scroller-left_' + screen_id + '"><i class="glyphicon glyphicon-chevron-left"></i></div>';
+    html_string += '<div class="scroller scroller-right" id="scroller-right_' + screen_id + '"><i class="glyphicon glyphicon-chevron-right"></i></div>';
+
+    html_string += '<a data-idx="0" href="javascript:void(0)" id="emoji_smile_' + screen_id + '" class="page_main_emoji_icon_tab emoji_icon_active"><img src="image/emoji/smile_4.png"></a>';
+    html_string += '<a data-idx="1" href="javascript:void(0)" id="emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+    html_string += '<a data-idx="2" href="javascript:void(0)" id="emoji_custom_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/custom_1.gif" style="width: 49px;margin: 0; height: 29px;"></a>';
+
+    html_string += '<a data-idx="3" href="javascript:void(0)" id="1emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+    html_string += '<a data-idx="4" href="javascript:void(0)" id="2emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_2.png"></a>';
+    html_string += '<a data-idx="5" href="javascript:void(0)" id="3emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_3.png"></a>';
+    html_string += '<a data-idx="6" href="javascript:void(0)" id="4emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_4.png"></a>';
+    html_string += '<a data-idx="7" href="javascript:void(0)" id="5emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_5.png"></a>';
+    html_string += '<a data-idx="8" href="javascript:void(0)" id="6emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_6.png"></a>';
+    html_string += '<a data-idx="9" href="javascript:void(0)" id="7emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_7.png"></a>';
+    html_string += '<a data-idx="10" href="javascript:void(0)" id="8emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_8.png"></a>';
+    html_string += '<a data-idx="11" href="javascript:void(0)" id="9emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_9.png"></a>';
+    html_string += '<a data-idx="12" href="javascript:void(0)" id="10emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_10.png"></a>';
+    html_string += '<a data-idx="13" href="javascript:void(0)" id="11emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+    html_string += '<a data-idx="14" href="javascript:void(0)" id="12emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_2.png"></a>';
+
     html_string += '</div>';
 
     html_string += '<div class="content_main_emoji" id="smile_' + screen_id + '"  style="display: block;">';
@@ -1393,7 +1378,15 @@ function startNewChat() {
        html_string += '<a href="javascript:void(0)" class="page_main_emoji_icon"><img src="' + val + '"></a>';
     });
     html_string += '</div>';
+
+    html_string += '<div class="content_main_emoji" id="custom_' + screen_id + '" style="display: none;">';
+    image_customs.forEach(function(val) {
+       html_string += '<a href="javascript:void(0)" class="page_main_emoji_icon"><img class="image_gif" src="' + val + '"></a>';
+    });
     html_string += '</div>';
+    html_string += '</div>';
+
+
 
     html_string += '<div class="chat_screen_footer">';
     html_string += '<input type="hidden" class="sender_email" value="' + user_email + '">';
@@ -1427,46 +1420,51 @@ function startNewChat() {
     hideNewChatScreen();
     $('.chat_screen_area').append(html_string);
 
+    // Render event Emoji emonicons
+    initEventEmoji(screen_id);
+
+    scroller(screen_id);
+
     var timer = null;
 
-    $('#show_emotional_' + screen_id).on('click', function() {
-        if ($('#emoji-' + screen_id)[0].style.display == 'block') {
-            $('#emoji-' + screen_id)[0].style.display = 'none';
-            $('#chat_' + screen_id)[0].style.height = '233px';
-        } else {
-            $('#emoji-' + screen_id)[0].style.display = 'block';
-            $('#chat_' + screen_id)[0].style.height = '120px';
-        }
-    });
-
-    $('#emoji_smile_' + screen_id).on('click', function() {
-        $(this).addClass('emoji_icon_active');
-        $('#smile_' + screen_id)[0].style.display = "block";
-        $('#animal_' + screen_id)[0].style.display = "none";
-        $('#emoji_animal_' + screen_id).removeClass('emoji_icon_active');
-    });
-
-    $('#emoji_animal_' + screen_id).on('click', function() {
-        $(this).addClass('emoji_icon_active');
-        $('#animal_' + screen_id)[0].style.display = "block";
-        $('#smile_' + screen_id)[0].style.display = "none";
-        $('#emoji_smile_' + screen_id).removeClass('emoji_icon_active');
-    });
-
-    $('#smile_' + screen_id + ' .page_main_emoji_icon').on('click', function() {
-        $("#input_chat_" + screen_id).focus();
-        pasteHtmlAtCaret("input_chat_" + screen_id, $(this)[0].children[0].src);
-    });
-
-    $('#animal_' + screen_id + ' .page_main_emoji_icon').on('click', function() {
-        $("#input_chat_" + screen_id).focus();
-        pasteHtmlAtCaret("input_chat_" + screen_id, $(this)[0].children[0].src);
-    });
-
-    $('#input_chat_' + screen_id).on('click', function() {
-        $('#emoji-' + screen_id)[0].style.display = 'none';
-        $('#chat_' + screen_id)[0].style.height = '233px';
-    });
+//    $('#show_emotional_' + screen_id).on('click', function() {
+//        if ($('#emoji-' + screen_id)[0].style.display == 'block') {
+//            $('#emoji-' + screen_id)[0].style.display = 'none';
+//            $('#chat_' + screen_id)[0].style.height = '233px';
+//        } else {
+//            $('#emoji-' + screen_id)[0].style.display = 'block';
+//            $('#chat_' + screen_id)[0].style.height = '120px';
+//        }
+//    });
+//
+//    $('#emoji_smile_' + screen_id).on('click', function() {
+//        $(this).addClass('emoji_icon_active');
+//        $('#smile_' + screen_id)[0].style.display = "block";
+//        $('#animal_' + screen_id)[0].style.display = "none";
+//        $('#emoji_animal_' + screen_id).removeClass('emoji_icon_active');
+//    });
+//
+//    $('#emoji_animal_' + screen_id).on('click', function() {
+//        $(this).addClass('emoji_icon_active');
+//        $('#animal_' + screen_id)[0].style.display = "block";
+//        $('#smile_' + screen_id)[0].style.display = "none";
+//        $('#emoji_smile_' + screen_id).removeClass('emoji_icon_active');
+//    });
+//
+//    $('#smile_' + screen_id + ' .page_main_emoji_icon').on('click', function() {
+//        $("#input_chat_" + screen_id).focus();
+//        pasteHtmlAtCaret("input_chat_" + screen_id, $(this)[0].children[0].src);
+//    });
+//
+//    $('#animal_' + screen_id + ' .page_main_emoji_icon').on('click', function() {
+//        $("#input_chat_" + screen_id).focus();
+//        pasteHtmlAtCaret("input_chat_" + screen_id, $(this)[0].children[0].src);
+//    });
+//
+//    $('#input_chat_' + screen_id).on('click', function() {
+//        $('#emoji-' + screen_id)[0].style.display = 'none';
+//        $('#chat_' + screen_id)[0].style.height = '233px';
+//    });
 
 //    socket.emit("check user", {
 //        email: user_email
@@ -1730,15 +1728,28 @@ function show_user_list() {
 
         // Emoji chat html
         html_string += '<div id="emoji-' + screen_id + '" class="page_main_emoji" style="display: none;">';
-        html_string += '<div class="page_main_emoji_tab">';
-        html_string += '<a href="javascript:void(0)" id="emoji_smile_' + screen_id + '" class="page_main_emoji_icon_tab emoji_icon_active"><img src="image/emoji/smile_4.png"></a>';
-        html_string += '<a href="javascript:void(0)" id="emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+        html_string += '<div class="page_main_emoji_tab" id="tab_' + screen_id + '">';
 
-        html_string += '<a href="javascript:void(0)" id="1emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-        html_string += '<a href="javascript:void(0)" id="2emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-        html_string += '<a href="javascript:void(0)" id="3emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-        html_string += '<a href="javascript:void(0)" id="4emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
-        html_string += '<a href="javascript:void(0)" id="5emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+        html_string += '<div class="scroller scroller-left" id="scroller-left_' + screen_id + '"><i class="glyphicon glyphicon-chevron-left"></i></div>';
+        html_string += '<div class="scroller scroller-right" id="scroller-right_' + screen_id + '"><i class="glyphicon glyphicon-chevron-right"></i></div>';
+
+        html_string += '<a data-idx="0" href="javascript:void(0)" id="emoji_smile_' + screen_id + '" class="page_main_emoji_icon_tab emoji_icon_active"><img src="image/emoji/smile_4.png"></a>';
+        html_string += '<a data-idx="1" href="javascript:void(0)" id="emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+        html_string += '<a data-idx="2" href="javascript:void(0)" id="emoji_custom_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/custom_1.gif" style="width: 49px;margin: 0; height: 29px;"></a>';
+
+        html_string += '<a data-idx="3" href="javascript:void(0)" id="1emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+        html_string += '<a data-idx="4" href="javascript:void(0)" id="2emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_2.png"></a>';
+        html_string += '<a data-idx="5" href="javascript:void(0)" id="3emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_3.png"></a>';
+        html_string += '<a data-idx="6" href="javascript:void(0)" id="4emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_4.png"></a>';
+        html_string += '<a data-idx="7" href="javascript:void(0)" id="5emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_5.png"></a>';
+        html_string += '<a data-idx="8" href="javascript:void(0)" id="6emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_6.png"></a>';
+        html_string += '<a data-idx="9" href="javascript:void(0)" id="7emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_7.png"></a>';
+        html_string += '<a data-idx="10" href="javascript:void(0)" id="8emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_8.png"></a>';
+        html_string += '<a data-idx="11" href="javascript:void(0)" id="9emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_9.png"></a>';
+        html_string += '<a data-idx="12" href="javascript:void(0)" id="10emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_10.png"></a>';
+        html_string += '<a data-idx="13" href="javascript:void(0)" id="11emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_1.png"></a>';
+        html_string += '<a data-idx="14" href="javascript:void(0)" id="12emoji_animal_' + screen_id + '" class="page_main_emoji_icon_tab"><img src="image/emoji/animal_2.png"></a>';
+
         html_string += '</div>';
 
         html_string += '<div class="content_main_emoji" id="smile_' + screen_id + '"  style="display: block;">';
@@ -1753,7 +1764,15 @@ function show_user_list() {
            html_string += '<a href="javascript:void(0)" class="page_main_emoji_icon"><img src="' + val + '"></a>';
         });
         html_string += '</div>';
+
+
+        html_string += '<div class="content_main_emoji" id="custom_' + screen_id + '" style="display: none;">';
+        image_customs.forEach(function(val) {
+           html_string += '<a href="javascript:void(0)" class="page_main_emoji_icon"><img class="image_gif" src="' + val + '"></a>';
+        });
         html_string += '</div>';
+        html_string += '</div>';
+
 
         html_string += '<div class="chat_screen_footer">';
         html_string += '<input type="hidden" class="sender_email" value="' + user_email + '">';
@@ -1776,46 +1795,50 @@ function show_user_list() {
         html_string += '</div>';
 
         $('.chat_screen_area').append(html_string);
+        // Render event Emoji emonicons
+        initEventEmoji(screen_id);
 
-        $('#show_emotional_' + screen_id).on('click', function() {
-            if ($('#emoji-' + screen_id)[0].style.display == 'block') {
-                $('#emoji-' + screen_id)[0].style.display = 'none';
-                $('#chat_' + screen_id)[0].style.height = '233px';
-            } else {
-                $('#emoji-' + screen_id)[0].style.display = 'block';
-                $('#chat_' + screen_id)[0].style.height = '120px';
-            }
-        });
+        scroller(screen_id);
 
-        $('#emoji_smile_' + screen_id).on('click', function() {
-            $(this).addClass('emoji_icon_active');
-            $('#smile_' + screen_id)[0].style.display = "block";
-            $('#animal_' + screen_id)[0].style.display = "none";
-            $('#emoji_animal_' + screen_id).removeClass('emoji_icon_active');
-        });
-
-        $('#emoji_animal_' + screen_id).on('click', function() {
-            $(this).addClass('emoji_icon_active');
-            $('#animal_' + screen_id)[0].style.display = "block";
-            $('#smile_' + screen_id)[0].style.display = "none";
-            $('#emoji_smile_' + screen_id).removeClass('emoji_icon_active');
-        });
-
-        $('#animal_' + screen_id + ' .page_main_emoji_icon').on('click', function() {
-            $("#input_chat_" + screen_id).focus();
-            pasteHtmlAtCaret("input_chat_" + screen_id, $(this)[0].children[0].src);
-
-        });
-
-        $('#smile_' + screen_id + ' .page_main_emoji_icon').on('click', function() {
-            $("#input_chat_" + screen_id).focus();
-            pasteHtmlAtCaret("input_chat_" + screen_id, $(this)[0].children[0].src);
-        });
-
-        $('#input_chat_' + screen_id).on('click', function() {
-            $('#emoji-' + screen_id)[0].style.display = 'none';
-            $('#chat_' + screen_id)[0].style.height = '233px';
-        });
+//        $('#show_emotional_' + screen_id).on('click', function() {
+//            if ($('#emoji-' + screen_id)[0].style.display == 'block') {
+//                $('#emoji-' + screen_id)[0].style.display = 'none';
+//                $('#chat_' + screen_id)[0].style.height = '233px';
+//            } else {
+//                $('#emoji-' + screen_id)[0].style.display = 'block';
+//                $('#chat_' + screen_id)[0].style.height = '120px';
+//            }
+//        });
+//
+//        $('#emoji_smile_' + screen_id).on('click', function() {
+//            $(this).addClass('emoji_icon_active');
+//            $('#smile_' + screen_id)[0].style.display = "block";
+//            $('#animal_' + screen_id)[0].style.display = "none";
+//            $('#emoji_animal_' + screen_id).removeClass('emoji_icon_active');
+//        });
+//
+//        $('#emoji_animal_' + screen_id).on('click', function() {
+//            $(this).addClass('emoji_icon_active');
+//            $('#animal_' + screen_id)[0].style.display = "block";
+//            $('#smile_' + screen_id)[0].style.display = "none";
+//            $('#emoji_smile_' + screen_id).removeClass('emoji_icon_active');
+//        });
+//
+//        $('#animal_' + screen_id + ' .page_main_emoji_icon').on('click', function() {
+//            $("#input_chat_" + screen_id).focus();
+//            pasteHtmlAtCaret("input_chat_" + screen_id, $(this)[0].children[0].src);
+//
+//        });
+//
+//        $('#smile_' + screen_id + ' .page_main_emoji_icon').on('click', function() {
+//            $("#input_chat_" + screen_id).focus();
+//            pasteHtmlAtCaret("input_chat_" + screen_id, $(this)[0].children[0].src);
+//        });
+//
+//        $('#input_chat_' + screen_id).on('click', function() {
+//            $('#emoji-' + screen_id)[0].style.display = 'none';
+//            $('#chat_' + screen_id)[0].style.height = '233px';
+//        });
 
         var timer = null;
         //Send message
@@ -2313,54 +2336,57 @@ function pasteHtmlAtCaret(divId, image_url) {
     }
 }
 
+function pasteHtmlAtCaretGif(divId, image_url) {
+    var html = '<img class="" src=' + image_url + ' style="width: 70px;">';
+    var txtarea = document.getElementById(divId);
+    var sel, range;
+    if (window.getSelection) {
+        // IE9 and non-IE
+        sel = window.getSelection();
+        if (sel.getRangeAt && sel.rangeCount) {
+            range = sel.getRangeAt(0);
+            range.deleteContents();
+
+            // Range.createContextualFragment() would be useful here but is
+            // non-standard and not supported in all browsers (IE9, for one)
+            var el = document.createElement("div");
+            el.innerHTML = html;
+            var frag = document.createDocumentFragment(), node, lastNode;
+            while ( (node = el.firstChild) ) {
+                lastNode = frag.appendChild(node);
+            }
+            range.insertNode(frag);
+
+            // Preserve the selection
+            if (lastNode) {
+                range = range.cloneRange();
+                range.setStartAfter(lastNode);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+    } else if (document.selection && document.selection.type != "Control") {
+        // IE < 9
+        document.selection.createRange().pasteHTML(html);
+    }
+}
+
 function scroller(screen_id) {
-    var scrollBarWidths = 40;
 
     var widthOfList = function () {
-        var itemsWidth = 0;
-        $('#tab_' + screen_id + ' a').length * (260/5);
-//        $('#tab_' + screen_id + ' a').each(function () {
-//            var itemWidth = $(this).outerWidth();
-//            console.log('****width******');
-//            console.log($(this).width());
-//            console.log('****width******');
-//            console.log(itemWidth);
-//            itemsWidth += itemWidth;
-//        });
-        console.log($('#tab_' + screen_id + ' a').length * (260/5));
         return $('#tab_' + screen_id + ' a').length * (260/5);
     };
 
-    var widthOfHidden = function () {
-        console.log(($('#emoji-' + screen_id).outerWidth()));
-        console.log(widthOfList());
-        console.log(getLeftPosi());
-        var test = (($('#emoji-' + screen_id).outerWidth()) - widthOfList() - getLeftPosi()) - scrollBarWidths;
-        console.log('======');
-        console.log(test);
-//        return (($('#emoji-' + screen_id).outerWidth()) - widthOfList() - getLeftPosi()) - scrollBarWidths;
-        return test
-    };
-
     var getLeftPosi = function () {
-        var left_test = $('#tab_' + screen_id).position().left;
-        console.log('left test ====');
-        console.log(left_test);
-        return left_test;
-//        return $('#tab_' + screen_id).position().left;
+        return $('#tab_' + screen_id).position().left;
     };
 
     var getPosiIndex = function () {
-        var left_test = $('#tab_' + screen_id + ' a').attr('data-idx');
-        console.log('left test ====');
-        console.log(left_test);
-        return left_test;
-//        return $('#tab_' + screen_id).position().left;
+        return $('#tab_' + screen_id + ' a').attr('data-idx');
     };
 
     var reAdjust = function () {
-        console.log(($('#emoji-' + screen_id).outerWidth()));
-        console.log(widthOfList());
         if (($('#emoji-' + screen_id).outerWidth()) < widthOfList()) {
             $('#scroller-right_' + screen_id).show();
         }
@@ -2368,14 +2394,6 @@ function scroller(screen_id) {
             $('#scroller-left_' + screen_id).hide();
         }
 
-        console.log(getPosiIndex());
-//        if (getPosiIndex() > 260) {
-//            $('#scroller-left_' + screen_id).show();
-//        }
-//        else {
-////            $('#scroller-right_' + screen_id).animate({left: "-=" + getLeftPosi() + "px"}, 'slow');
-//            $('#scroller-right_' + screen_id).hide();
-//        }
         if (getPosiIndex() < 1) {
             $('#scroller-right_' + screen_id).show();
             $('#tab_' + screen_id + ' a').each(function () {
@@ -2387,7 +2405,6 @@ function scroller(screen_id) {
 
         else {
             if (getPosiIndex() > 0 && getPosiIndex() < 4) {
-//            $('#scroller-right_' + screen_id).animate({left: "-=" + getLeftPosi() + "px"}, 'slow');
                 $('#scroller-left_' + screen_id).show();
                 $('#scroller-right_' + screen_id).show();
             }
@@ -2396,27 +2413,158 @@ function scroller(screen_id) {
 
     reAdjust();
 
-//    $(window).on('resize',function(e){
-//        reAdjust();
-//    });
-
     $('#scroller-right_' + screen_id).click(function () {
-        $('#tab_' + screen_id + ' a').length;
+        var last_visible = $('#tab_' + screen_id).find('a:visible:last');
+        var rightest = parseInt($(last_visible).attr('data-idx'));
 
-//        $('#tab_' + screen_id + ' a').find('style')
-        $('#scroller-left_' + screen_id).fadeIn('slow');
-        $('#scroller-right_' + screen_id).fadeOut('slow');
+        var len_emoji = $('#tab_' + screen_id + ' a').length;
+        if (rightest > len_emoji - 5) {
+            var index_i = 0;
+            $('#tab_' + screen_id + ' a').each(function () {
+                if (index_i < len_emoji - 5) {
+                    $(this).attr('style', 'display: none');
+                } else {
+                    $(this).attr('style', 'display: block');
+                }
+                index_i++;
+            });
 
+        } else {
+            var index_i = 0;
+            $('#tab_' + screen_id + ' a').each(function () {
+                if (index_i <= rightest) {
+                    $(this).attr('style', 'display: none');
+                } else {
+                    if (index_i > rightest + 5) {
+                        $(this).attr('style', 'display: none');
+                    } else {
+                        $(this).attr('style', 'display: block');
+                    }
+                }
+                index_i++;
+            });
+        }
 
-//        $('#emoji-' + screen_id).animate({left: "+=" + widthOfHidden() + "px"}, 'slow', function () {
-//        });
+        var right_visible = $('#tab_' + screen_id).find('a:visible:last');
+        var left_visible = $('#tab_' + screen_id).find('a:visible:first');
+        var rightest = parseInt($(right_visible).attr('data-idx'));
+        var leftest = parseInt($(left_visible).attr('data-idx'));
+        if (rightest >= len_emoji - 1) {
+            $('#scroller-right_' + screen_id).fadeOut('slow');
+        } else {
+            $('#scroller-right_' + screen_id).fadeIn('slow');
+        }
+        if (leftest == 0) {
+            $('#scroller-left_' + screen_id).fadeOut('slow');
+        } else {
+            $('#scroller-left_' + screen_id).fadeIn('slow');
+        }
     });
 
     $('#scroller-left_' + screen_id).click(function () {
-        $('#scroller-right_' + screen_id).fadeIn('slow');
-        $('#scroller-left_' + screen_id).fadeOut('slow');
+        var first_visible = $('#tab_' + screen_id).find('a:visible:first');
+        var leftest = parseInt($(first_visible).attr('data-idx'));
 
-//        $('#emoji-' + screen_id).animate({left: "-=" + getLeftPosi() + "px"}, 'slow', function () {
-//        });
+        var len_emoji = $('#tab_' + screen_id + ' a').length;
+        if(leftest <= 4) {
+            for(var index_i = len_emoji - 1; index_i >= 0; index_i--) {
+                if (index_i > 4) {
+                    $('#tab_' + screen_id + ' a:eq(' + index_i + ')').attr('style', 'display: none');
+                } else {
+                    $('#tab_' + screen_id + ' a:eq(' + index_i + ')').attr('style', 'display: block');
+                }
+            }
+
+        } else {
+            var index_left = leftest - 5;
+            for(var index_i = len_emoji - 1; index_i >= 0; index_i--) {
+                if (index_i < index_left) {
+                    $('#tab_' + screen_id + ' a:eq(' + index_i + ')').attr('style', 'display: none');
+                } else {
+                    if ((index_i >= index_left) && (index_i <= index_left + 4)) {
+                        $('#tab_' + screen_id + ' a:eq(' + index_i + ')').attr('style', 'display: block');
+                    } else {
+                        $('#tab_' + screen_id + ' a:eq(' + index_i + ')').attr('style', 'display: none');
+                    }
+                }
+            }
+        }
+        var right_visible = $('#tab_' + screen_id).find('a:visible:last');
+        var left_visible = $('#tab_' + screen_id).find('a:visible:first');
+        var rightest = parseInt($(right_visible).attr('data-idx'));
+        var leftest = parseInt($(left_visible).attr('data-idx'));
+        if (leftest == 0) {
+            $('#scroller-left_' + screen_id).fadeOut('slow');
+        } else {
+            $('#scroller-left_' + screen_id).fadeIn('slow');
+        }
+
+        if (rightest >= len_emoji - 1) {
+            $('#scroller-right_' + screen_id).fadeOut('slow');
+        } else {
+            $('#scroller-right_' + screen_id).fadeIn('slow');
+        }
+    });
+}
+
+function initEventEmoji(screen_id) {
+    $('#show_emotional_' + screen_id).on('click', function () {
+        if ($('#emoji-' + screen_id)[0].style.display == 'block') {
+            $('#emoji-' + screen_id)[0].style.display = 'none';
+            $('#chat_' + screen_id)[0].style.height = '233px';
+        } else {
+            $('#emoji-' + screen_id)[0].style.display = 'block';
+            $('#chat_' + screen_id)[0].style.height = '120px';
+        }
+    });
+
+    $('#emoji_smile_' + screen_id).on('click', function () {
+        $(this).addClass('emoji_icon_active');
+        $('#smile_' + screen_id)[0].style.display = "block";
+        $('#animal_' + screen_id)[0].style.display = "none";
+        $('#custom_' + screen_id)[0].style.display = "none";
+
+        $('#emoji_animal_' + screen_id).removeClass('emoji_icon_active');
+        $('#emoji_custom_' + screen_id).removeClass('emoji_icon_active');
+    });
+
+    $('#emoji_animal_' + screen_id).on('click', function () {
+        $(this).addClass('emoji_icon_active');
+        $('#animal_' + screen_id)[0].style.display = "block";
+        $('#smile_' + screen_id)[0].style.display = "none";
+        $('#custom_' + screen_id)[0].style.display = "none";
+
+        $('#emoji_smile_' + screen_id).removeClass('emoji_icon_active');
+        $('#emoji_custom_' + screen_id).removeClass('emoji_icon_active');
+    });
+
+    $('#emoji_custom_' + screen_id).on('click', function () {
+        $(this).addClass('emoji_icon_active');
+        $('#custom_' + screen_id)[0].style.display = "block";
+        $('#smile_' + screen_id)[0].style.display = "none";
+        $('#animal_' + screen_id)[0].style.display = "none";
+
+        $('#emoji_smile_' + screen_id).removeClass('emoji_icon_active');
+        $('#emoji_animal_' + screen_id).removeClass('emoji_icon_active');
+    });
+
+    $('#smile_' + screen_id + ' .page_main_emoji_icon').on('click', function () {
+        $("#input_chat_" + screen_id).focus();
+        pasteHtmlAtCaret("input_chat_" + screen_id, $(this)[0].children[0].src);
+    });
+
+    $('#animal_' + screen_id + ' .page_main_emoji_icon').on('click', function () {
+        $("#input_chat_" + screen_id).focus();
+        pasteHtmlAtCaret("input_chat_" + screen_id, $(this)[0].children[0].src);
+    });
+
+    $('#custom_' + screen_id + ' .page_main_emoji_icon').on('click', function () {
+        $("#input_chat_" + screen_id).focus();
+        pasteHtmlAtCaretGif("input_chat_" + screen_id, $(this)[0].children[0].src);
+    });
+
+    $('#input_chat_' + screen_id).on('click', function () {
+        $('#emoji-' + screen_id)[0].style.display = 'none';
+        $('#chat_' + screen_id)[0].style.height = '233px';
     });
 }
