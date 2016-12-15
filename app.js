@@ -35,6 +35,7 @@ var Datastore = require('@google-cloud/datastore');
 var datastore = Datastore();
 
 
+
 //Config session
 //TODO generate secret for Node session instead of sateraito_secret
 var cookieParser = require('cookie-parser');
@@ -448,7 +449,15 @@ app.get("/main-space", function (req, res) {
 
         //Query logged in user info from UserInfo table
         datastore.runQuery(user_query, function (err, user_entities) {
-            var user_conversation_list = user_entities[0].data.conversation_list;
+            var user_conversation_list = [];
+            var user_conversation_list_array = user_entities[0].data.conversation_list;
+            if(user_conversation_list_array.length > 0){
+                user_conversation_list_array.forEach(function (val,i) {
+                    user_conversation_list.push(val.conversation_id)
+                })
+            }
+
+
             var user_friend_list = user_entities[0].data.friend_list;
             if (err) {
                 return res.json({"status": "db error", "error": "invalid account query error"});
@@ -468,9 +477,17 @@ app.get("/main-space", function (req, res) {
                         conversation_entities.forEach(function (val,i) {
                             if(user_conversation_list.indexOf(val.data.conversation_id) != -1){
                                 var con_info = {};
+                                var matched_conversation = getArrayConId(val.data.conversation_id, user_conversation_list_array)
+                                if(val.data.conversation_image_url){
+                                    con_info.conversation_image_url = val.data.conversation_image_url;
+                                }else{
+                                    con_info.conversation_image_url = "image/avt-default-1.png";
+                                }
+
                                 con_info.conversation_title = val.data.conversation_title;
-                                con_info.conversation_image_url = val.data.conversation_image_url;
                                 con_info.conversation_id = val.data.conversation_id;
+                                con_info.index = matched_conversation[0].index;
+
 
                                 var message_query = datastore.createQuery('message_info')
                                     .filter('message_conversation_id', '=' ,val.data.conversation_id)
@@ -483,9 +500,17 @@ app.get("/main-space", function (req, res) {
 
                                     utilities.sortByKey(message_array,'created_date').reverse();
 
+                                    var is_read_by = message_array[0].is_read_by;
+                                    if(is_read_by.indexOf(req.session.user_email) == -1){
+                                        con_info.is_read = false;
+                                    }else{
+                                        con_info.is_read = true;
+                                    }
+
                                     con_info.last_message = message_array[0].content;
                                     con_info.last_message_id = message_array[0].message_id;
                                     con_info.is_read_by_user_email = message_array[0].is_read_by;
+                                    con_info.is_text_message = message_array[0].is_text_message;
                                     con_info.sender_user_name = message_array[0].sender_name;
                                     con_info.sender_image_url = message_array[0].sender_image_url;
                                     con_info.last_message_created_date = message_array[0].created_date;
@@ -506,6 +531,7 @@ app.get("/main-space", function (req, res) {
                                                     user_info.user_name = val.data.user_name;
                                                     user_info.user_email = val.data.email;
                                                     user_info.is_online = val.data.is_online;
+                                                    user_info.user_id = val.data.user_id;
                                                     if (val.data.image_url) {
                                                         user_info.image_url = val.data.image_url;
                                                     } else {
@@ -516,6 +542,8 @@ app.get("/main-space", function (req, res) {
                                                 }
 
                                             });
+
+                                            user_conversation_info = sortByKey(user_conversation_info,"index")
 
                                             //Render the page after queries is completed
                                             getExternalIp(function (externalIp) {
@@ -623,6 +651,7 @@ app.post("/send-a-message", jsonParser, function (req, res) {
     var message_text = req.body.message_text;
     var user_conversation_list = req.body.user_conversation_list.split(",");
     var message_id = req.body.message_id;
+    var is_text_message = req.body.is_text_message;
 
 
     //If this is a new conversation
@@ -655,25 +684,45 @@ app.post("/send-a-message", jsonParser, function (req, res) {
         var query = datastore.createQuery('UserInfo')
             .filter('email', '=', sender_email);
         datastore.runQuery(query, function (sender_err, sender_entities) {
-            var current_conversation_list = sender_entities[0].data.conversation_list;
-            if (current_conversation_list.indexOf(conversation_id) == -1) {
-                //Update sender conversation list
-                current_conversation_list.push(conversation_id);
-                var new_user = sender_entities[0].data;
-                new_user.conversation_list = current_conversation_list;
-
-                datastore.update({
-                    key: sender_entities[0].key,
-                    data: new_user
-                }, function (update_err) {
-                    if (update_err) {
-                        res.json({"status": "fail", "message": "update conversation list fail"});
-                        // Task updated successfully.
-                    } else {
-
+            var sender_conversation_list = sender_entities[0].data.conversation_list;
+            var new_sender_conversation_list = []
+            //Update conversation index
+            if(!checkArrayConId(conversation_id,sender_conversation_list) ){
+                //Add new conversation info first
+                var new_conversation_json = {
+                    conversation_id: conversation_id,
+                    index: 0
+                }
+                new_sender_conversation_list.push(new_conversation_json);
+                //Then update current conversation index
+                sender_conversation_list.forEach(function (value,index) {
+                    var new_index = value.index + 1;
+                    var conversation_json = {
+                        conversation_id: value.conversation_id,
+                        index: new_index
                     }
-                });
+                    new_sender_conversation_list.push(conversation_json)
+
+                })
+            }else{
+                new_sender_conversation_list = sender_conversation_list
+
             }
+
+            var new_user = sender_entities[0].data;
+            new_user.conversation_list = new_sender_conversation_list;
+
+            datastore.update({
+                key: sender_entities[0].key,
+                data: new_user
+            }, function (update_err) {
+                if (update_err) {
+                    res.json({"status": "fail", "message": "update conversation list fail"});
+                    // Task updated successfully.
+                } else {
+
+                }
+            });
 
         });
 
@@ -684,21 +733,42 @@ app.post("/send-a-message", jsonParser, function (req, res) {
             entities_receiver.forEach(function (val,i) {
                 if(receiver_array.indexOf(val.data.email) != -1){
                     var receiver_conversation_list = val.data.conversation_list;
-                    if(receiver_conversation_list.indexOf(conversation_id) == -1){
-                        receiver_conversation_list.push(conversation_id);
+                    var new_receiver_conversation_list = []
+                    //Update conversation index
+                    if(!checkArrayConId(conversation_id,receiver_conversation_list) ){
+                        //Add new conversation info first
+                        var new_conversation_json = {
+                            conversation_id: conversation_id,
+                            index: 0
+                        }
+                        new_receiver_conversation_list.push(new_conversation_json);
+                        //Then update current conversation index
+                        receiver_conversation_list.forEach(function (value,index) {
+                            var new_index = value.index + 1;
+                            var conversation_json = {
+                                conversation_id: value.conversation_id,
+                                index: new_index
+                            }
+                            new_receiver_conversation_list.push(conversation_json)
 
-                        var new_user_receiver = val.data;
-                        new_user_receiver.conversation_list = receiver_conversation_list;
-
-                        //Update user friend list
-                        datastore.update({
-                            key:val.key,
-                            data: new_user_receiver
-                        }, function (update_receiver_err) {
-
-                        });
+                        })
+                    }else{
+                        new_receiver_conversation_list = receiver_conversation_list
 
                     }
+
+                    var new_user_receiver = val.data;
+                    new_user_receiver.conversation_list = new_receiver_conversation_list;
+
+                    //Update user friend list
+                    datastore.update({
+                        key:val.key,
+                        data: new_user_receiver
+                    }, function (update_receiver_err) {
+
+                    });
+
+
                 }
 
             })
@@ -719,6 +789,7 @@ app.post("/send-a-message", jsonParser, function (req, res) {
         sender_image_url: sender_image_url,
         receiver: receiver.split(","),
         is_read_by: sender_email.split(","),
+        is_text_message: is_text_message,
         created_date: new Date()
     };
 
@@ -764,6 +835,7 @@ app.post("/continue-conversation", jsonParser, function (req, res) {
                     message_info.sender = val.data.sender_email;
                     message_info.sender_user_image_url = val.data.sender_image_url;
                     message_info.created_date = val.data.created_date;
+                    message_info.is_text_message = val.data.is_text_message;
                     message_list.push(message_info)
                 });
 
@@ -1168,7 +1240,7 @@ app.post("/update-conversation-member", jsonParser, function (req, res) {
     var new_member_array = new_receiver_email.split(",");
     new_member_array.push(do_update_user_email);
 
-    //Remove login_user_email from do_requesting_user_list
+
     var conversation_query = datastore.createQuery('Conversation')
         .filter('conversation_id', '=', conversation_id);
     datastore.runQuery(conversation_query, function (conversation_err, conversation) {
@@ -1185,15 +1257,11 @@ app.post("/update-conversation-member", jsonParser, function (req, res) {
                     res.json({"status": "fail", "message": "update conversation list fail"});
                     // Task updated successfully.
                 } else {
+
                     res.json({
                         status: "success"
                     });
                 }
-            });
-
-        }else{
-            res.json({
-                status: "success"
             });
 
         }
@@ -1202,6 +1270,85 @@ app.post("/update-conversation-member", jsonParser, function (req, res) {
 
     });
 });
+
+
+app.post("/add-user-conversation-list", jsonParser, function (req, res) {
+    var user_email = req.body.user_email;
+    var conversation_id = req.body.conversation_id;
+
+    //Query user Info from datastore
+    var user_query = datastore.createQuery('UserInfo')
+        .filter('email', '=', user_email);
+    datastore.runQuery(user_query, function (user_err, user) {
+
+        //Update user profile
+        var new_user_info = user[0].data;
+        var current_conversation_list = new_user_info.conversation_list
+        var new_conversation_info = {
+            index: new_user_info.conversation_list.length,
+            conversation_id: conversation_id
+        }
+        current_conversation_list.push(new_conversation_info)
+        new_user_info.conversation_list = current_conversation_list
+
+        datastore.update({
+            key: user[0].key,
+            data: new_user_info
+        }, function (update_err) {
+            if (update_err) {
+                res.json({"status": "fail", "message": "update conversation list fail"});
+                // Task updated successfully.
+            } else {
+                res.json({
+                    status: "success"
+                })
+
+            }
+        });
+    });
+
+});
+
+app.post("/remove-user-conversation-list", jsonParser, function (req, res) {
+    var user_email = req.body.user_email;
+    var conversation_id = req.body.conversation_id;
+
+    //Query user Info from datastore
+    var user_query = datastore.createQuery('UserInfo')
+        .filter('email', '=', user_email);
+    datastore.runQuery(user_query, function (user_err, user) {
+
+        //Update user profile
+        var new_user_info = user[0].data;
+        var current_conversation_list = new_user_info.conversation_list
+        var new_conversation_list = []
+        current_conversation_list.forEach(function (val,i) {
+            if(val.conversation_id != conversation_id){
+                new_conversation_list.push(val)
+            }
+
+        })
+        new_user_info.conversation_list = new_conversation_list
+
+        datastore.update({
+            key: user[0].key,
+            data: new_user_info
+        }, function (update_err) {
+            if (update_err) {
+                res.json({"status": "fail", "message": "update conversation list fail"});
+                // Task updated successfully.
+            } else {
+                res.json({
+                    status: "success"
+                })
+
+            }
+        });
+    });
+
+});
+
+
 
 
 app.post("/do-edit-user-profile", jsonParser, function (req, res) {
@@ -1382,6 +1529,46 @@ app.post('/upload-chat-image', multer.single('chat_image'), function (req, res, 
             bucket.name, blob.name);
         res.json({
             chat_image_url: publicUrl,
+            chat_image_file_name: blob.name
+        })
+
+    });
+
+    blobStream.end(req.file.buffer);
+});
+
+app.post('/paste-upload-chat-image', multer.single('chat_image'), function (req, res, next) {
+    if (!req.file) {
+        res.json({
+            "status": "not ok",
+            "message": "アップロードファイルはありません！"
+        })
+    }
+
+    // if (req.file) {
+    //     res.json({
+    //         "status": "ok",
+    //         "message": "OK",
+    //         "file": req.file
+    //     })
+    // }
+
+    // Create a new blob in the bucket and upload the file data.
+    var blob = bucket.file(req.file.originalname);
+    var blobStream = blob.createWriteStream();
+
+    blobStream.on('error', function (err) {
+        return next(err);
+    });
+
+    blobStream.on('finish', function () {
+
+        // The public URL can be used to directly access the file via HTTP.
+        var publicUrl = format(
+            'http://storage.googleapis.com/%s/%s',
+            bucket.name, blob.name);
+        res.json({
+            chat_image_url: publicUrl,
             chat_image_file_name: blob.name,
             status : "uploaded success"
         })
@@ -1407,6 +1594,7 @@ app.post('/delete-uploaded-chat-image', jsonParser, function (req, res, next) {
 
 });
 
+
 app.get("/render-image", function (req, res) {
 
     var chat_image_url = req.query.image_url;
@@ -1416,6 +1604,41 @@ app.get("/render-image", function (req, res) {
     });
 
 });
+
+
+app.post("/update-conversation-index", jsonParser, function (req, res) {
+    var index_array = JSON.parse(req.body.index_array);
+    var user_email = req.body.user_email;
+
+    //Query user Info from datastore
+    var user_query = datastore.createQuery('UserInfo')
+        .filter('email', '=', user_email);
+    datastore.runQuery(user_query, function (user_err, user) {
+        //Update new conversation index
+        var new_user_info = user[0].data;
+        new_user_info.conversation_list = index_array;
+
+        datastore.update({
+            key: user[0].key,
+            data: new_user_info
+        }, function (update_err) {
+            if (update_err) {
+                res.json({"status": "fail", "message": "update conversation list fail"});
+                // Task updated successfully.
+            } else {
+                res.json({
+                    status: "success"
+                })
+
+            }
+        });
+
+
+    });
+
+
+});
+
 
 
 
@@ -1441,61 +1664,95 @@ function getExternalIp (cb) {
     });
 }
 
+function checkArrayConId(conversation_id,conversation_list) {
+    var obj = conversation_list.filter(function ( obj ) {
+        return obj.conversation_id === conversation_id;
+    })
+
+    if(obj.length > 0){
+        return true
+    }else{
+        return false
+    }
+
+}
+
+
+function getArrayConId(conversation_id,conversation_list) {
+    var obj = conversation_list.filter(function ( obj ) {
+        return obj.conversation_id === conversation_id;
+    })
+
+    return obj
+
+}
+
+//Sort array by key with ascending order by date
+function sortByKey(array, key) {
+    return array.sort(function(a, b) {
+        var x = a[key]; var y = b[key];
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
+};
+
 // setup new webserver for socket.io listening on 65080
 var app_chat = require('express')();
 var server1 = require('http').Server(app_chat);
-var io = require('socket.io')(server1);
+//enable the Cross-Origin Requests
+var io = require('socket.io')(server1, { origins: '*:*'});
 server1.listen(65080);
 
 var users = {};
 
 
-io.on('connection', function (socket) {
+io.sockets.on('connection', function (socket) {
 
     //TODO send the message to only conversation's member
-
-    // socket.on("send a message", function (data) {
-    //     // var room = "room numner 1";
-    //     // socket.join(room);
-    //     io.sockets.emit("notify a new message", {
-    //         sender: data.sender,
-    //         sender_user_name: data.sender_user_name,
-    //         sender_user_image_url: data.sender_user_image_url,
-    //         receiver: data.receiver,
-    //         message_text: data.message_text,
-    //         message_id: data.message_id,
-    //         conversation_id: data.conversation_id,
-    //         conversation_title: data.conversation_title
-    //
-    //     })
-    //
-    // });
 
     socket.on("send a message", function (data) {
         // var room = "room numner 1";
         // socket.join(room);
-        var all_user_receive = data.receiver.split(',');
-        all_user_receive.push(data.sender);
-        var value = [];
-        for (var key in users) {
-            value.push(key);
-        }
+        io.sockets.emit("notify a new message", {
+            sender: data.sender,
+            sender_user_name: data.sender_user_name,
+            sender_user_image_url: data.sender_user_image_url,
+            receiver: data.receiver,
+            message_text: data.message_text,
+            message_id: data.message_id,
+            conversation_id: data.conversation_id,
+            conversation_title: data.conversation_title,
+            is_text_message: data.is_text_message
 
-        all_user_receive.forEach(function (val) {
-            if (value.indexOf(val) !== -1) {
-                io.sockets.connected[users[val]].emit("notify a new message", {
-                    sender: data.sender,
-                    sender_user_name: data.sender_user_name,
-                    sender_user_image_url: data.sender_user_image_url,
-                    receiver: data.receiver,
-                    message_text: data.message_text,
-                    message_id: data.message_id,
-                    conversation_id: data.conversation_id,
-                    conversation_title: data.conversation_title
-                });
-            }
-        });
+        })
+
     });
+
+    // socket.on("send a message", function (data) {
+    //     // var room = "room numner 1";
+    //     // socket.join(room);
+    //     var all_user_receive = data.receiver.split(',');
+    //     all_user_receive.push(data.sender);
+    //     var value = [];
+    //     for (var key in users) {
+    //         value.push(key);
+    //     }
+    //
+    //     all_user_receive.forEach(function (val) {
+    //         if (value.indexOf(val) !== -1) {
+    //             io.sockets.connected[users[val]].emit("notify a new message", {
+    //                 sender: data.sender,
+    //                 sender_user_name: data.sender_user_name,
+    //                 sender_user_image_url: data.sender_user_image_url,
+    //                 receiver: data.receiver,
+    //                 message_text: data.message_text,
+    //                 message_id: data.message_id,
+    //                 conversation_id: data.conversation_id,
+    //                 conversation_title: data.conversation_title,
+    //                 is_text_message: data.is_text_message
+    //             });
+    //         }
+    //     });
+    // });
 
     socket.on("typing",function (data) {
         io.sockets.emit("notify typing",{
@@ -1551,6 +1808,9 @@ io.on('connection', function (socket) {
     socket.on("check user", function (data) {
         socket.nick_name = data.email;
         users[data.email] = socket.id;
+        // socket.emit("check ok",{
+        //     "message": "ok"
+        // })
     });
 
     socket.on('disconnect', function(){

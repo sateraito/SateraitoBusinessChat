@@ -23,6 +23,8 @@
     "express-session": "latest",
     "gstore-node": "^0.6.4",
     "request": "^2.69.0",
-    "socket.io": "*"
+    "socket.io": "*",
+    "formidable": "^1.0.17",
+    "ng-file-upload": "*"
   }
 }

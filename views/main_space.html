@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="business-chat">
 <head>
     <meta charset="UTF-8">
     <title>チャット画面</title>
@@ -17,6 +17,12 @@
 
     <link rel="stylesheet" href="css/jquery.loadmask.css" media="all" rel="stylesheet" type="text/css"/>
     <script src="js/jquery.loadmask.min.js" type="text/javascript"></script>
+
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script><!-- load angular -->
+    <script src="js/ng-file-upload-shim.min.js"></script> <!-- for no html5 browsers support -->
+    <script src="js/ng-file-upload.min.js"></script>
 
 
     <script src="js/user.js"></script>
@@ -41,7 +47,7 @@
 
 </head>
 
-<body onload="mainSpaceLoad()">
+<body onload="mainSpaceLoad()" ng-controller="ChatController">
 <div id="start_chat_dialog" title="新しいチャットを開始する">
     <div class="new_chat_header">
         <p class="new_chat_header_title">新しいチャットを開始する</p>
@@ -79,7 +85,7 @@
         <div class="new_chat_row_4">
             <div class="new_chat_footer">
                 <a href="javascript:void(0)" class="new_chat_cancel_button" onclick="hideNewChatScreen()">キャンセル</a>
-                <a href="javascript:void(0)" class="new_chat_start_button" onclick="startNewChat()">チャットを開始する</a>
+                <a href="javascript:void(0)" class="new_chat_start_button" ng-click="startNewChat()">チャットを開始する</a>
 
             </div>
 
@@ -90,7 +96,7 @@
 
 <div class="page_container">
     <div class="page_header">
-        <p class="page_title">サテライトビジネシチャット</p>
+        <p class="page_title">サテライトオフィス・ビジネス・チャット</p>
         <div class="page_list">
             <ul class="page_main_list">
                 <li><a href="javascript:void(0)" id="con_list_icon" class="page_main_list_icon active_tab"><img src="image/conversation-icon-active.png"></a></li>
@@ -135,13 +141,67 @@
         <div class="page_main_left_wrapper">
             <div class="page_main_left_body">
                 <ul class="user_friend_list page_main_left_body_list">
+                    <li ng-if="user_friend_length != 0" ng-repeat="user in user_friend" class="user_friend_li">
+                        <a href="javascript:void(0)" class="user_friend_email" id="escapeEmailString('{{user.user_email}}')" title="{{user.user_name}}" data-user-email="{{user.user_email" ng-click="start_user_conversation(user.user_email)">
+                            <img src="{{user.image_url}}">
+                            <p>
+                                <span style='color: #3e3e3e' class='conversation_title'>{{user.user_name}}</span><br>
+                                <span style='color: #a7a7a7; font-size: 12px' class='conversation_lastest_message'>{{user.user_email}}</span>
 
+                            </p>
 
+                            <div class='online_status_icon' ng-style="{ 'background' : ({{user.is_online}}) ? '#39b54a' : '#e2e2e2' }"></div>
+
+                            <a href='javascript:void(0)' class='glyphicon glyphicon-option-vertical user_friend_action_button'></a>
+
+                        </a>
+                    </li>
+                    <p class="empty_list" ng-if="user_friend_length == 0">友達一覧は空です</p>
                 </ul>
+
                 <ul class="user_conversation_list page_main_left_body_list">
+                    <li ng-style="{ 'background' : ({{con.is_read}}) ? 'initial' : 'white' }" ng-if="conversation_length != 0" ng-repeat="con in conversation" class="user_conversation_li" data-is-read-status="{{con.is_read ? 'yes' : 'no'}}">
+                        <a href="javascript:void(0)" class="user_conversation_id" data-last-message-id="{{con.last_message_id}}" id="{{con.conversation_id}}" ng-click="continue_conversation(con.conversation_id)">
+                            <div class='conversation_image_wrapper'>
+                                <img src="{{con.conversation_image_url}}">
+                            </div>
+                            <p ng-style="{ 'font-weight' : ({{con.is_read}}) ? 'normal' : 'bold' }">
+                                <span style='color: #3e3e3e' class='conversation_title'>{{con.conversation_title}}</span><br>
+                                <span style='color: #a7a7a7; font-size: 12px' class='conversation_lastest_message'>
+                                    <span class='lastest_message_sender'>{{con.sender_user_name}}:  </span>
+                                    <!--in case of text message-->
+                                    <span ng-if="con.is_text_message == 'yes'">{{con.last_message}}</span>
+                                    <!--In case of image message-->
+                                    <span ng-if="con.is_text_message == 'no'">写真送信済み</span>
+
+                                </span>
+                            </p>
+
+                        </a>
+                        <a href="javascript:void(0)" class="glyphicon glyphicon-option-vertical user_conversation_action_button" ng-click="show_conversation_option(con.conversation_id)"></a>
+                        <ul class='conversation_option'>
+                            <li>
+                                <a href="javascript:void(0)" ng-click="addMemberToConversation(con.conversation_id)">メンバーを追加する</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" ng-click="renameConversation(con.conversation_id)">チャットタイトルを編集する</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" ng-click="deleteConversation(con.conversation_id)">スレッドをアーカイブする</a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" ng-click="markConversationAsRead(con.conversation_id)">既読をする</a>
+                            </li>
+                        </ul>
+
+
+                    </li>
+                    <p class="empty_list" ng-if="conversation_length == 0">チャット一覧は空です！</p>
 
 
                 </ul>
+
+
 
 
             </div>
@@ -158,15 +218,145 @@
 
         </div>
         <div class="page_main_right_wrapper">
+            <div class="chat_screen_detail" id="{{chat_box.screen_id}}"  ng-repeat="chat_box in templates">
+                <div class="chat_screen_header">
+                    <div class="chat_screen_header_text">
+                        <img src="{{chat_box.thread_image}}">
+                        <p class="chat_screen_friend">{{chat_box.conversation_title}}</p>
+                    </div>
+                    <div class="chat_screen_header_button">
+                        <a href="javascript:void(0)" class="minimize_chat_screen" ng-click="minimize_chat_screen(chat_box.screen_id)">
+                            <img src="image/minimum-box-chat.png">
+                        </a>
+                        <a href="javascript:void(0)" class="maximize_chat_screen">
+                            <img src="image/new-finder-boxchat.png">
+                        </a>
+                        <a href="javascript:void(0)" class="close_chat_screen" ng-click="close_chat_screen(chat_box.screen_id)">
+                            <img src="image/close-icon.png">
+                        </a>
+                    </div>
+                </div>
+                <div class="chat_screen_header_2">
+                    <a class="add_user_chat_screen" href="javascript:void(0)" ng-click="show_add_chat_member(chat_box.group_member_number,chat_box.conversation_id)" ng-if="chat_box.group_member_number == 1">
+                        <img src="image/add-people-normal.png">
+                    </a>
+
+                    <a class="add_user_chat_screen" href="javascript:void(0)" ng-click="show_add_chat_member(chat_box.group_member_number, chat_box.conversation_id)" ng-if="chat_box.group_member_number != 1">
+                        <img src="image/member-boxchat-normal.png">
+                        <span class="chat_group_number">{{chat_box.group_member_number}}</span>
+                    </a>
+
+                    <a class="chat_screen_option" href="javascript:void(0)">
+                        <img src="image/setup-boxchat-active.png">
+                    </a>
+                </div>
+
+                <div class="chat_screen_body" data-conversation-id="{{chat_box.conversation_id}}" ngf-drop="UploadImageChat($files, chat_box.conversation_id,true)" ngf-drag-over-class="'dragover'" ngf-pattern="'image/*,application/pdf'" ngf-multiple="true">
+                    <div ng-if="chat_box.message_array_length != 0" ng-repeat="message in chat_box.message_array">
+                        <!--if(data.sender == user_email){-->
+                        <div class='receiver_chat_message_wrapper' id="{{message.message_id}}" ng-if="message.sender == user_email">
+                            <div class='chat_message_option'>
+                                <a href='javascript:void(0)' class='message_favorite_button' onclick="add_remove_message_favorite()">
+                                    <img src='image/heart-normal.png' data-status=''>
+                                </a>&nbsp;&nbsp;
+                                <a href='javascript:void(0)' class='edit_message_button' onclick='edit_message()'>編集</a>
+                            </div>
+                            <div class='receiver_chat_message'>
+                                <div class='receiver_chat_message_arrow'><img src='image/marker-chat-white.png'></div>
+                                <!--In case of text message-->
+                                <p class='chat_message_content'  onclick="show_chat_option()" ng-if="message.is_text_message == 'yes'">{{message.content}}</p>
+                                <!--In case of image messgae-->
+                                <p class='chat_message_content' ng-if="message.is_text_message == 'no'">
+                                    <a href='/render-image?image_url={{message.content}}' target='_blank'>
+                                        <img src='{{message.content}}' class='chat_image_content'>
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!--if(data.sender != user_email){-->
+
+                        <div class='sender_chat_message_wrapper' id="{{message.message_id}}" ng-if="message.sender != user_email">
+                            <div class='chat_message_option'>
+                                <a href='javascript:void(0)' class='message_favorite_button' onclick="add_remove_message_favorite()">
+                                    <img src='image/heart-normal.png' data-status=''>
+                                </a>&nbsp;&nbsp;
+                            </div>
+                            <div class='sender_chat_message'>
+                                <a href='javascript:void(0)' class='chat_user_icon'>
+                                    <img src="{{message.sender_user_image_url}}">
+                                </a>
+                                <div class='sender_chat_message_arrow'><img src='image/marker-chat.png'></div>
+                                <!--In case of text message-->
+                                <p class='chat_message_content'  onclick="show_chat_option()" ng-if="message.is_text_message == 'yes'">{{message.content}}</p>
+                                <!--In case of image messgae-->
+                                <p class='chat_message_content' ng-if="message.is_text_message == 'no'">
+                                    <a href='/render-image?image_url={{message.content}}' target='_blank'>
+                                        <img src='{{message.content}}' class='chat_image_content'>
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="chat_screen_footer">
+                    <input type="hidden" class="sender_email" value="{{chat_box.user_email}}">
+                    <input type="hidden" class="receiver_email" value="{{chat_box.receiver}}">
+                    <input type="hidden" class="conversation_title" value="{{chat_box.conversation_title}}">
+                    <input type="hidden" class="conversation_id" value="{{chat_box.conversation_id}}">
+                    <div class="send_message_area">
+                        <a href="javascript:void(0)" class="show_emotional_icon">
+                            <img src="image/amotion-icon-normail.png">
+                        </a>
+                        <textarea class="message_text" name="message_text" placeholder="メッセージを送信" ng-keyup="send_message(chat_box.receiver,chat_box.user_email,chat_box.conversation_id,chat_box.conversation_title, $event)" ng-focus="mark_as_read(chat_box.conversation_id)"></textarea>
+                        <label class="chat_upload_image" style="cursor: pointer">
+                            <input type="file" style="display: none" name="chat_image" class="upload_chat_image_btn" ngf-select="UploadImageChat($file,chat_box.conversation_id,false)" multiple>
+                            <img src="image/send-image-icon-normal.png">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Add conversation user screen -->
+                <div class='add_user_group_chat_screen' id='add-group-{{chat_box.conversation_id}}'>
+                    <div class='add_user_group_chat_body' style='height: 215px'>
+                        <div class='add_user_group_chat_auto'>
+                            <input type='text' class='add_user_group_chat_auto_input'>
+                        </div>
+                        <div class='add_user_group_chat_row' ng-repeat="user in user_friend" ng-if="chat_box.receiver.indexOf(user.user_email) == -1">
+                            <input type="checkbox" data-is-checked="" class="add_user_group_chat_select" ng-click="select_add_user_group(chat_box.conversation_id, user.user_id, user.user_email, user.user_name)" id="add-group-{{user.user_id}}">
+                            <a href='javascript:void(0)'><img src='{{user.image_url}}'></a>
+                            <p>{{user.user_name}}</p>
+                        </div>
+                    </div>
+
+                    <p class='add_user_group_chat_des'>追加したユーザーは、このハングアウトの過去のメッセージをすべて見ることができます</p>
+                    <div class='add_user_group_chat_footer'>
+                        <a href="javascript:void(0)" ng-click="close_add_group(chat_box.conversation_id)" class="close_add_user_group_chat">キャンセル</a>
+                        <a href="javascript:void(0)" ng-click="do_add_user_group_chat(chat_box.conversation_id, user_email)" class="do_add_user_group_chat">グループを作成</a>
+                    </div>
+                </div>
+
+                <!--In case of group chat-->
+                <div class='add_user_group_chat_screen'id='edit-group-{{chat_box.conversation_id}}'>
+                    <div class='add_user_group_chat_body' style='height:260px'>
+                        <div class='add_user_group_chat_row' id='"+row_id+"' style='border-bottom: 1px solid #e5e7ee' ng-repeat="user_info in chat_box.receiver_info">
+                            <a href='javascript:void(0)'><img src='{{user_info.image_url}}'></a>
+                            <p>{{user_info.user_name}}</p>
+                            <a href="javascript:void(0)" class="remove_user_chat_group" ng-click="remove_user_chat_group(chat_box.conversation_id, user_email, user_info.user_email)">X</a>
+                        </div>
+                    </div>
+                    <div class='add_user_group_chat_footer' style='margin-top: 10px'>
+                        <a href="javascript:void(0)" ng-click="close_edit_group(chat_box.conversation_id)" class="close_add_user_group_chat">キャンセル</a>
+                        <a href="javascript:void(0)" ng-click="show_add_chat_member(1, chat_box.conversation_id)" class="do_add_user_group_chat">ユーザーを追加</a>
+                    </div>
+                </div>
+                <!-- End Add conversation user screen -->
+
+            </div>
 
         </div>
 
-        <div class="chat_screen_area">
-
-
-
-
-        </div>
 
 
     </div>
@@ -330,20 +520,6 @@
 
 
     </div>
-
-
-    <div class="page_footer">
-        <ul class="page_footer_main">
-            <li style="text-align: right;padding-right: 15px;padding-top: 15px;border-right: 1px solid #405b9c;"><img src="image/conversation-icon-active.png" class="page_footer_chat_icon">&nbsp;サテライトビジネスチャット</li>
-            <li style="text-align: left;padding-top: 15px;padding-left: 15px;">Copyright@Sateraito Office</li>
-
-        </ul>
-
-
-    </div>
-
-
-
 
 
 </div>

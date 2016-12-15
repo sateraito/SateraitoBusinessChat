@@ -303,7 +303,7 @@ body{
     margin-top: 6px;
 }
 
-.user_conversation_list .user_conversation_li:hover, .user_friend_list .user_friend_li:hover {
+.user_friend_list .user_friend_li:hover {
     background: white;
 }
 
@@ -406,13 +406,17 @@ body{
 .chat_screen_body {
     float: left;
     width: 100%;
-    height: 233px;
+    height: 257px;
     padding: 5px;
     overflow-x: auto;
     overflow-y: auto;
     background: #e1e6ef
 
 }
+
+/*.chat_screen_body_drag_over {*/
+    /*border: 1px solid red;*/
+/*}*/
 
 
 .sender_chat_message {
@@ -1232,6 +1236,7 @@ body{
     width: 262px;
     height: 340px;
     margin-top: 40px;
+    display: none;
 }
 
 .add_user_group_chat_auto {
@@ -1515,9 +1520,7 @@ body{
 
 .chat_image_content {
     float: left;
-    width: 90%;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    width: 100%;
 }
 
 .close_chat_image {
