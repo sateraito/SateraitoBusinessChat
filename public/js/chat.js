@@ -646,7 +646,7 @@
                 data: {
                     do_update_user_email: sender_email,
                     new_receiver_email: current_receiver_email_array.toString(),
-                    conversation_id: conversation_id,
+                    conversation_id: conversation_id
                 }
             }).then(function(response) {
                 var new_templates = []
@@ -697,7 +697,7 @@
                 data: {
                     do_update_user_email: did_removed_user_email,
                     new_receiver_email: current_receiver_email_array.toString(),
-                    conversation_id: conversation_id,
+                    conversation_id: conversation_id
                 }
             }).then(function(response) {
                 var new_templates = []

@@ -1225,11 +1225,7 @@ app.post("/approve-add-user", jsonParser, function (req, res) {
 
             }
         });
-
-
     });
-
-
 });
 
 app.post("/update-conversation-member", jsonParser, function (req, res) {
@@ -1241,13 +1237,13 @@ app.post("/update-conversation-member", jsonParser, function (req, res) {
     new_member_array.push(do_update_user_email);
 
 
+    //Remove login_user_email from do_requesting_user_list
     var conversation_query = datastore.createQuery('Conversation')
         .filter('conversation_id', '=', conversation_id);
     datastore.runQuery(conversation_query, function (conversation_err, conversation) {
         if(conversation.length > 0){
             var new_conversation_info = conversation[0].data;
             new_conversation_info.member = new_member_array;
-
 
             datastore.update({
                 key: conversation[0].key,
@@ -1257,18 +1253,111 @@ app.post("/update-conversation-member", jsonParser, function (req, res) {
                     res.json({"status": "fail", "message": "update conversation list fail"});
                     // Task updated successfully.
                 } else {
-
                     res.json({
                         status: "success"
                     });
                 }
             });
 
+        }else{
+            res.json({
+                status: "success"
+            });
         }
-
-
-
     });
+
+    var query_user = datastore.createQuery('UserInfo');
+
+    datastore.runQuery(query_user, function (user_err, user) {
+        user.forEach(function (val) {
+            // Conversation in email list member
+            if (new_member_array.indexOf(val.data.email) !== -1){
+                var added = false;
+                val.data.conversation_list.forEach(function(val_) {
+                    if (val_.conversation_id == conversation_id){
+                        added = true;
+                    }
+                });
+
+                if (added == false) {
+                    var new_conversation_member = val.data;
+                    var new_conversation_json = {
+                        conversation_id: conversation_id,
+                        index: 0
+                    };
+                    var new_conversation_list = [];
+                    new_conversation_list.push(new_conversation_json);
+
+                    val.data.conversation_list.forEach(function(value) {
+                        var new_index = parseInt(value.index) + 1;
+                        var conversation_json = {
+                            conversation_id: value.conversation_id,
+                            index: new_index
+                        };
+                        new_conversation_list.push(conversation_json)
+                    });
+
+                    new_conversation_member.conversation_list = new_conversation_list;
+
+                    datastore.update({
+                        key: val.key,
+                        data: new_conversation_member
+                    }, function (update_err) {
+                        if (update_err) {
+                            res.json({status: "fail", message: "update conversation list fail"});
+                            // Task updated successfully.
+                        }
+                    });
+                }
+            // Conversation not in email
+            } else {
+                var else_added = false;
+                var else_index_ = 0;
+                // Check conversation remove in user conversation list
+                val.data.conversation_list.forEach(function(else_val) {
+                    if (else_val.conversation_id == conversation_id){
+                        else_added = true;
+                        else_index_ = else_val.index;
+                    }
+                });
+
+                if (else_added == true) {
+                    var else_new_conversation_member = val.data;
+                    var else_new_conversation_list = [];
+
+                    val.data.conversation_list.forEach(function (value) {
+                        if (value.conversation_id != conversation_id) {
+                            var else_new_index = value.index;
+                            if (parseInt(value.index) > parseInt(else_index_)) {
+                                else_new_index = parseInt(value.index) - 1;
+                            }
+
+                            var else_conversation_json = {
+                                conversation_id: value.conversation_id,
+                                index: else_new_index
+                            };
+                            else_new_conversation_list.push(else_conversation_json)
+                        }
+
+
+                    });
+                    else_new_conversation_member.conversation_list = else_new_conversation_list;
+
+                    datastore.update({
+                        key: val.key,
+                        data: else_new_conversation_member
+                    }, function (update_err) {
+                        if (update_err) {
+                            res.json({status: "fail", message: "update conversation list fail"});
+                            // Task updated successfully.
+                        }
+                    });
+                }
+
+            }
+        });
+    });
+
 });
 
 
@@ -1283,13 +1372,13 @@ app.post("/add-user-conversation-list", jsonParser, function (req, res) {
 
         //Update user profile
         var new_user_info = user[0].data;
-        var current_conversation_list = new_user_info.conversation_list
+        var current_conversation_list = new_user_info.conversation_list;
         var new_conversation_info = {
             index: new_user_info.conversation_list.length,
             conversation_id: conversation_id
-        }
-        current_conversation_list.push(new_conversation_info)
-        new_user_info.conversation_list = current_conversation_list
+        };
+        current_conversation_list.push(new_conversation_info);
+        new_user_info.conversation_list = current_conversation_list;
 
         datastore.update({
             key: user[0].key,
